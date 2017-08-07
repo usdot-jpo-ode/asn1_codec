@@ -1,3 +1,7 @@
 build
 docs/html
 
+/.cproject
+/.project
+/.settings/language.settings.xml
+/sh.exe.stackdump
