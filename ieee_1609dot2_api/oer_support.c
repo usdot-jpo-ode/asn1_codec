@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2017 Lev Walkin <vlm@lionet.info>.
  * All rights reserved.
- * Redistribution and modifications are oermitted subject to BSD license.
+ * Redistribution and modifications are permitted subject to BSD license.
  */
 #include <asn_system.h>
 #include <asn_internal.h>
@@ -47,7 +47,7 @@ oer_fetch_length(const void *bufptr, size_t size, size_t *len_r) {
         /* Skip the leading 0-bytes */
     }
 
-    if((bend - b) > sizeof(size_t)) {
+    if((bend - b) > (ssize_t)sizeof(size_t)) {
         /* Length is not representable by the native size_t type */
         *len_r = 0;
         return -1;

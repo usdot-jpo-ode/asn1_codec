@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2017 Lev Walkin <vlm@lionet.info>.
  * All rights reserved.
- * Redistribution and modifications are oermitted subject to BSD license.
+ * Redistribution and modifications are permitted subject to BSD license.
  */
 #ifndef	OER_SUPPORT_H
 #define	OER_SUPPORT_H
@@ -15,11 +15,11 @@ extern "C" {
 /*
  * Pre-computed OER constraints.
  */
-typedef const struct asn_oer_constraint_number_s {
+typedef struct asn_oer_constraint_number_s {
     unsigned width;    /* ±8,4,2,1 fixed bytes */
     unsigned positive; /* 1 for unsigned number, 0 for signed */
 } asn_oer_constraint_number_t;
-typedef const struct asn_oer_constraints_s {
+typedef struct asn_oer_constraints_s {
     asn_oer_constraint_number_t value;
     ssize_t size;    /* -1 (no constraint) or >= 0 */
 } asn_oer_constraints_t;
