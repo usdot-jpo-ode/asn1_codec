@@ -1,6 +1,6 @@
 # Installation and Setup
 
-The following instructions represent the "hard" way to install and test the PPM. A docker image can be built to make
+The following instructions represent the "hard" way to install and test the asn1_codec. A docker image can be built to make
 this easier: [Using the Docker Container](#using-the-docker-container). *The directions that follow were developed for a clean installation of Ubuntu.*
 
 ## 1. Install [Git](https://git-scm.com/)
@@ -18,7 +18,7 @@ $ sudo apt install oracle-java8-installer -y
 $ sudo java -version
 ```
 
-## 3. Install [CMake](https://cmake.org) to build the PPM
+## 3. Install [CMake](https://cmake.org) to build the asn1_codec
 
 ```bash
 $ sudo apt install cmake
@@ -66,10 +66,10 @@ $ docker info
 - Comprehensive instructions can be found on this [website](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-16-04)
 - Follow steps 1 and 2.
 
-## 8. Create a base directory from which to install all the necessary components to test the PPM.
+## 8. Create a base directory from which to install all the necessary components to test the asn1_codec.
 
 ```bash
-$ export BASE_PPM_DIR=~/some/dir/you/want/to/put/this/stuff
+$ export GIT_REPOS=~/some/dir/you/want/to/put/this/stuff
 ```
 
 ## 9. Install [`kafka-docker`](https://github.com/wurstmeister/kafka-docker) so kafka and zookeeper can run in a separate container.
@@ -79,11 +79,12 @@ $ export BASE_PPM_DIR=~/some/dir/you/want/to/put/this/stuff
 ```bash
 $ ifconfig
 $ export DOCKER_HOST_IP=<HOST IP>
+$ export ASN1_CODEC_HOME=${GIT_REPOS}/asn1_codec
 ```
 - Get the kafka and zookeeper images.
 
 ```bash
-$ cd $BASE_PPM_DIR
+$ cd $GIT_REPOS
 $ git clone https://github.com/wurstmeister/kafka-docker.git
 $ cd kafka-docker
 $ vim docker-compose.yml	                        // Set karka: ports: to 9092:9092
@@ -98,7 +99,7 @@ $ docker-compose ps
 - **When you want to stop kafka and zookeeper, execute the following commands.**
 
 ```bash
-$ cd $BASE_PPM_DIR/kafka-docker
+$ cd $GIT_REPOS/kafka-docker
 $ docker-compose down
 ```
 
@@ -110,16 +111,16 @@ $ docker-compose down
 -  Move and unpack the Kafka code as follows:
 
 ```bash
-$ cd $BASE_PPM_DIR
+$ cd $GIT_REPOS
 $ wget http://apache.claz.org/kafka/0.10.2.1/kafka_2.12-0.10.2.1.tgz   // mirror and kafka version may change; check website.
 $ tar -xzf kafka_2.12-0.10.2.1.tgz			               // the kafka version may be different.
 $ mv kafka_2.12-0.10.2.1 kafka
 ```
 
-## 11. Download and install [`librdkafka`](https://github.com/edenhill/librdkafka), the C++ Kafka library we use to build the PPM.
+## 11. Download and install [`librdkafka`](https://github.com/edenhill/librdkafka), the C++ Kafka library we use to build the asn1_codec.
 
 ```bash
-$ cd $BASE_PPM_DIR
+$ cd $GIT_REPOS
 $ git clone https://github.com/edenhill/librdkafka.git
 $ cd librdkafka
 $ ./configure
@@ -128,30 +129,30 @@ $ sudo make install
 ```
 
 - **NOTE**: The header files for `librdkafka` should be located in `/usr/local/include/librdkafka` and the libraries
-  (static and dynamic) should be located in `/usr/local/lib`. If you put them in another location the PPM may not build.
+  (static and dynamic) should be located in `/usr/local/lib`. If you put them in another location the asn1_codec may not build.
 
-## 12. Download, Build, and Install the Privacy Protection Module (PPM)
+## 12. Download, Build, and Install the ASN.1 CODEC (asn1_codec)
 
 ```bash
-$ cd $BASE_PPM_DIR
-$ git clone https://github.com/usdot-jpo-ode/jpo-cvdp.git
-$ cd jpo-cvdp
-$ mkdir build && cd build
-$ cmake ..
-$ make
+$ cd $GIT_REPOS
+$ git clone https://github.com/hmusavi/asn1_codec.git
+$ cd asn1_codec
+$ ./docker_build.sh
+$ ./run-with-mount.sh
+$ 
 ```
 
 ## Additional information
 
-- The PPM uses [RapidJSON](https://github.com/miloyip/rapidjson), but it is a header-only library included in the repository.
-- The PPM uses [spdlog](https://github.com/gabime/spdlog) for logging; it is a header-only library and the headers are included in the repository.
-- The PPM uses [Catch](https://github.com/philsquared/Catch) for unit testing, but it is a header-only library included in the repository.
+- The asn1_codec uses [RapidJSON](https://github.com/miloyip/rapidjson), but it is a header-only library included in the repository.
+- The asn1_codec uses [spdlog](https://github.com/gabime/spdlog) for logging; it is a header-only library and the headers are included in the repository.
+- The asn1_codec uses [Catch](https://github.com/philsquared/Catch) for unit testing, but it is a header-only library included in the repository.
 
 # Integrating with the ODE
 
 ## Using the Docker Container
 
-This will run the PPM module in separate container. First set the required environmental variables. You need to tell the PPM container where the Kafka Docker container is running with the `DOCKER_HOST_IP` variable. Also tell the PPM container where to find the [map file](configuration.md#map-file) and [PPM Configuration file](configuration.md) by setting the `DOCKER_SHARED_VOLUME`:
+This will run the asn1_codec module in separate container. First set the required environmental variables. You need to tell the asn1_codec container where the Kafka Docker container is running with the `DOCKER_HOST_IP` variable. Also tell the asn1_codec container where to find the [map file](configuration.md#map-file) and [asn1_codec Configuration file](configuration.md) by setting the `DOCKER_SHARED_VOLUME`:
 
 ```bash
 $ export DOCKER_HOST_IP=your.docker.host.ip
@@ -165,7 +166,7 @@ Add the following service to the end of the `docker-compose.yml` file in the `jp
 
 ```bash
   ppm:
-    build: /path/to/jpo-cvdp/repo
+    build: /path/to/asn1_codec/repo
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
     volumes:

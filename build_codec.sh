@@ -16,11 +16,11 @@ echo Installing asn1c compiler standard location ...
 make install
 
 echo Generating SAE J2735 API ...
-mkdir -p cd /asn1_codec/sae_j2735_SEMI_api && cd /asn1_codec/sae_j2735_SEMI_api
+mkdir -p /asn1_codec/sae_j2735_SEMI_api && cd /asn1_codec/sae_j2735_SEMI_api
 asn1c -gen-PER *.asn
 
 echo Generating IEEE 1609.2 API
-mkdir -p cd /asn1_codec/ieee_1609dot2_api && cd /asn1_codec/ieee_1609dot2_api
+mkdir -p /asn1_codec/ieee_1609dot2_api && cd /asn1_codec/ieee_1609dot2_api
 asn1c -gen-OER *.asn
 
 # configure OS
