@@ -139,7 +139,6 @@ $ git clone https://github.com/hmusavi/asn1_codec.git
 $ cd asn1_codec
 $ ./docker_build.sh
 $ ./run-with-mount.sh
-$ 
 ```
 
 ## Additional information
@@ -150,28 +149,4 @@ $
 
 # Integrating with the ODE
 
-## Using the Docker Container
-
-This will run the asn1_codec module in separate container. First set the required environmental variables. You need to tell the asn1_codec container where the Kafka Docker container is running with the `DOCKER_HOST_IP` variable. Also tell the asn1_codec container where to find the [map file](configuration.md#map-file) and [asn1_codec Configuration file](configuration.md) by setting the `DOCKER_SHARED_VOLUME`:
-
-```bash
-$ export DOCKER_HOST_IP=your.docker.host.ip
-$ export DOCKER_SHARED_VOLUME=/your/shared/directory
-```
-
-Note that the map file and configuration file must be located in the `DOCKER_SHARED_VOLUME` root directory and named
-`config.properties` and `road_file.csv` respectively. 
-
-Add the following service to the end of the `docker-compose.yml` file in the `jpo-ode` installation directory.
-
-```bash
-  ppm:
-    build: /path/to/asn1_codec/repo
-    environment:
-      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
-    volumes:
-      - ${DOCKER_SHARED_VOLUME}:/ppm_data
-```
-
-Start the ODE containers as normal. Note that the topics for raw BSMs must be created ahead of time.
-
+TBD
