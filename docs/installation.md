@@ -135,7 +135,7 @@ $ sudo make install
 
 ```bash
 $ cd $GIT_REPOS
-$ git clone https://github.com/hmusavi/asn1_codec.git
+$ git clone https://github.com/usdot-jpo-ode/asn1_codec.git
 $ cd asn1_codec
 $ ./docker_build.sh
 $ ./run-with-mount.sh

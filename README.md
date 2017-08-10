@@ -1,4 +1,4 @@
-Master: [![Build Status](https://travis-ci.org/hmusavi/asn1_codec.svg?branch=master)](https://travis-ci.org/hmusavi/asn1_codec) [![Quality Gate](https://sonarqube.com/api/badges/gate?key=asn1_codec)](https://sonarqube.com/dashboard?id=asn1_codec-key)
+Master: [![Build Status](https://travis-ci.org/usdot-jpo-ode/asn1_codec.svg?branch=master)](https://travis-ci.org/usdot-jpo-ode/asn1_codec) [![Quality Gate](https://sonarqube.com/api/badges/gate?key=asn1_codec)](https://sonarqube.com/dashboard?id=asn1_codec-key)
 
 # asn1_codec
 
@@ -34,8 +34,8 @@ The documentation is in HTML and is written to the `<install root>/asn1_codec/do
 
 ## Source Repositories - GitHub
 
-- https://github.com/hmusavi/asn1_codec
-- `git@github.com:hmusavi/asn1_codec.git`
+- https://github.com/usdot-jpo-ode/asn1_codec
+- `git@github.com:usdot-jpo-ode/asn1_codec.git`
 
 ## Agile Project Management - Jira
 https://usdotjpoode.atlassian.net/secure/Dashboard.jspa
@@ -74,5 +74,5 @@ git config --global core.autocrlf false
 **Step 2.** Clone the source code from GitHub repositories using Git commands:
 
 ```bash
-git clone https://github.com/hmusavi/asn1_codec.git
+git clone https://github.com/usdot-jpo-ode/asn1_codec.git
 ```
