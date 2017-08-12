@@ -37,5 +37,9 @@ RUN git clone https://github.com/edenhill/librdkafka.git && cd librdkafka && ln 
 
 # add the source and build files
 ADD ./build_codec.sh /home
+RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.profile
+RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.bashrc
+RUN echo "export CC=gcc" >> ~/.profile
+RUN echo "export CC=gcc" >> ~/.bashrc
 
 CMD ["/bin/bash"]
