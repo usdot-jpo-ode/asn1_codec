@@ -1194,7 +1194,7 @@ regenerate-from-asn1-source:
 	asn1c -pdu=MessageFrame -fcompound-names -gen-PER J2735_201603DA.asn SEMI_v2.3.0_070616.asn
 
 
-MessageFrame.c: ./sample.makefile.regen J2735_201603DA.asn SEMI_v2.3.0_070616.asn
+MessageFrame.c: ../asn1c/examples/sample.makefile.regen J2735_201603DA.asn SEMI_v2.3.0_070616.asn
 	make regen-makefile
 	@touch MessageFrame.c
 	make
@@ -1206,7 +1206,7 @@ regen-makefile:
 	ASN1PDU=MessageFrame \
 	PROGNAME=j2735-dump \
 	CPPFLAGS="" \
-	./sample.makefile.regen
+	../asn1c/examples/sample.makefile.regen
 
 check: ${TARGET} check-ber check-xer check-per
 	@echo ================

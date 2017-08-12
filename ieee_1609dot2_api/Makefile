@@ -208,6 +208,9 @@ ASN_MODULE_HEADERS=	\
 	SubjectPermissions.h	\
 	VerificationKeyIndicator.h
 
+ASN_MODULE_HEADERS+=OPEN_TYPE.h
+ASN_MODULE_SOURCES+=OPEN_TYPE.c
+ASN_MODULE_HEADERS+=constr_CHOICE.h
 ASN_MODULE_HEADERS+=UTF8String.h
 ASN_MODULE_HEADERS+=BOOLEAN.h
 ASN_MODULE_SOURCES+=BOOLEAN.c
@@ -224,7 +227,6 @@ ASN_MODULE_HEADERS+=asn_SEQUENCE_OF.h
 ASN_MODULE_SOURCES+=asn_SEQUENCE_OF.c
 ASN_MODULE_HEADERS+=asn_SET_OF.h
 ASN_MODULE_SOURCES+=asn_SET_OF.c
-ASN_MODULE_HEADERS+=constr_CHOICE.h
 ASN_MODULE_SOURCES+=constr_CHOICE.c
 ASN_MODULE_HEADERS+=constr_SEQUENCE.h
 ASN_MODULE_SOURCES+=constr_SEQUENCE.c
@@ -233,6 +235,7 @@ ASN_MODULE_SOURCES+=constr_SEQUENCE_OF.c
 ASN_MODULE_HEADERS+=constr_SET_OF.h
 ASN_MODULE_SOURCES+=constr_SET_OF.c
 ASN_MODULE_HEADERS+=asn_application.h
+ASN_MODULE_HEADERS+=asn_ioc.h
 ASN_MODULE_HEADERS+=asn_system.h
 ASN_MODULE_HEADERS+=asn_codecs.h
 ASN_MODULE_HEADERS+=asn_internal.h
@@ -279,6 +282,7 @@ ASN_MODULE_SOURCES+=INTEGER_oer.c
 ASN_MODULE_SOURCES+=OCTET_STRING_oer.c
 ASN_MODULE_SOURCES+=NativeInteger_oer.c
 ASN_MODULE_SOURCES+=constr_SEQUENCE_oer.c
+ASN_CONVERTER_SOURCES+=pdu_collection.c
 
 
 lib_LTLIBRARIES=libsomething.la
@@ -286,11 +290,11 @@ libsomething_la_SOURCES=$(ASN_MODULE_SOURCES) $(ASN_MODULE_HEADERS)
 
 # This file may be used as an input for make(3)
 # Remove the lines below to convert it into a pure .am file
-TARGET = progname
-CPPFLAGS += -DASN_DISABLE_PER_SUPPORT -I.
+TARGET = 1609-2-dump
+CPPFLAGS += -DASN_CONVERTER_TITLE="IEEE 1609.2-2016 decoder" -DJUNKTEST -D_DEFAULT_SOURCE  -DASN_DISABLE_PER_SUPPORT -DPDU=Certificate -DASN_PDU_COLLECTION -I.
 OBJS=${ASN_MODULE_SOURCES:.c=.o} ${ASN_CONVERTER_SOURCES:.c=.o}
 
-all: $(TARGET)
+all: maybe-wip-pause Certificate.c $(TARGET)
 
 $(TARGET): ${OBJS}
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $(TARGET) ${OBJS} $(LDFLAGS) $(LIBS)
@@ -308,5 +312,90 @@ clean:
 regen: regenerate-from-asn1-source
 
 regenerate-from-asn1-source:
-	asn1c -gen-OER 1609dot2-base-types.asn 1609dot2-schema.asn
+	asn1c -pdu=Certificate -pdu=auto -fcompound-names -gen-OER ./1609dot2-base-types.asn ./1609dot2-schema.asn
 
+
+Certificate.c: ../asn1c/examples/sample.makefile.regen ./1609dot2-base-types.asn ./1609dot2-schema.asn
+	make regen-makefile
+	@touch Certificate.c
+	make
+
+regen-makefile:
+	TITLE="IEEE 1609.2-2016 decoder" \
+	ASN1CMDOPTS="-pdu=auto -fcompound-names -gen-OER" \
+	ASN1MODULES="./1609dot2-base-types.asn ./1609dot2-schema.asn" \
+	ASN1PDU=Certificate \
+	PROGNAME=1609-2-dump \
+	CPPFLAGS="" \
+	../asn1c/examples/sample.makefile.regen
+
+check: ${TARGET} check-ber check-xer check-per
+	@echo ================
+	@echo All tests passed
+	@echo ================
+
+check-ber:
+	@if test -f sample-Certificate-1.[db]er ; then \
+	for f in sample-Certificate-*.[db]er; do \
+	for b in 1 17 33 980 8192; do \
+	echo "Recoding $$f into XER and back ($$b)..."; \
+	./${TARGET} -b $$b -iber -oxer $$f > ./.tmp.1.$$$$ || exit 2; \
+	./${TARGET} -b $$b -ixer -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 3; \
+	diff ./.tmp.1.$$$$ ./.tmp.2.$$$$ || exit 4; \
+	rm -f ./.tmp.[12].$$$$; \
+	echo "Test junking $$f (please wait)..."; \
+	./${TARGET} -J0.0001 -n 1000 -b $$b -iber -onull $$f || exit 5; \
+	./${TARGET} -J0.001 -n 1000 -b $$b -iber -onull $$f || exit 6; \
+	done; done; fi
+
+check-xer:
+	@if test -f sample-Certificate-1.xer ; then \
+	for f in sample-Certificate-*.xer; do \
+	for b in 1 17 33 980 8192; do \
+	echo "Recoding $$f into DER and back ($$b)..."; \
+	./${TARGET} -b $$b -ixer -oder $$f > ./.tmp.1.$$$$ || exit 2; \
+	./${TARGET} -b $$b -iber -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 3; \
+	diff $$f ./.tmp.2.$$$$ || exit 4; \
+	rm -f ./.tmp.[12].$$$$; \
+	echo "Test junking $$f (please wait)..."; \
+	./${TARGET} -J0.0001 -n 1000 -b $$b -ixer -onull $$f || exit 5; \
+	./${TARGET} -J0.001 -n 1000 -b $$b -ixer -onull $$f || exit 6; \
+	done; done; fi
+
+check-per:
+	@if test -f sample-Certificate-1-nopad.per ; then \
+	for f in sample-Certificate-[1-9]-nopad.per; do \
+	for b in 1 17 33 980 8192; do \
+	echo "Recoding non-padded $$f into DER into XER and back ($$b)..."; \
+	./${TARGET} -b $$b -per-nopad -iper -oder $$f > ./.tmp.1.$$$$ || exit 2; \
+	./${TARGET} -b $$b -iber -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 3; \
+	./${TARGET} -b $$b -ixer -oder ./.tmp.2.$$$$ > ./.tmp.3.$$$$ || exit 4; \
+	diff ./.tmp.1.$$$$ ./.tmp.3.$$$$ || exit 5; \
+	rm -f ./.tmp.[123].$$$$; \
+	echo "Test junking $$f (please wait)..."; \
+	./${TARGET} -J0.0001 -n 1000 -b $$b -per-nopad -iper -onull $$f || exit 6; \
+	./${TARGET} -J0.001 -n 1000 -b $$b -per-nopad -iper -onull $$f || exit 7; \
+	done; done; fi
+	@if test -f sample-Certificate-1.per ; then \
+	for f in sample-*-[1-9].per; do \
+	pdu=`echo $$f | sed -E -e "s/sample-([A-Za-z-]+)-[0-9].*/\1/"`; \
+	for b in 1 17 33 980 8192; do \
+	echo "Recoding $$f into DER into XER and back ($$b)..."; \
+	./${TARGET} -b $$b -p $$pdu -iper -oder $$f > ./.tmp.1.$$$$ || exit 3; \
+	./${TARGET} -b $$b -p $$pdu -iber -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 4; \
+	./${TARGET} -b $$b -p $$pdu -ixer -oper ./.tmp.2.$$$$ > ./.tmp.1.$$$$ || exit 5; \
+	diff $$f ./.tmp.1.$$$$ || exit 6; \
+	rm -f ./.tmp.[12].$$$$; \
+	echo "Test junking $$f (please wait)..."; \
+	./${TARGET} -J0.0001 -n 1000 -b $$b -iper -onull $$f || exit 7; \
+	./${TARGET} -J0.001 -n 1000 -b $$b -iper -onull $$f || exit 8; \
+	done; done; fi
+
+maybe-wip-pause:
+	@if [ -f WIP ]; then cat WIP; sleep 2; fi
+
+distclean: clean
+	rm -f $(ASN_MODULE_SOURCES)
+	rm -f $(ASN_MODULE_HEADERS)
+	rm -f $(ASN_CONVERTER_SOURCES) $(ASN_CONVERTER_HEADERS)
+	rm -f Makefile.am.sample
