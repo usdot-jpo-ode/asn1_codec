@@ -1,3 +1,5 @@
+ASN_SCHEMAS= J2735_201603DA.asn SEMI_v2.3.0_070616.asn
+
 ASN_MODULE_SOURCES=	\
 	MessageFrame.c	\
 	RegionalExtension.c	\
@@ -1170,10 +1172,10 @@ libsomething_la_SOURCES=$(ASN_MODULE_SOURCES) $(ASN_MODULE_HEADERS)
 # This file may be used as an input for make(3)
 # Remove the lines below to convert it into a pure .am file
 TARGET = j2735-dump
-CPPFLAGS += -DASN_CONVERTER_TITLE="J2735 DSRC decoder" -DJUNKTEST -D_DEFAULT_SOURCE  -DASN_DISABLE_OER_SUPPORT -DPDU=MessageFrame -I.
+CPPFLAGS += -DASN_CONVERTER_TITLE="J2735 DSRC decoder" -DASN_DISABLE_OER_SUPPORT -DPDU=MessageFrame -I.
 OBJS=${ASN_MODULE_SOURCES:.c=.o} ${ASN_CONVERTER_SOURCES:.c=.o}
 
-all: maybe-wip-pause MessageFrame.c $(TARGET)
+all: MessageFrame.c $(TARGET)
 
 $(TARGET): ${OBJS}
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $(TARGET) ${OBJS} $(LDFLAGS) $(LIBS)
@@ -1190,57 +1192,14 @@ clean:
 
 regen: regenerate-from-asn1-source
 
-regenerate-from-asn1-source:
-	asn1c -pdu=MessageFrame -fcompound-names -gen-PER J2735_201603DA.asn SEMI_v2.3.0_070616.asn
+regenerate-from-asn1-source: $(ASN_SCHEMAS)
+	asn1c -pdu=MessageFrame -fcompound-names -gen-PER $(ASN_SCHEMAS)
 
-
-MessageFrame.c: ../asn1c/examples/sample.makefile.regen J2735_201603DA.asn SEMI_v2.3.0_070616.asn
-	make regen-makefile
+MessageFrame.c: $(ASN_SCHEMAS)
+	make regen
 	@touch MessageFrame.c
 	make
-
-regen-makefile:
-	TITLE="J2735 DSRC decoder" \
-	ASN1CMDOPTS="-fcompound-names -gen-PER" \
-	ASN1MODULES="J2735_201603DA.asn SEMI_v2.3.0_070616.asn" \
-	ASN1PDU=MessageFrame \
-	PROGNAME=j2735-dump \
-	CPPFLAGS="" \
-	../asn1c/examples/sample.makefile.regen
-
-check: ${TARGET} check-ber check-xer check-per
-	@echo ================
-	@echo All tests passed
-	@echo ================
-
-check-ber:
-	@if test -f sample-MessageFrame-1.[db]er ; then \
-	for f in sample-MessageFrame-*.[db]er; do \
-	for b in 1 17 33 980 8192; do \
-	echo "Recoding $$f into XER and back ($$b)..."; \
-	./${TARGET} -b $$b -iber -oxer $$f > ./.tmp.1.$$$$ || exit 2; \
-	./${TARGET} -b $$b -ixer -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 3; \
-	diff ./.tmp.1.$$$$ ./.tmp.2.$$$$ || exit 4; \
-	rm -f ./.tmp.[12].$$$$; \
-	echo "Test junking $$f (please wait)..."; \
-	./${TARGET} -J0.0001 -n 1000 -b $$b -iber -onull $$f || exit 5; \
-	./${TARGET} -J0.001 -n 1000 -b $$b -iber -onull $$f || exit 6; \
-	done; done; fi
-
-check-xer:
-	@if test -f sample-MessageFrame-1.xer ; then \
-	for f in sample-MessageFrame-*.xer; do \
-	for b in 1 17 33 980 8192; do \
-	echo "Recoding $$f into DER and back ($$b)..."; \
-	./${TARGET} -b $$b -ixer -oder $$f > ./.tmp.1.$$$$ || exit 2; \
-	./${TARGET} -b $$b -iber -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 3; \
-	diff $$f ./.tmp.2.$$$$ || exit 4; \
-	rm -f ./.tmp.[12].$$$$; \
-	echo "Test junking $$f (please wait)..."; \
-	./${TARGET} -J0.0001 -n 1000 -b $$b -ixer -onull $$f || exit 5; \
-	./${TARGET} -J0.001 -n 1000 -b $$b -ixer -onull $$f || exit 6; \
-	done; done; fi
-
+	
 check-per:
 	@if test -f sample-MessageFrame-1-nopad.per ; then \
 	for f in sample-MessageFrame-[1-9]-nopad.per; do \
@@ -1269,9 +1228,6 @@ check-per:
 	./${TARGET} -J0.0001 -n 1000 -b $$b -iper -onull $$f || exit 7; \
 	./${TARGET} -J0.001 -n 1000 -b $$b -iper -onull $$f || exit 8; \
 	done; done; fi
-
-maybe-wip-pause:
-	@if [ -f WIP ]; then cat WIP; sleep 2; fi
 
 distclean: clean
 	rm -f $(ASN_MODULE_SOURCES)
