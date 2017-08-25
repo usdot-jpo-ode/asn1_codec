@@ -1,3 +1,5 @@
+ASN_SCHEMAS= 1609dot2-base-types.asn 1609dot2-schema.asn
+
 ASN_MODULE_SOURCES=	\
 	Uint3.c	\
 	Uint8.c	\
@@ -291,10 +293,10 @@ libsomething_la_SOURCES=$(ASN_MODULE_SOURCES) $(ASN_MODULE_HEADERS)
 # This file may be used as an input for make(3)
 # Remove the lines below to convert it into a pure .am file
 TARGET = 1609-2-dump
-CPPFLAGS += -DASN_CONVERTER_TITLE="IEEE 1609.2-2016 decoder" -DJUNKTEST -D_DEFAULT_SOURCE  -DASN_DISABLE_PER_SUPPORT -DPDU=Certificate -DASN_PDU_COLLECTION -I.
+CPPFLAGS += -DASN_CONVERTER_TITLE="IEEE 1609.2-2016 decoder" -DJUNKTEST -D_DEFAULT_SOURCE  -DASN_DISABLE_PER_SUPPORT -DPDU=Ieee1609Dot2Data -DASN_PDU_COLLECTION -I.
 OBJS=${ASN_MODULE_SOURCES:.c=.o} ${ASN_CONVERTER_SOURCES:.c=.o}
 
-all: maybe-wip-pause Certificate.c $(TARGET)
+all: Ieee1609Dot2Data.c $(TARGET)
 
 $(TARGET): ${OBJS}
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $(TARGET) ${OBJS} $(LDFLAGS) $(LIBS)
@@ -311,60 +313,17 @@ clean:
 
 regen: regenerate-from-asn1-source
 
-regenerate-from-asn1-source:
-	asn1c -pdu=Certificate -pdu=auto -fcompound-names -gen-OER ./1609dot2-base-types.asn ./1609dot2-schema.asn
+regenerate-from-asn1-source: $(ASN_SCHEMAS)
+	asn1c -pdu=Ieee1609Dot2Data -pdu=auto -fcompound-names -gen-OER $(ASN_SCHEMAS)
 
-
-Certificate.c: ../asn1c/examples/sample.makefile.regen ./1609dot2-base-types.asn ./1609dot2-schema.asn
-	make regen-makefile
-	@touch Certificate.c
+Ieee1609Dot2Data.c: $(ASN_SCHEMAS)
+	make regen
+	@touch Ieee1609Dot2Data.c
 	make
 
-regen-makefile:
-	TITLE="IEEE 1609.2-2016 decoder" \
-	ASN1CMDOPTS="-pdu=auto -fcompound-names -gen-OER" \
-	ASN1MODULES="./1609dot2-base-types.asn ./1609dot2-schema.asn" \
-	ASN1PDU=Certificate \
-	PROGNAME=1609-2-dump \
-	CPPFLAGS="" \
-	../asn1c/examples/sample.makefile.regen
-
-check: ${TARGET} check-ber check-xer check-per
-	@echo ================
-	@echo All tests passed
-	@echo ================
-
-check-ber:
-	@if test -f sample-Certificate-1.[db]er ; then \
-	for f in sample-Certificate-*.[db]er; do \
-	for b in 1 17 33 980 8192; do \
-	echo "Recoding $$f into XER and back ($$b)..."; \
-	./${TARGET} -b $$b -iber -oxer $$f > ./.tmp.1.$$$$ || exit 2; \
-	./${TARGET} -b $$b -ixer -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 3; \
-	diff ./.tmp.1.$$$$ ./.tmp.2.$$$$ || exit 4; \
-	rm -f ./.tmp.[12].$$$$; \
-	echo "Test junking $$f (please wait)..."; \
-	./${TARGET} -J0.0001 -n 1000 -b $$b -iber -onull $$f || exit 5; \
-	./${TARGET} -J0.001 -n 1000 -b $$b -iber -onull $$f || exit 6; \
-	done; done; fi
-
-check-xer:
-	@if test -f sample-Certificate-1.xer ; then \
-	for f in sample-Certificate-*.xer; do \
-	for b in 1 17 33 980 8192; do \
-	echo "Recoding $$f into DER and back ($$b)..."; \
-	./${TARGET} -b $$b -ixer -oder $$f > ./.tmp.1.$$$$ || exit 2; \
-	./${TARGET} -b $$b -iber -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 3; \
-	diff $$f ./.tmp.2.$$$$ || exit 4; \
-	rm -f ./.tmp.[12].$$$$; \
-	echo "Test junking $$f (please wait)..."; \
-	./${TARGET} -J0.0001 -n 1000 -b $$b -ixer -onull $$f || exit 5; \
-	./${TARGET} -J0.001 -n 1000 -b $$b -ixer -onull $$f || exit 6; \
-	done; done; fi
-
 check-per:
-	@if test -f sample-Certificate-1-nopad.per ; then \
-	for f in sample-Certificate-[1-9]-nopad.per; do \
+	@if test -f sample-Ieee1609Dot2Data-1-nopad.per ; then \
+	for f in sample-Ieee1609Dot2Data-[1-9]-nopad.per; do \
 	for b in 1 17 33 980 8192; do \
 	echo "Recoding non-padded $$f into DER into XER and back ($$b)..."; \
 	./${TARGET} -b $$b -per-nopad -iper -oder $$f > ./.tmp.1.$$$$ || exit 2; \
@@ -376,7 +335,7 @@ check-per:
 	./${TARGET} -J0.0001 -n 1000 -b $$b -per-nopad -iper -onull $$f || exit 6; \
 	./${TARGET} -J0.001 -n 1000 -b $$b -per-nopad -iper -onull $$f || exit 7; \
 	done; done; fi
-	@if test -f sample-Certificate-1.per ; then \
+	@if test -f sample-Ieee1609Dot2Data-1.per ; then \
 	for f in sample-*-[1-9].per; do \
 	pdu=`echo $$f | sed -E -e "s/sample-([A-Za-z-]+)-[0-9].*/\1/"`; \
 	for b in 1 17 33 980 8192; do \
