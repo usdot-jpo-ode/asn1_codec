@@ -1,0 +1,31 @@
+-- 
+--  Copyright 2017 Crash Avoidance Metrics Partner, VSC5 Consortium
+-- 
+--  Licensed under the Apache License, Version 2.0 (the "License");
+--  you may not use this file except in compliance with the License.
+--  You may obtain a copy of the License at
+-- 
+--     http://www.apache.org/licenses/LICENSE-2.0
+-- 
+--  Unless required by applicable law or agreed to in writing, software
+--  distributed under the License is distributed on an "AS IS" BASIS,
+--  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--  See the License for the specific language governing permissions and
+--  limitations under the License.
+-- 
+
+Ieee1609dot2ScmsCommonError {iso(1) identified-organization(3) ieee(111)
+standards-association-numbered-series-standards(2) wave-stds(1609) dot2(2)
+scms (2) errors(2) common(2)}
+
+
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN 
+
+EXPORTS ALL;
+
+ScmsCommonError ::= ENUMERATED {
+  baseline(1),
+  ...
+}
+
+END
