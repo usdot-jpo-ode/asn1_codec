@@ -1,4 +1,4 @@
-ASN_SCHEMAS= 1609dot2-P2P.asn 1609dot2-base-types.asn 1609dot2-schema.asn component-cert-management-errors.asn crl-base-types.asn crl-protocol.asn crl-ssp.asn eca-ee-errors.asn la-ma-errors.asn la-pca-errors.asn la-ra-errors.asn ma-pca-errors.asn ma-ra-errors.asn pca-ra-errors.asn ra-pg-errors.asn scms-common-errors.asn scms-error.asn wsa-ssp.asn
+ASN_SCHEMAS= 1609dot2-P2P.asn 1609dot2-base-types.asn 1609dot2-schema.asn component-cert-management-errors.asn crl-base-types.asn crl-protocol.asn crl-ssp.asn eca-ee-errors.asn la-ma-errors.asn la-pca-errors.asn la-ra-errors.asn ma-pca-errors.asn ma-ra-errors.asn pca-ra-errors.asn ra-pg-errors.asn scms-common-errors.asn scms-error.asn wsa-ssp.asn scms-base-types.asn scms-protocol.asn
 ASN_MODULE_SOURCES=	\
 	Ieee1609dot2Peer2PeerPDU.c	\
 	CaCertP2pPDU.c	\

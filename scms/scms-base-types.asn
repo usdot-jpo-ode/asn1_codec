@@ -1,0 +1,209 @@
+-- 
+--  Copyright 2017 Crash Avoidance Metrics Partner, VSC5 Consortium
+-- 
+--  Licensed under the Apache License, Version 2.0 (the "License");
+--  you may not use this file except in compliance with the License.
+--  You may obtain a copy of the License at
+-- 
+--     http://www.apache.org/licenses/LICENSE-2.0
+-- 
+--  Unless required by applicable law or agreed to in writing, software
+--  distributed under the License is distributed on an "AS IS" BASIS,
+--  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--  See the License for the specific language governing permissions and
+--  limitations under the License.
+-- 
+
+Ieee1609dot2ScmsBaseTypes {iso(1) identified-organization(3) ieee(111)
+standards-association-numbered-series-standards(2) wave-stds(1609)  dot2(2)
+scms (2) interfaces(1) base-types (2)}
+
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN 
+
+EXPORTS ALL;
+ 
+IMPORTS 
+  CrlSeries,
+  CountryOnly,
+  Duration,
+  Hostname,
+  IValue,
+  LaId,
+  LinkageSeed,
+  Opaque, 
+  Psid,
+  Signature,
+  HashedId8,
+  Uint8,
+  Uint16,
+  Uint32
+FROM IEEE1609dot2BaseTypes {iso(1) identified-organization(3) ieee(111) 
+    standards-association-numbered-series-standards(2) wave-stds(1609)  
+    dot2(2) base(1) base-types(2)}
+
+  RecipientInfo,
+  EncryptedData,
+  SignerIdentifier
+FROM IEEE1609dot2 {iso(1) identified-organization(3) ieee(111) 
+    standards-association-numbered-series-standards(2) wave-stds(1609)  
+    dot2(2) base(1) schema(1)}
+
+;
+
+Canada ::= CountryOnly (124)
+Mexico ::= CountryOnly (484)
+USA ::= CountryOnly (840)
+
+CrlgCertExpiration ::= Duration -- 3 years + 1 week = 26448 hourss
+DcmCertExpiration ::= Duration 
+EcaCertExpirationCvp ::= Duration
+EcaCertExpirationPoc ::= Duration
+ElectorCertExpiration ::= Duration
+IcaCertExpirationCvp ::= Duration
+IcaCertExpirationPoc ::= Duration
+LaCertExpiration ::= Duration
+MaCertExpiration ::= Duration
+PcaCertExpiration ::= Duration
+PgCertExpiration ::= Duration
+ObeEnrollmentCertExpirationCvp ::= Duration
+ObeEnrollmentCertExpirationPoc ::= Duration
+ObeIdentificationCertExpiration ::= Duration
+ObePseudonymCertExpiration ::= Duration -- 1 week + 1 hour = 169 hours
+RaCertExpiration ::= Duration
+RseApplicationCertExpiration ::= Duration
+RseEnrollmentCertExpirationCvp ::= Duration
+RseEnrollmentCertExpirationPoc ::= Duration
+RootCaCertExpiration ::= Duration
+
+BsmPsid ::= Psid (32) --PSID = 0x20
+SecurityMgmtPsid ::= Psid (35)  -- PSID = 0x23
+MisbehaviorReportingPsid ::= Psid (38)  -- PSID = 0x26
+VulnerableRoadUsersSafetyPsid ::= Psid (39) -- PSID = 0x27
+DifferentialGpsCorrectionsUncompressedPsid ::= Psid (128) -- PSID = 0x80
+DifferentialGpsCorrectionsCompressedPsid ::= Psid (129) -- PSID = 0x81
+IntersectionSafetyAndAwarenessPsid ::= Psid (130) -- PSID = 0x82
+TravellerInformationAndRoadsideSignagePsid ::= Psid (131) -- PSID = 0x83
+WaveServiceAdvertisementPsid ::= Psid (135) -- PSID = 0x87
+VehicleInitiatedDistressNotificationPsid ::= Psid (16514) -- PSID = 0x4082
+TranscoreSoftwareUpdatePsid ::= Psid (2113667) -- PSID = 0x204083
+CVPApplication1Psid ::= Psid (2113672) -- PSID = 0x204088
+CVPApplication2Psid ::= Psid (2113673) -- PSID = 0x204089
+CVPApplication3Psid ::= Psid (2113674) -- PSID = 0x20408A
+CVPApplication4Psid ::= Psid (2113675) -- PSID = 0x20408B
+CVPApplication5Psid ::= Psid (2113676) -- PSID = 0x20408C
+CVPApplication6Psid ::= Psid (2113677) -- PSID = 0x20408D
+CVPApplication7Psid ::= Psid (2113678) -- PSID = 0x20408E
+CVPApplication8Psid ::= Psid (2113679) -- PSID = 0x20408F
+CVPApplication9Psid ::= Psid (2113680) -- PSID = 0x204090
+CVPApplication10Psid ::= Psid (2113681) -- PSID = 0x204091
+CVPApplication11Psid ::= Psid (2113682) -- PSID = 0x204092
+CVPApplication12Psid ::= Psid (2113683) -- PSID = 0x204093
+CVPApplication13Psid ::= Psid (2113684) -- PSID = 0x204094
+CVPApplication14Psid ::= Psid (2113685) -- PSID = 0x204095
+CVPApplication15Psid ::= Psid (2113686) -- PSID = 0x204096
+CVPApplication16Psid ::= Psid (2113687) -- PSID = 0x204097
+
+
+EeEnrollmentCrlSeries ::= CrlSeries (4)
+EeNonPseudonymCrlSeries ::= CrlSeries (3)
+ObePseudonymCrlSeries ::= CrlSeries (1)
+ScmsComponentCrlSeries ::= CrlSeries (2)
+ScmsSpclComponentCrlSeries ::= CrlSeries (256)
+
+EccP256PrivateKeyReconstruction ::= OCTET STRING(SIZE(32))
+
+EncryptedIndividualPLV ::= SEQUENCE {
+    version         Uint8(1),  -- version of EncryptedPLV
+    laId            LaId,      -- identifies which LA created PLV
+    enc-plv         EncryptedData 
+    -- the ciphertext field in enc-plv decrypts to a ToBeEncryptedIndividualPLV.
+}
+
+EncryptedGroupPLV ::= SEQUENCE {
+    version         Uint8(1),  -- version of EncryptedPLV
+    laId            LaId,      -- identifies which LA created PLV
+    encGroupIndex   OCTET STRING (SIZE(16)), -- when decrypted, this is a ToBeEncryptedGroupIndex
+    enc-group-plv   EncryptedData
+    -- the ciphertext field in enc-plv decrypts to a ToBeEncryptedGroupPLV.
+}
+
+
+zero8 OCTET STRING ::= '0000000000000000'H
+
+ToBeEncryptedGroupIndex ::= SEQUENCE {
+    padding         OCTET STRING (SIZE(8)) (zero8), -- padding of 64 0-bits
+    groupIdentifier OCTET STRING (SIZE(4)),         -- the 32-bit group identifier
+    j               Uint32
+}
+   
+ToBeEncryptedIndividualPLV ::= SEQUENCE {
+    iValue     IValue,
+    plv        PreLinkageValue
+} 
+
+ToBeEncryptedGroupPLV ::= SEQUENCE {
+   iValue      IValue,
+   j           Uint32,
+   plv         PreLinkageValue
+}
+
+-- Linkage Chain Identifier (LCI)
+LinkageChainId ::= EncryptedData
+
+
+PreLinkageValue ::= OCTET STRING (SIZE(9))
+FullSizeHash ::= OCTET STRING (SIZE(32))
+
+-- Review, matching types of all IDs, except for LaId above. YP
+RaHostnameId  ::= Hostname
+PcaHostnameId ::= Hostname
+MaHostnameId  ::= Hostname
+LaHostnameId  ::= Hostname
+
+-- originally in ma-protocols.asn
+
+--- Hash of Pseudonym Certificate Request
+HPCR            ::= FullSizeHash
+
+
+LinkageSeedAndLaId ::= SEQUENCE {
+	linkageSeed	LinkageSeed,
+	laId		    LaId
+}
+
+SignatureAndSignerIdentifier ::= SEQUENCE {
+	signer 		SignerIdentifier,
+	signature	Signature
+}
+
+EncryptedPlvAndHostInfo ::= SEQUENCE {
+	encryptedPLV      EncryptedIndividualPLV,
+	hostname	      Hostname
+}
+
+EncryptedGroupPlvAndHostInfo ::= SEQUENCE {
+	encryptedGPLV     EncryptedGroupPLV,
+	hostname	      Hostname
+}
+
+
+
+HPCRAndHostInfo ::= SEQUENCE {
+	hpcr		     HPCR,
+	hostname		 Hostname
+}
+
+LCIAndHostInfo ::= SEQUENCE {
+	iMax            OCTET STRING (SIZE (4)),
+	la1-lci         LinkageChainId,
+	la2-lci         LinkageChainId,
+	la1-id          LaHostnameId,
+	la2-id          LaHostnameId
+}
+
+-- Revocation Identifier (RIF)
+-- This is an 8-byte hash of an enrollment certificate
+RIF ::= HashedId8
+
+
+END
