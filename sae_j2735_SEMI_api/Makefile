@@ -1,1198 +1,670 @@
-ASN_SCHEMAS= J2735_201603DA.asn SEMI_v2.3.0_070616.asn
+# JMC: Some improvements to build are possible.
 
-ASN_MODULE_SOURCES=	\
-	MessageFrame.c	\
-	RegionalExtension.c	\
-	BasicSafetyMessage.c	\
-	PartIIcontent.c	\
-	PartII-Id.c	\
-	CommonSafetyRequest.c	\
-	EmergencyVehicleAlert.c	\
-	IntersectionCollision.c	\
-	MapData.c	\
-	NMEAcorrections.c	\
-	PersonalSafetyMessage.c	\
-	ProbeDataManagement.c	\
-	ProbeVehicleData.c	\
-	RoadSideAlert.c	\
-	RTCMcorrections.c	\
-	SPAT.c	\
-	SignalRequestMessage.c	\
-	SignalStatusMessage.c	\
-	TravelerInformation.c	\
-	TestMessage00.c	\
-	TestMessage01.c	\
-	TestMessage02.c	\
-	TestMessage03.c	\
-	TestMessage04.c	\
-	TestMessage05.c	\
-	TestMessage06.c	\
-	TestMessage07.c	\
-	TestMessage08.c	\
-	TestMessage09.c	\
-	TestMessage10.c	\
-	TestMessage11.c	\
-	TestMessage12.c	\
-	TestMessage13.c	\
-	TestMessage14.c	\
-	TestMessage15.c	\
-	AccelerationSet4Way.c	\
-	AccelSteerYawRateConfidence.c	\
-	AdvisorySpeed.c	\
-	AdvisorySpeedList.c	\
-	AntennaOffsetSet.c	\
-	ApproachOrLane.c	\
-	BrakeSystemStatus.c	\
-	BSMcoreData.c	\
-	BumperHeights.c	\
-	Circle.c	\
-	ComputedLane.c	\
-	ConfidenceSet.c	\
-	ConnectingLane.c	\
-	Connection.c	\
-	ConnectionManeuverAssist.c	\
-	ConnectsToList.c	\
-	DataParameters.c	\
-	DDate.c	\
-	DDateTime.c	\
-	DFullTime.c	\
-	DMonthDay.c	\
-	DTime.c	\
-	DYearMonth.c	\
-	DisabledVehicle.c	\
-	EmergencyDetails.c	\
-	EnabledLaneList.c	\
-	EventDescription.c	\
-	FullPositionVector.c	\
-	GenericLane.c	\
-	GeographicalPath.c	\
-	GeometricProjection.c	\
-	Header.c	\
-	IntersectionAccessPoint.c	\
-	IntersectionGeometry.c	\
-	IntersectionGeometryList.c	\
-	IntersectionReferenceID.c	\
-	IntersectionState.c	\
-	IntersectionStateList.c	\
-	ExitService.c	\
-	GenericSignage.c	\
-	SpeedLimit.c	\
-	WorkZone.c	\
-	J1939data.c	\
-	TireDataList.c	\
-	TireData.c	\
-	AxleWeightList.c	\
-	AxleWeightSet.c	\
-	LaneAttributes.c	\
-	LaneDataAttribute.c	\
-	LaneDataAttributeList.c	\
-	LaneList.c	\
-	LaneTypeAttributes.c	\
-	ManeuverAssistList.c	\
-	MovementEventList.c	\
-	MovementEvent.c	\
-	MovementList.c	\
-	MovementState.c	\
-	Node-LL-24B.c	\
-	Node-LL-28B.c	\
-	Node-LL-32B.c	\
-	Node-LL-36B.c	\
-	Node-LL-44B.c	\
-	Node-LL-48B.c	\
-	Node-LLmD-64b.c	\
-	Node-XY-20b.c	\
-	Node-XY-22b.c	\
-	Node-XY-24b.c	\
-	Node-XY-26b.c	\
-	Node-XY-28b.c	\
-	Node-XY-32b.c	\
-	NodeAttributeLLList.c	\
-	NodeAttributeSetLL.c	\
-	NodeAttributeSetXY.c	\
-	NodeAttributeXYList.c	\
-	NodeListLL.c	\
-	NodeListXY.c	\
-	NodeLL.c	\
-	NodeOffsetPointLL.c	\
-	NodeOffsetPointXY.c	\
-	NodeSetLL.c	\
-	NodeSetXY.c	\
-	NodeXY.c	\
-	ObstacleDetection.c	\
-	OffsetSystem.c	\
-	OverlayLaneList.c	\
-	PathHistory.c	\
-	PathHistoryPointList.c	\
-	PathHistoryPoint.c	\
-	PathPrediction.c	\
-	PivotPointDescription.c	\
-	Position3D.c	\
-	PositionalAccuracy.c	\
-	PositionConfidenceSet.c	\
-	PreemptPriorityList.c	\
-	SignalControlZone.c	\
-	PrivilegedEvents.c	\
-	PropelledInformation.c	\
-	RegionList.c	\
-	RegionOffsets.c	\
-	RegionPointSet.c	\
-	RegulatorySpeedLimit.c	\
-	RequestedItemList.c	\
-	RequestorDescription.c	\
-	RequestorPositionVector.c	\
-	RequestorType.c	\
-	RestrictionClassAssignment.c	\
-	RestrictionClassList.c	\
-	RestrictionUserTypeList.c	\
-	RestrictionUserType.c	\
-	RoadLaneSetList.c	\
-	RoadSegmentList.c	\
-	RoadSegmentReferenceID.c	\
-	RoadSegment.c	\
-	RoadSignID.c	\
-	RTCMheader.c	\
-	RTCMmessageList.c	\
-	RTCMPackage.c	\
-	Sample.c	\
-	SegmentAttributeLLList.c	\
-	SegmentAttributeXYList.c	\
-	ShapePointSet.c	\
-	SignalRequesterInfo.c	\
-	SignalRequestList.c	\
-	SignalRequestPackage.c	\
-	SignalRequest.c	\
-	SignalStatusList.c	\
-	SignalStatusPackageList.c	\
-	SignalStatusPackage.c	\
-	SignalStatus.c	\
-	SnapshotDistance.c	\
-	Snapshot.c	\
-	SnapshotTime.c	\
-	SpecialVehicleExtensions.c	\
-	SpeedandHeadingandThrottleConfidence.c	\
-	SpeedLimitList.c	\
-	SpeedProfileMeasurementList.c	\
-	SpeedProfile.c	\
-	SupplementalVehicleExtensions.c	\
-	TimeChangeDetails.c	\
-	TrailerData.c	\
-	TrailerHistoryPointList.c	\
-	TrailerHistoryPoint.c	\
-	TrailerUnitDescriptionList.c	\
-	TrailerUnitDescription.c	\
-	TransmissionAndSpeed.c	\
-	TravelerDataFrameList.c	\
-	TravelerDataFrame.c	\
-	ValidRegion.c	\
-	VehicleClassification.c	\
-	VehicleData.c	\
-	VehicleIdent.c	\
-	VehicleID.c	\
-	VehicleSafetyExtensions.c	\
-	VehicleSize.c	\
-	VehicleStatusRequest.c	\
-	VehicleStatusRequestList.c	\
-	VehicleStatus.c	\
-	VerticalOffset.c	\
-	WeatherProbe.c	\
-	WeatherReport.c	\
-	WiperSet.c	\
-	Acceleration.c	\
-	AccelerationConfidence.c	\
-	AdvisorySpeedType.c	\
-	AllowedManeuvers.c	\
-	AmbientAirPressure.c	\
-	AmbientAirTemperature.c	\
-	DSRC_Angle.c	\
-	AnimalPropelledType.c	\
-	AnimalType.c	\
-	AntiLockBrakeStatus.c	\
-	ApproachID.c	\
-	Attachment.c	\
-	AttachmentRadius.c	\
-	AuxiliaryBrakeStatus.c	\
-	BasicVehicleClass.c	\
-	BasicVehicleRole.c	\
-	BrakeAppliedPressure.c	\
-	BrakeAppliedStatus.c	\
-	BrakeBoostApplied.c	\
-	BumperHeight.c	\
-	CoarseHeading.c	\
-	CodeWord.c	\
-	CoefficientOfFriction.c	\
-	Confidence.c	\
-	Count.c	\
-	DDay.c	\
-	DeltaAngle.c	\
-	DeltaTime.c	\
-	DescriptiveName.c	\
-	DHour.c	\
-	DirectionOfUse.c	\
-	DistanceUnits.c	\
-	DMinute.c	\
-	DMonth.c	\
-	DOffset.c	\
-	DrivenLineOffsetLg.c	\
-	DrivenLineOffsetSm.c	\
-	DrivingWheelAngle.c	\
-	DSecond.c	\
-	DSRCmsgID.c	\
-	Duration.c	\
-	DYear.c	\
-	ElevationConfidence.c	\
-	DSRC_Elevation.c	\
-	Extent.c	\
-	ExteriorLights.c	\
-	FuelType.c	\
-	FurtherInfoID.c	\
-	GNSSstatus.c	\
-	GrossDistance.c	\
-	GrossSpeed.c	\
-	HeadingConfidence.c	\
-	Heading.c	\
-	HeadingSlice.c	\
-	IntersectionID.c	\
-	IntersectionStatusObject.c	\
-	IsDolly.c	\
-	Iso3833VehicleType.c	\
-	ITIStextPhrase.c	\
-	AxleLocation.c	\
-	AxleWeight.c	\
-	CargoWeight.c	\
-	DriveAxleLiftAirPressure.c	\
-	DriveAxleLocation.c	\
-	DriveAxleLubePressure.c	\
-	DriveAxleTemperature.c	\
-	SteeringAxleLubePressure.c	\
-	SteeringAxleTemperature.c	\
-	TireLeakageRate.c	\
-	TireLocation.c	\
-	TirePressureThresholdDetection.c	\
-	TirePressure.c	\
-	TireTemp.c	\
-	TrailerWeight.c	\
-	WheelEndElectFault.c	\
-	WheelSensorStatus.c	\
-	LaneAttributes-Barrier.c	\
-	LaneAttributes-Bike.c	\
-	LaneAttributes-Crosswalk.c	\
-	LaneAttributes-Parking.c	\
-	LaneAttributes-Sidewalk.c	\
-	LaneAttributes-Striping.c	\
-	LaneAttributes-TrackedVehicle.c	\
-	LaneAttributes-Vehicle.c	\
-	LaneConnectionID.c	\
-	LaneDirection.c	\
-	LaneID.c	\
-	LaneSharing.c	\
-	LaneWidth.c	\
-	Latitude.c	\
-	LayerID.c	\
-	LayerType.c	\
-	LightbarInUse.c	\
-	Longitude.c	\
-	Location-quality.c	\
-	Location-tech.c	\
-	MergeDivergeNodeAngle.c	\
-	MessageBLOB.c	\
-	MinuteOfTheYear.c	\
-	MinutesDuration.c	\
-	MotorizedPropelledType.c	\
-	MovementPhaseState.c	\
-	DSRC_MsgCount.c	\
-	MsgCRC.c	\
-	MultiVehicleResponse.c	\
-	MUTCDCode.c	\
-	NMEA-MsgType.c	\
-	NMEA-Payload.c	\
-	NMEA-Revision.c	\
-	NodeAttributeLL.c	\
-	NodeAttributeXY.c	\
-	NumberOfParticipantsInCluster.c	\
-	ObjectCount.c	\
-	ObstacleDirection.c	\
-	ObstacleDistance.c	\
-	Offset-B09.c	\
-	Offset-B10.c	\
-	Offset-B11.c	\
-	Offset-B12.c	\
-	Offset-B13.c	\
-	Offset-B14.c	\
-	Offset-B16.c	\
-	OffsetLL-B12.c	\
-	OffsetLL-B14.c	\
-	OffsetLL-B16.c	\
-	OffsetLL-B18.c	\
-	OffsetLL-B22.c	\
-	OffsetLL-B24.c	\
-	PayloadData.c	\
-	PedestrianBicycleDetect.c	\
-	HumanPropelledType.c	\
-	PersonalAssistive.c	\
-	PersonalClusterRadius.c	\
-	PersonalCrossingInProgress.c	\
-	PersonalCrossingRequest.c	\
-	PersonalDeviceUsageState.c	\
-	PersonalDeviceUserType.c	\
-	PivotingAllowed.c	\
-	PositionConfidence.c	\
-	PrioritizationResponseStatus.c	\
-	Priority.c	\
-	PriorityRequestType.c	\
-	PrivilegedEventFlags.c	\
-	ProbeSegmentNumber.c	\
-	PublicSafetyAndRoadWorkerActivity.c	\
-	PublicSafetyDirectingTrafficSubType.c	\
-	PublicSafetyEventResponderWorkerType.c	\
-	RadiusOfCurvature.c	\
-	Radius-B12.c	\
-	RainSensor.c	\
-	RegionId.c	\
-	RequestedItem.c	\
-	RequestID.c	\
-	RequestImportanceLevel.c	\
-	RequestSubRole.c	\
-	ResponseType.c	\
-	RestrictionAppliesTo.c	\
-	RestrictionClassID.c	\
-	RoadRegulatorID.c	\
-	RoadSegmentID.c	\
-	RoadwayCrownAngle.c	\
-	RTCM-Revision.c	\
-	RTCMmessage.c	\
-	Scale-B12.c	\
-	SecondOfTime.c	\
-	SegmentAttributeLL.c	\
-	SegmentAttributeXY.c	\
-	SemiMajorAxisAccuracy.c	\
-	SemiMajorAxisOrientation.c	\
-	SemiMinorAxisAccuracy.c	\
-	SignalGroupID.c	\
-	SignalReqScheme.c	\
-	SignPrority.c	\
-	SirenInUse.c	\
-	SpeedAdvice.c	\
-	SpeedConfidence.c	\
-	SpeedLimitType.c	\
-	SpeedProfileMeasurement.c	\
-	Speed.c	\
-	SSPindex.c	\
-	StabilityControlStatus.c	\
-	StationID.c	\
-	SteeringWheelAngleConfidence.c	\
-	SteeringWheelAngleRateOfChange.c	\
-	SteeringWheelAngle.c	\
-	SunSensor.c	\
-	TemporaryID.c	\
-	TermDistance.c	\
-	TermTime.c	\
-	ThrottleConfidence.c	\
-	ThrottlePosition.c	\
-	TimeConfidence.c	\
-	TimeIntervalConfidence.c	\
-	DSRC_TimeMark.c	\
-	TimeOffset.c	\
-	TractionControlStatus.c	\
-	TrailerMass.c	\
-	TransitStatus.c	\
-	TransitVehicleOccupancy.c	\
-	TransitVehicleStatus.c	\
-	TransmissionState.c	\
-	TravelerInfoType.c	\
-	UniqueMSGID.c	\
-	URL-Base.c	\
-	URL-Link.c	\
-	URL-Short.c	\
-	UserSizeAndBehaviour.c	\
-	VehicleEventFlags.c	\
-	VehicleHeight.c	\
-	VehicleLength.c	\
-	VehicleMass.c	\
-	VehicleStatusDeviceTypeTag.c	\
-	VehicleType.c	\
-	VehicleWidth.c	\
-	Velocity.c	\
-	VerticalAccelerationThreshold.c	\
-	VerticalAcceleration.c	\
-	VertOffset-B07.c	\
-	VertOffset-B08.c	\
-	VertOffset-B09.c	\
-	VertOffset-B10.c	\
-	VertOffset-B11.c	\
-	VertOffset-B12.c	\
-	VINstring.c	\
-	WaitOnStopline.c	\
-	WiperRate.c	\
-	WiperStatus.c	\
-	YawRateConfidence.c	\
-	YawRate.c	\
-	ZoneLength.c	\
-	Zoom.c	\
-	AltitudeConfidence.c	\
-	AltitudeValue.c	\
-	EmissionType.c	\
-	Altitude.c	\
-	PrioritizationResponse.c	\
-	PrioritizationResponseList.c	\
-	ConnectionManeuverAssist-addGrpC.c	\
-	IntersectionState-addGrpC.c	\
-	MapData-addGrpC.c	\
-	Position3D-addGrpC.c	\
-	RestrictionUserType-addGrpC.c	\
-	SignalHeadLocation.c	\
-	SignalHeadLocationList.c	\
-	VehicleToLanePosition.c	\
-	VehicleToLanePositionList.c	\
-	AddGrpB_Angle.c	\
-	Day.c	\
-	DayOfWeek.c	\
-	DegreesLat.c	\
-	DegreesLong.c	\
-	AddGrpB_Elevation.c	\
-	Holiday.c	\
-	Hour.c	\
-	LatitudeDMS.c	\
-	LongitudeDMS.c	\
-	MaxTimetoChange.c	\
-	MinTimetoChange.c	\
-	Minute.c	\
-	MinutesAngle.c	\
-	Month.c	\
-	AddGrpB_MsgCount.c	\
-	Second.c	\
-	SecondsAngle.c	\
-	SummerTime.c	\
-	TenthSecond.c	\
-	TimeRemaining.c	\
-	Year.c	\
-	LatitudeDMS2.c	\
-	LongitudeDMS2.c	\
-	Node-LLdms-48b.c	\
-	Node-LLdms-80b.c	\
-	LaneDataAttribute-addGrpB.c	\
-	MovementEvent-addGrpB.c	\
-	NodeOffsetPointXY-addGrpB.c	\
-	Position3D-addGrpB.c	\
-	AddGrpB_TimeMark.c	\
-	EssMobileFriction.c	\
-	EssPrecipRate.c	\
-	EssPrecipSituation.c	\
-	EssPrecipYesNo.c	\
-	EssSolarRadiation.c	\
-	GenericLocations.c	\
-	IncidentResponseEquipment.c	\
-	ITIStext.c	\
-	ResponderGroupAffected.c	\
-	VehicleGroupAffected.c	\
-	ITIScodesAndText.c	\
-	ITIScodes.c	\
-	ServiceRequest.c	\
-	ServiceResponse.c	\
-	DataRequest.c	\
-	DataConfirmation.c	\
-	DataAcceptance.c	\
-	DataReceipt.c	\
-	VehSitDataMessage.c	\
-	ObjectRegistrationData.c	\
-	ObjectDiscoveryDataRequest.c	\
-	ObjectDiscoveryData.c	\
-	DataSubscriptionRequest.c	\
-	DataSubscriptionResponse.c	\
-	DataSubscriptionCancel.c	\
-	AdvisorySituationData.c	\
-	AdvisorySituationDataDistribution.c	\
-	IntersectionSituationData.c	\
-	IntersectionSituationDataAcceptance.c	\
-	IntersectionSituationDataBundle.c	\
-	ServiceRecord.c	\
-	ConnectionPoint.c	\
-	GeoRegion.c	\
-	IpAddress.c	\
-	VehSitRecord.c	\
-	FundamentalSituationalStatus.c	\
-	Weather.c	\
-	VehicleSituationStatus.c	\
-	Environmental.c	\
-	ElectricVeh.c	\
-	AdvisoryDetails.c	\
-	AdvisoryBroadcast.c	\
-	BroadcastInstructions.c	\
-	DsrcInstructions.c	\
-	AdvisorySituationBundle.c	\
-	IntersectionBundle.c	\
-	IntersectionRecord.c	\
-	SpatRecord.c	\
-	SemiDialogID.c	\
-	SemiSequenceID.c	\
-	ServiceID.c	\
-	GroupID.c	\
-	VsmType.c	\
-	VsmEventFlag.c	\
-	IsdType.c	\
-	IPv4Address.c	\
-	IPv6Address.c	\
-	PortNumber.c	\
-	ServiceProviderID.c	\
-	Sha256Hash.c	\
-	Psid.c	\
-	AdvisoryBroadcastType.c	\
-	DistributionType.c	\
-	TimeToLive.c	\
-	TxMode.c	\
-	TxChannel.c	\
-	FuelConsumption.c	\
-	Emissions.c	\
-	FuelEconomy.c	\
-	StateOfCharge.c	\
-	Capacity.c	\
-	Range.c
+CC=gcc
 
-ASN_MODULE_HEADERS=	\
-	MessageFrame.h	\
-	RegionalExtension.h	\
-	BasicSafetyMessage.h	\
-	PartIIcontent.h	\
-	PartII-Id.h	\
-	CommonSafetyRequest.h	\
-	EmergencyVehicleAlert.h	\
-	IntersectionCollision.h	\
-	MapData.h	\
-	NMEAcorrections.h	\
-	PersonalSafetyMessage.h	\
-	ProbeDataManagement.h	\
-	ProbeVehicleData.h	\
-	RoadSideAlert.h	\
-	RTCMcorrections.h	\
-	SPAT.h	\
-	SignalRequestMessage.h	\
-	SignalStatusMessage.h	\
-	TravelerInformation.h	\
-	TestMessage00.h	\
-	TestMessage01.h	\
-	TestMessage02.h	\
-	TestMessage03.h	\
-	TestMessage04.h	\
-	TestMessage05.h	\
-	TestMessage06.h	\
-	TestMessage07.h	\
-	TestMessage08.h	\
-	TestMessage09.h	\
-	TestMessage10.h	\
-	TestMessage11.h	\
-	TestMessage12.h	\
-	TestMessage13.h	\
-	TestMessage14.h	\
-	TestMessage15.h	\
-	AccelerationSet4Way.h	\
-	AccelSteerYawRateConfidence.h	\
-	AdvisorySpeed.h	\
-	AdvisorySpeedList.h	\
-	AntennaOffsetSet.h	\
-	ApproachOrLane.h	\
-	BrakeSystemStatus.h	\
-	BSMcoreData.h	\
-	BumperHeights.h	\
-	Circle.h	\
-	ComputedLane.h	\
-	ConfidenceSet.h	\
-	ConnectingLane.h	\
-	Connection.h	\
-	ConnectionManeuverAssist.h	\
-	ConnectsToList.h	\
-	DataParameters.h	\
-	DDate.h	\
-	DDateTime.h	\
-	DFullTime.h	\
-	DMonthDay.h	\
-	DTime.h	\
-	DYearMonth.h	\
-	DisabledVehicle.h	\
-	EmergencyDetails.h	\
-	EnabledLaneList.h	\
-	EventDescription.h	\
-	FullPositionVector.h	\
-	GenericLane.h	\
-	GeographicalPath.h	\
-	GeometricProjection.h	\
-	Header.h	\
-	IntersectionAccessPoint.h	\
-	IntersectionGeometry.h	\
-	IntersectionGeometryList.h	\
-	IntersectionReferenceID.h	\
-	IntersectionState.h	\
-	IntersectionStateList.h	\
-	ExitService.h	\
-	GenericSignage.h	\
-	SpeedLimit.h	\
-	WorkZone.h	\
-	J1939data.h	\
-	TireDataList.h	\
-	TireData.h	\
-	AxleWeightList.h	\
-	AxleWeightSet.h	\
-	LaneAttributes.h	\
-	LaneDataAttribute.h	\
-	LaneDataAttributeList.h	\
-	LaneList.h	\
-	LaneTypeAttributes.h	\
-	ManeuverAssistList.h	\
-	MovementEventList.h	\
-	MovementEvent.h	\
-	MovementList.h	\
-	MovementState.h	\
-	Node-LL-24B.h	\
-	Node-LL-28B.h	\
-	Node-LL-32B.h	\
-	Node-LL-36B.h	\
-	Node-LL-44B.h	\
-	Node-LL-48B.h	\
-	Node-LLmD-64b.h	\
-	Node-XY-20b.h	\
-	Node-XY-22b.h	\
-	Node-XY-24b.h	\
-	Node-XY-26b.h	\
-	Node-XY-28b.h	\
-	Node-XY-32b.h	\
-	NodeAttributeLLList.h	\
-	NodeAttributeSetLL.h	\
-	NodeAttributeSetXY.h	\
-	NodeAttributeXYList.h	\
-	NodeListLL.h	\
-	NodeListXY.h	\
-	NodeLL.h	\
-	NodeOffsetPointLL.h	\
-	NodeOffsetPointXY.h	\
-	NodeSetLL.h	\
-	NodeSetXY.h	\
-	NodeXY.h	\
-	ObstacleDetection.h	\
-	OffsetSystem.h	\
-	OverlayLaneList.h	\
-	PathHistory.h	\
-	PathHistoryPointList.h	\
-	PathHistoryPoint.h	\
-	PathPrediction.h	\
-	PivotPointDescription.h	\
-	Position3D.h	\
-	PositionalAccuracy.h	\
-	PositionConfidenceSet.h	\
-	PreemptPriorityList.h	\
-	SignalControlZone.h	\
-	PrivilegedEvents.h	\
-	PropelledInformation.h	\
-	RegionList.h	\
-	RegionOffsets.h	\
-	RegionPointSet.h	\
-	RegulatorySpeedLimit.h	\
-	RequestedItemList.h	\
-	RequestorDescription.h	\
-	RequestorPositionVector.h	\
-	RequestorType.h	\
-	RestrictionClassAssignment.h	\
-	RestrictionClassList.h	\
-	RestrictionUserTypeList.h	\
-	RestrictionUserType.h	\
-	RoadLaneSetList.h	\
-	RoadSegmentList.h	\
-	RoadSegmentReferenceID.h	\
-	RoadSegment.h	\
-	RoadSignID.h	\
-	RTCMheader.h	\
-	RTCMmessageList.h	\
-	RTCMPackage.h	\
-	Sample.h	\
-	SegmentAttributeLLList.h	\
-	SegmentAttributeXYList.h	\
-	ShapePointSet.h	\
-	SignalRequesterInfo.h	\
-	SignalRequestList.h	\
-	SignalRequestPackage.h	\
-	SignalRequest.h	\
-	SignalStatusList.h	\
-	SignalStatusPackageList.h	\
-	SignalStatusPackage.h	\
-	SignalStatus.h	\
-	SnapshotDistance.h	\
-	Snapshot.h	\
-	SnapshotTime.h	\
-	SpecialVehicleExtensions.h	\
-	SpeedandHeadingandThrottleConfidence.h	\
-	SpeedLimitList.h	\
-	SpeedProfileMeasurementList.h	\
-	SpeedProfile.h	\
-	SupplementalVehicleExtensions.h	\
-	TimeChangeDetails.h	\
-	TrailerData.h	\
-	TrailerHistoryPointList.h	\
-	TrailerHistoryPoint.h	\
-	TrailerUnitDescriptionList.h	\
-	TrailerUnitDescription.h	\
-	TransmissionAndSpeed.h	\
-	TravelerDataFrameList.h	\
-	TravelerDataFrame.h	\
-	ValidRegion.h	\
-	VehicleClassification.h	\
-	VehicleData.h	\
-	VehicleIdent.h	\
-	VehicleID.h	\
-	VehicleSafetyExtensions.h	\
-	VehicleSize.h	\
-	VehicleStatusRequest.h	\
-	VehicleStatusRequestList.h	\
-	VehicleStatus.h	\
-	VerticalOffset.h	\
-	WeatherProbe.h	\
-	WeatherReport.h	\
-	WiperSet.h	\
-	Acceleration.h	\
-	AccelerationConfidence.h	\
-	AdvisorySpeedType.h	\
-	AllowedManeuvers.h	\
-	AmbientAirPressure.h	\
-	AmbientAirTemperature.h	\
-	DSRC_Angle.h	\
-	AnimalPropelledType.h	\
-	AnimalType.h	\
-	AntiLockBrakeStatus.h	\
-	ApproachID.h	\
-	Attachment.h	\
-	AttachmentRadius.h	\
-	AuxiliaryBrakeStatus.h	\
-	BasicVehicleClass.h	\
-	BasicVehicleRole.h	\
-	BrakeAppliedPressure.h	\
-	BrakeAppliedStatus.h	\
-	BrakeBoostApplied.h	\
-	BumperHeight.h	\
-	CoarseHeading.h	\
-	CodeWord.h	\
-	CoefficientOfFriction.h	\
-	Confidence.h	\
-	Count.h	\
-	DDay.h	\
-	DeltaAngle.h	\
-	DeltaTime.h	\
-	DescriptiveName.h	\
-	DHour.h	\
-	DirectionOfUse.h	\
-	DistanceUnits.h	\
-	DMinute.h	\
-	DMonth.h	\
-	DOffset.h	\
-	DrivenLineOffsetLg.h	\
-	DrivenLineOffsetSm.h	\
-	DrivingWheelAngle.h	\
-	DSecond.h	\
-	DSRCmsgID.h	\
-	Duration.h	\
-	DYear.h	\
-	ElevationConfidence.h	\
-	DSRC_Elevation.h	\
-	Extent.h	\
-	ExteriorLights.h	\
-	FuelType.h	\
-	FurtherInfoID.h	\
-	GNSSstatus.h	\
-	GrossDistance.h	\
-	GrossSpeed.h	\
-	HeadingConfidence.h	\
-	Heading.h	\
-	HeadingSlice.h	\
-	IntersectionID.h	\
-	IntersectionStatusObject.h	\
-	IsDolly.h	\
-	Iso3833VehicleType.h	\
-	ITIStextPhrase.h	\
-	AxleLocation.h	\
-	AxleWeight.h	\
-	CargoWeight.h	\
-	DriveAxleLiftAirPressure.h	\
-	DriveAxleLocation.h	\
-	DriveAxleLubePressure.h	\
-	DriveAxleTemperature.h	\
-	SteeringAxleLubePressure.h	\
-	SteeringAxleTemperature.h	\
-	TireLeakageRate.h	\
-	TireLocation.h	\
-	TirePressureThresholdDetection.h	\
-	TirePressure.h	\
-	TireTemp.h	\
-	TrailerWeight.h	\
-	WheelEndElectFault.h	\
-	WheelSensorStatus.h	\
-	LaneAttributes-Barrier.h	\
-	LaneAttributes-Bike.h	\
-	LaneAttributes-Crosswalk.h	\
-	LaneAttributes-Parking.h	\
-	LaneAttributes-Sidewalk.h	\
-	LaneAttributes-Striping.h	\
-	LaneAttributes-TrackedVehicle.h	\
-	LaneAttributes-Vehicle.h	\
-	LaneConnectionID.h	\
-	LaneDirection.h	\
-	LaneID.h	\
-	LaneSharing.h	\
-	LaneWidth.h	\
-	Latitude.h	\
-	LayerID.h	\
-	LayerType.h	\
-	LightbarInUse.h	\
-	Longitude.h	\
-	Location-quality.h	\
-	Location-tech.h	\
-	MergeDivergeNodeAngle.h	\
-	MessageBLOB.h	\
-	MinuteOfTheYear.h	\
-	MinutesDuration.h	\
-	MotorizedPropelledType.h	\
-	MovementPhaseState.h	\
-	DSRC_MsgCount.h	\
-	MsgCRC.h	\
-	MultiVehicleResponse.h	\
-	MUTCDCode.h	\
-	NMEA-MsgType.h	\
-	NMEA-Payload.h	\
-	NMEA-Revision.h	\
-	NodeAttributeLL.h	\
-	NodeAttributeXY.h	\
-	NumberOfParticipantsInCluster.h	\
-	ObjectCount.h	\
-	ObstacleDirection.h	\
-	ObstacleDistance.h	\
-	Offset-B09.h	\
-	Offset-B10.h	\
-	Offset-B11.h	\
-	Offset-B12.h	\
-	Offset-B13.h	\
-	Offset-B14.h	\
-	Offset-B16.h	\
-	OffsetLL-B12.h	\
-	OffsetLL-B14.h	\
-	OffsetLL-B16.h	\
-	OffsetLL-B18.h	\
-	OffsetLL-B22.h	\
-	OffsetLL-B24.h	\
-	PayloadData.h	\
-	PedestrianBicycleDetect.h	\
-	HumanPropelledType.h	\
-	PersonalAssistive.h	\
-	PersonalClusterRadius.h	\
-	PersonalCrossingInProgress.h	\
-	PersonalCrossingRequest.h	\
-	PersonalDeviceUsageState.h	\
-	PersonalDeviceUserType.h	\
-	PivotingAllowed.h	\
-	PositionConfidence.h	\
-	PrioritizationResponseStatus.h	\
-	Priority.h	\
-	PriorityRequestType.h	\
-	PrivilegedEventFlags.h	\
-	ProbeSegmentNumber.h	\
-	PublicSafetyAndRoadWorkerActivity.h	\
-	PublicSafetyDirectingTrafficSubType.h	\
-	PublicSafetyEventResponderWorkerType.h	\
-	RadiusOfCurvature.h	\
-	Radius-B12.h	\
-	RainSensor.h	\
-	RegionId.h	\
-	RequestedItem.h	\
-	RequestID.h	\
-	RequestImportanceLevel.h	\
-	RequestSubRole.h	\
-	ResponseType.h	\
-	RestrictionAppliesTo.h	\
-	RestrictionClassID.h	\
-	RoadRegulatorID.h	\
-	RoadSegmentID.h	\
-	RoadwayCrownAngle.h	\
-	RTCM-Revision.h	\
-	RTCMmessage.h	\
-	Scale-B12.h	\
-	SecondOfTime.h	\
-	SegmentAttributeLL.h	\
-	SegmentAttributeXY.h	\
-	SemiMajorAxisAccuracy.h	\
-	SemiMajorAxisOrientation.h	\
-	SemiMinorAxisAccuracy.h	\
-	SignalGroupID.h	\
-	SignalReqScheme.h	\
-	SignPrority.h	\
-	SirenInUse.h	\
-	SpeedAdvice.h	\
-	SpeedConfidence.h	\
-	SpeedLimitType.h	\
-	SpeedProfileMeasurement.h	\
-	Speed.h	\
-	SSPindex.h	\
-	StabilityControlStatus.h	\
-	StationID.h	\
-	SteeringWheelAngleConfidence.h	\
-	SteeringWheelAngleRateOfChange.h	\
-	SteeringWheelAngle.h	\
-	SunSensor.h	\
-	TemporaryID.h	\
-	TermDistance.h	\
-	TermTime.h	\
-	ThrottleConfidence.h	\
-	ThrottlePosition.h	\
-	TimeConfidence.h	\
-	TimeIntervalConfidence.h	\
-	DSRC_TimeMark.h	\
-	TimeOffset.h	\
-	TractionControlStatus.h	\
-	TrailerMass.h	\
-	TransitStatus.h	\
-	TransitVehicleOccupancy.h	\
-	TransitVehicleStatus.h	\
-	TransmissionState.h	\
-	TravelerInfoType.h	\
-	UniqueMSGID.h	\
-	URL-Base.h	\
-	URL-Link.h	\
-	URL-Short.h	\
-	UserSizeAndBehaviour.h	\
-	VehicleEventFlags.h	\
-	VehicleHeight.h	\
-	VehicleLength.h	\
-	VehicleMass.h	\
-	VehicleStatusDeviceTypeTag.h	\
-	VehicleType.h	\
-	VehicleWidth.h	\
-	Velocity.h	\
-	VerticalAccelerationThreshold.h	\
-	VerticalAcceleration.h	\
-	VertOffset-B07.h	\
-	VertOffset-B08.h	\
-	VertOffset-B09.h	\
-	VertOffset-B10.h	\
-	VertOffset-B11.h	\
-	VertOffset-B12.h	\
-	VINstring.h	\
-	WaitOnStopline.h	\
-	WiperRate.h	\
-	WiperStatus.h	\
-	YawRateConfidence.h	\
-	YawRate.h	\
-	ZoneLength.h	\
-	Zoom.h	\
-	AltitudeConfidence.h	\
-	AltitudeValue.h	\
-	EmissionType.h	\
-	Altitude.h	\
-	PrioritizationResponse.h	\
-	PrioritizationResponseList.h	\
-	ConnectionManeuverAssist-addGrpC.h	\
-	IntersectionState-addGrpC.h	\
-	MapData-addGrpC.h	\
-	Position3D-addGrpC.h	\
-	RestrictionUserType-addGrpC.h	\
-	SignalHeadLocation.h	\
-	SignalHeadLocationList.h	\
-	VehicleToLanePosition.h	\
-	VehicleToLanePositionList.h	\
-	AddGrpB_Angle.h	\
-	Day.h	\
-	DayOfWeek.h	\
-	DegreesLat.h	\
-	DegreesLong.h	\
-	AddGrpB_Elevation.h	\
-	Holiday.h	\
-	Hour.h	\
-	LatitudeDMS.h	\
-	LongitudeDMS.h	\
-	MaxTimetoChange.h	\
-	MinTimetoChange.h	\
-	Minute.h	\
-	MinutesAngle.h	\
-	Month.h	\
-	AddGrpB_MsgCount.h	\
-	Second.h	\
-	SecondsAngle.h	\
-	SummerTime.h	\
-	TenthSecond.h	\
-	TimeRemaining.h	\
-	Year.h	\
-	LatitudeDMS2.h	\
-	LongitudeDMS2.h	\
-	Node-LLdms-48b.h	\
-	Node-LLdms-80b.h	\
-	LaneDataAttribute-addGrpB.h	\
-	MovementEvent-addGrpB.h	\
-	NodeOffsetPointXY-addGrpB.h	\
-	Position3D-addGrpB.h	\
-	AddGrpB_TimeMark.h	\
-	EssMobileFriction.h	\
-	EssPrecipRate.h	\
-	EssPrecipSituation.h	\
-	EssPrecipYesNo.h	\
-	EssSolarRadiation.h	\
-	GenericLocations.h	\
-	IncidentResponseEquipment.h	\
-	ITIStext.h	\
-	ResponderGroupAffected.h	\
-	VehicleGroupAffected.h	\
-	ITIScodesAndText.h	\
-	ITIScodes.h	\
-	ServiceRequest.h	\
-	ServiceResponse.h	\
-	DataRequest.h	\
-	DataConfirmation.h	\
-	DataAcceptance.h	\
-	DataReceipt.h	\
-	VehSitDataMessage.h	\
-	ObjectRegistrationData.h	\
-	ObjectDiscoveryDataRequest.h	\
-	ObjectDiscoveryData.h	\
-	DataSubscriptionRequest.h	\
-	DataSubscriptionResponse.h	\
-	DataSubscriptionCancel.h	\
-	AdvisorySituationData.h	\
-	AdvisorySituationDataDistribution.h	\
-	IntersectionSituationData.h	\
-	IntersectionSituationDataAcceptance.h	\
-	IntersectionSituationDataBundle.h	\
-	ServiceRecord.h	\
-	ConnectionPoint.h	\
-	GeoRegion.h	\
-	IpAddress.h	\
-	VehSitRecord.h	\
-	FundamentalSituationalStatus.h	\
-	Weather.h	\
-	VehicleSituationStatus.h	\
-	Environmental.h	\
-	ElectricVeh.h	\
-	AdvisoryDetails.h	\
-	AdvisoryBroadcast.h	\
-	BroadcastInstructions.h	\
-	DsrcInstructions.h	\
-	AdvisorySituationBundle.h	\
-	IntersectionBundle.h	\
-	IntersectionRecord.h	\
-	SpatRecord.h	\
-	SemiDialogID.h	\
-	SemiSequenceID.h	\
-	ServiceID.h	\
-	GroupID.h	\
-	VsmType.h	\
-	VsmEventFlag.h	\
-	IsdType.h	\
-	IPv4Address.h	\
-	IPv6Address.h	\
-	PortNumber.h	\
-	ServiceProviderID.h	\
-	Sha256Hash.h	\
-	Psid.h	\
-	AdvisoryBroadcastType.h	\
-	DistributionType.h	\
-	TimeToLive.h	\
-	TxMode.h	\
-	TxChannel.h	\
-	FuelConsumption.h	\
-	Emissions.h	\
-	FuelEconomy.h	\
-	StateOfCharge.h	\
-	Capacity.h	\
-	Range.h
-
-ASN_MODULE_HEADERS+=ANY.h
-ASN_MODULE_SOURCES+=ANY.c
-ASN_MODULE_HEADERS+=OPEN_TYPE.h
-ASN_MODULE_SOURCES+=OPEN_TYPE.c
-ASN_MODULE_HEADERS+=constr_CHOICE.h
-ASN_MODULE_HEADERS+=BOOLEAN.h
-ASN_MODULE_SOURCES+=BOOLEAN.c
-ASN_MODULE_HEADERS+=INTEGER.h
-ASN_MODULE_HEADERS+=NativeEnumerated.h
-ASN_MODULE_HEADERS+=IA5String.h
-ASN_MODULE_SOURCES+=IA5String.c
-ASN_MODULE_SOURCES+=INTEGER.c
-ASN_MODULE_SOURCES+=NativeEnumerated.c
-ASN_MODULE_HEADERS+=NativeInteger.h
-ASN_MODULE_SOURCES+=NativeInteger.c
-ASN_MODULE_HEADERS+=asn_SEQUENCE_OF.h
-ASN_MODULE_SOURCES+=asn_SEQUENCE_OF.c
-ASN_MODULE_HEADERS+=asn_SET_OF.h
-ASN_MODULE_SOURCES+=asn_SET_OF.c
-ASN_MODULE_SOURCES+=constr_CHOICE.c
-ASN_MODULE_HEADERS+=constr_SEQUENCE.h
-ASN_MODULE_SOURCES+=constr_SEQUENCE.c
-ASN_MODULE_HEADERS+=constr_SEQUENCE_OF.h
-ASN_MODULE_SOURCES+=constr_SEQUENCE_OF.c
-ASN_MODULE_HEADERS+=constr_SET_OF.h
-ASN_MODULE_SOURCES+=constr_SET_OF.c
-ASN_MODULE_HEADERS+=asn_application.h
-ASN_MODULE_HEADERS+=asn_ioc.h
-ASN_MODULE_HEADERS+=asn_system.h
-ASN_MODULE_HEADERS+=asn_codecs.h
-ASN_MODULE_HEADERS+=asn_internal.h
-ASN_MODULE_HEADERS+=OCTET_STRING.h
-ASN_MODULE_SOURCES+=OCTET_STRING.c
-ASN_MODULE_HEADERS+=BIT_STRING.h
-ASN_MODULE_SOURCES+=BIT_STRING.c
-ASN_MODULE_SOURCES+=asn_codecs_prim.c
-ASN_MODULE_HEADERS+=asn_codecs_prim.h
-ASN_MODULE_HEADERS+=ber_tlv_length.h
-ASN_MODULE_SOURCES+=ber_tlv_length.c
-ASN_MODULE_HEADERS+=ber_tlv_tag.h
-ASN_MODULE_SOURCES+=ber_tlv_tag.c
-ASN_MODULE_HEADERS+=ber_decoder.h
-ASN_MODULE_SOURCES+=ber_decoder.c
-ASN_MODULE_HEADERS+=der_encoder.h
-ASN_MODULE_SOURCES+=der_encoder.c
-ASN_MODULE_HEADERS+=constr_TYPE.h
-ASN_MODULE_SOURCES+=constr_TYPE.c
-ASN_MODULE_HEADERS+=constraints.h
-ASN_MODULE_SOURCES+=constraints.c
-ASN_MODULE_HEADERS+=xer_support.h
-ASN_MODULE_SOURCES+=xer_support.c
-ASN_MODULE_HEADERS+=xer_decoder.h
-ASN_MODULE_SOURCES+=xer_decoder.c
-ASN_MODULE_HEADERS+=xer_encoder.h
-ASN_MODULE_SOURCES+=xer_encoder.c
-ASN_MODULE_HEADERS+=oer_decoder.h
-ASN_MODULE_SOURCES+=oer_decoder.c
-ASN_MODULE_HEADERS+=oer_encoder.h
-ASN_MODULE_SOURCES+=oer_encoder.c
-ASN_MODULE_HEADERS+=oer_support.h
-ASN_MODULE_SOURCES+=oer_support.c
-ASN_MODULE_HEADERS+=per_support.h
-ASN_MODULE_SOURCES+=per_support.c
-ASN_MODULE_HEADERS+=per_decoder.h
-ASN_MODULE_SOURCES+=per_decoder.c
-ASN_MODULE_HEADERS+=per_encoder.h
-ASN_MODULE_SOURCES+=per_encoder.c
-ASN_MODULE_HEADERS+=per_opentype.h
-ASN_MODULE_SOURCES+=per_opentype.c
-ASN_CONVERTER_SOURCES+=converter-sample.c
+ASN_SCHEMAS= J2735_201603DA.ASN 
+# These are code files generated by the asn1 compiler from the above schemas.
+# As such, they depend on whichever schema is provided.
+J2735_ASN_MODULE_SOURCES=	\
+MessageFrame.c \
+RegionalExtension.c \
+BasicSafetyMessage.c \
+PartIIcontent.c \
+PartII-Id.c \
+CommonSafetyRequest.c \
+EmergencyVehicleAlert.c \
+IntersectionCollision.c \
+MapData.c \
+NMEAcorrections.c \
+PersonalSafetyMessage.c \
+ProbeDataManagement.c \
+ProbeVehicleData.c \
+RoadSideAlert.c \
+RTCMcorrections.c \
+SPAT.c \
+SignalRequestMessage.c \
+SignalStatusMessage.c \
+TravelerInformation.c \
+TestMessage00.c \
+TestMessage01.c \
+TestMessage02.c \
+TestMessage03.c \
+TestMessage04.c \
+TestMessage05.c \
+TestMessage06.c \
+TestMessage07.c \
+TestMessage08.c \
+TestMessage09.c \
+TestMessage10.c \
+TestMessage11.c \
+TestMessage12.c \
+TestMessage13.c \
+TestMessage14.c \
+TestMessage15.c \
+AccelerationSet4Way.c \
+AccelSteerYawRateConfidence.c \
+AdvisorySpeed.c \
+AdvisorySpeedList.c \
+AntennaOffsetSet.c \
+ApproachOrLane.c \
+BrakeSystemStatus.c \
+BSMcoreData.c \
+BumperHeights.c \
+Circle.c \
+ComputedLane.c \
+ConfidenceSet.c \
+ConnectingLane.c \
+Connection.c \
+ConnectionManeuverAssist.c \
+ConnectsToList.c \
+DataParameters.c \
+DDate.c \
+DDateTime.c \
+DFullTime.c \
+DMonthDay.c \
+DTime.c \
+DYearMonth.c \
+DisabledVehicle.c \
+EmergencyDetails.c \
+EnabledLaneList.c \
+EventDescription.c \
+FullPositionVector.c \
+GenericLane.c \
+GeographicalPath.c \
+GeometricProjection.c \
+Header.c \
+IntersectionAccessPoint.c \
+IntersectionGeometry.c \
+IntersectionGeometryList.c \
+IntersectionReferenceID.c \
+IntersectionState.c \
+IntersectionStateList.c \
+ExitService.c \
+GenericSignage.c \
+SpeedLimit.c \
+WorkZone.c \
+J1939data.c \
+TireDataList.c \
+TireData.c \
+AxleWeightList.c \
+AxleWeightSet.c \
+LaneAttributes.c \
+LaneDataAttribute.c \
+LaneDataAttributeList.c \
+LaneList.c \
+LaneTypeAttributes.c \
+ManeuverAssistList.c \
+MovementEventList.c \
+MovementEvent.c \
+MovementList.c \
+MovementState.c \
+Node-LL-24B.c \
+Node-LL-28B.c \
+Node-LL-32B.c \
+Node-LL-36B.c \
+Node-LL-44B.c \
+Node-LL-48B.c \
+Node-LLmD-64b.c \
+Node-XY-20b.c \
+Node-XY-22b.c \
+Node-XY-24b.c \
+Node-XY-26b.c \
+Node-XY-28b.c \
+Node-XY-32b.c \
+NodeAttributeLLList.c \
+NodeAttributeSetLL.c \
+NodeAttributeSetXY.c \
+NodeAttributeXYList.c \
+NodeListLL.c \
+NodeListXY.c \
+NodeLL.c \
+NodeOffsetPointLL.c \
+NodeOffsetPointXY.c \
+NodeSetLL.c \
+NodeSetXY.c \
+NodeXY.c \
+ObstacleDetection.c \
+OffsetSystem.c \
+OverlayLaneList.c \
+PathHistory.c \
+PathHistoryPointList.c \
+PathHistoryPoint.c \
+PathPrediction.c \
+PivotPointDescription.c \
+Position3D.c \
+PositionalAccuracy.c \
+PositionConfidenceSet.c \
+PreemptPriorityList.c \
+SignalControlZone.c \
+PrivilegedEvents.c \
+PropelledInformation.c \
+RegionList.c \
+RegionOffsets.c \
+RegionPointSet.c \
+RegulatorySpeedLimit.c \
+RequestedItemList.c \
+RequestorDescription.c \
+RequestorPositionVector.c \
+RequestorType.c \
+RestrictionClassAssignment.c \
+RestrictionClassList.c \
+RestrictionUserTypeList.c \
+RestrictionUserType.c \
+RoadLaneSetList.c \
+RoadSegmentList.c \
+RoadSegmentReferenceID.c \
+RoadSegment.c \
+RoadSignID.c \
+RTCMheader.c \
+RTCMmessageList.c \
+RTCMPackage.c \
+Sample.c \
+SegmentAttributeLLList.c \
+SegmentAttributeXYList.c \
+ShapePointSet.c \
+SignalRequesterInfo.c \
+SignalRequestList.c \
+SignalRequestPackage.c \
+SignalRequest.c \
+SignalStatusList.c \
+SignalStatusPackageList.c \
+SignalStatusPackage.c \
+SignalStatus.c \
+SnapshotDistance.c \
+Snapshot.c \
+SnapshotTime.c \
+SpecialVehicleExtensions.c \
+SpeedandHeadingandThrottleConfidence.c \
+SpeedLimitList.c \
+SpeedProfileMeasurementList.c \
+SpeedProfile.c \
+SupplementalVehicleExtensions.c \
+TimeChangeDetails.c \
+TrailerData.c \
+TrailerHistoryPointList.c \
+TrailerHistoryPoint.c \
+TrailerUnitDescriptionList.c \
+TrailerUnitDescription.c \
+TransmissionAndSpeed.c \
+TravelerDataFrameList.c \
+TravelerDataFrame.c \
+ValidRegion.c \
+VehicleClassification.c \
+VehicleData.c \
+VehicleIdent.c \
+VehicleID.c \
+VehicleSafetyExtensions.c \
+VehicleSize.c \
+VehicleStatusRequest.c \
+VehicleStatusRequestList.c \
+VehicleStatus.c \
+VerticalOffset.c \
+WeatherProbe.c \
+WeatherReport.c \
+WiperSet.c \
+Acceleration.c \
+AccelerationConfidence.c \
+AdvisorySpeedType.c \
+AllowedManeuvers.c \
+AmbientAirPressure.c \
+AmbientAirTemperature.c \
+DSRC_Angle.c \
+AnimalPropelledType.c \
+AnimalType.c \
+AntiLockBrakeStatus.c \
+ApproachID.c \
+Attachment.c \
+AttachmentRadius.c \
+AuxiliaryBrakeStatus.c \
+BasicVehicleClass.c \
+BasicVehicleRole.c \
+BrakeAppliedPressure.c \
+BrakeAppliedStatus.c \
+BrakeBoostApplied.c \
+BumperHeight.c \
+CoarseHeading.c \
+CodeWord.c \
+CoefficientOfFriction.c \
+Confidence.c \
+Count.c \
+DDay.c \
+DeltaAngle.c \
+DeltaTime.c \
+DescriptiveName.c \
+DHour.c \
+DirectionOfUse.c \
+DistanceUnits.c \
+DMinute.c \
+DMonth.c \
+DOffset.c \
+DrivenLineOffsetLg.c \
+DrivenLineOffsetSm.c \
+DrivingWheelAngle.c \
+DSecond.c \
+DSRCmsgID.c \
+Duration.c \
+DYear.c \
+ElevationConfidence.c \
+DSRC_Elevation.c \
+Extent.c \
+ExteriorLights.c \
+FuelType.c \
+FurtherInfoID.c \
+GNSSstatus.c \
+GrossDistance.c \
+GrossSpeed.c \
+HeadingConfidence.c \
+Heading.c \
+HeadingSlice.c \
+IntersectionID.c \
+IntersectionStatusObject.c \
+IsDolly.c \
+Iso3833VehicleType.c \
+ITIStextPhrase.c \
+AxleLocation.c \
+AxleWeight.c \
+CargoWeight.c \
+DriveAxleLiftAirPressure.c \
+DriveAxleLocation.c \
+DriveAxleLubePressure.c \
+DriveAxleTemperature.c \
+SteeringAxleLubePressure.c \
+SteeringAxleTemperature.c \
+TireLeakageRate.c \
+TireLocation.c \
+TirePressureThresholdDetection.c \
+TirePressure.c \
+TireTemp.c \
+TrailerWeight.c \
+WheelEndElectFault.c \
+WheelSensorStatus.c \
+LaneAttributes-Barrier.c \
+LaneAttributes-Bike.c \
+LaneAttributes-Crosswalk.c \
+LaneAttributes-Parking.c \
+LaneAttributes-Sidewalk.c \
+LaneAttributes-Striping.c \
+LaneAttributes-TrackedVehicle.c \
+LaneAttributes-Vehicle.c \
+LaneConnectionID.c \
+LaneDirection.c \
+LaneID.c \
+LaneSharing.c \
+LaneWidth.c \
+Latitude.c \
+LayerID.c \
+LayerType.c \
+LightbarInUse.c \
+Longitude.c \
+Location-quality.c \
+Location-tech.c \
+MergeDivergeNodeAngle.c \
+MessageBLOB.c \
+MinuteOfTheYear.c \
+MinutesDuration.c \
+MotorizedPropelledType.c \
+MovementPhaseState.c \
+DSRC_MsgCount.c \
+MsgCRC.c \
+MultiVehicleResponse.c \
+MUTCDCode.c \
+NMEA-MsgType.c \
+NMEA-Payload.c \
+NMEA-Revision.c \
+NodeAttributeLL.c \
+NodeAttributeXY.c \
+NumberOfParticipantsInCluster.c \
+ObjectCount.c \
+ObstacleDirection.c \
+ObstacleDistance.c \
+Offset-B09.c \
+Offset-B10.c \
+Offset-B11.c \
+Offset-B12.c \
+Offset-B13.c \
+Offset-B14.c \
+Offset-B16.c \
+OffsetLL-B12.c \
+OffsetLL-B14.c \
+OffsetLL-B16.c \
+OffsetLL-B18.c \
+OffsetLL-B22.c \
+OffsetLL-B24.c \
+PayloadData.c \
+PedestrianBicycleDetect.c \
+HumanPropelledType.c \
+PersonalAssistive.c \
+PersonalClusterRadius.c \
+PersonalCrossingInProgress.c \
+PersonalCrossingRequest.c \
+PersonalDeviceUsageState.c \
+PersonalDeviceUserType.c \
+PivotingAllowed.c \
+PositionConfidence.c \
+PrioritizationResponseStatus.c \
+Priority.c \
+PriorityRequestType.c \
+PrivilegedEventFlags.c \
+ProbeSegmentNumber.c \
+PublicSafetyAndRoadWorkerActivity.c \
+PublicSafetyDirectingTrafficSubType.c \
+PublicSafetyEventResponderWorkerType.c \
+RadiusOfCurvature.c \
+Radius-B12.c \
+RainSensor.c \
+RegionId.c \
+RequestedItem.c \
+RequestID.c \
+RequestImportanceLevel.c \
+RequestSubRole.c \
+ResponseType.c \
+RestrictionAppliesTo.c \
+RestrictionClassID.c \
+RoadRegulatorID.c \
+RoadSegmentID.c \
+RoadwayCrownAngle.c \
+RTCM-Revision.c \
+RTCMmessage.c \
+Scale-B12.c \
+SecondOfTime.c \
+SegmentAttributeLL.c \
+SegmentAttributeXY.c \
+SemiMajorAxisAccuracy.c \
+SemiMajorAxisOrientation.c \
+SemiMinorAxisAccuracy.c \
+SignalGroupID.c \
+SignalReqScheme.c \
+SignPrority.c \
+SirenInUse.c \
+SpeedAdvice.c \
+SpeedConfidence.c \
+SpeedLimitType.c \
+SpeedProfileMeasurement.c \
+Speed.c \
+SSPindex.c \
+StabilityControlStatus.c \
+StationID.c \
+SteeringWheelAngleConfidence.c \
+SteeringWheelAngleRateOfChange.c \
+SteeringWheelAngle.c \
+SunSensor.c \
+TemporaryID.c \
+TermDistance.c \
+TermTime.c \
+ThrottleConfidence.c \
+ThrottlePosition.c \
+TimeConfidence.c \
+TimeIntervalConfidence.c \
+DSRC_TimeMark.c \
+TimeOffset.c \
+TractionControlStatus.c \
+TrailerMass.c \
+TransitStatus.c \
+TransitVehicleOccupancy.c \
+TransitVehicleStatus.c \
+TransmissionState.c \
+TravelerInfoType.c \
+UniqueMSGID.c \
+URL-Base.c \
+URL-Link.c \
+URL-Short.c \
+UserSizeAndBehaviour.c \
+VehicleEventFlags.c \
+VehicleHeight.c \
+VehicleLength.c \
+VehicleMass.c \
+VehicleStatusDeviceTypeTag.c \
+VehicleType.c \
+VehicleWidth.c \
+Velocity.c \
+VerticalAccelerationThreshold.c \
+VerticalAcceleration.c \
+VertOffset-B07.c \
+VertOffset-B08.c \
+VertOffset-B09.c \
+VertOffset-B10.c \
+VertOffset-B11.c \
+VertOffset-B12.c \
+VINstring.c \
+WaitOnStopline.c \
+WiperRate.c \
+WiperStatus.c \
+YawRateConfidence.c \
+YawRate.c \
+ZoneLength.c \
+Zoom.c \
+AltitudeConfidence.c \
+AltitudeValue.c \
+EmissionType.c \
+Altitude.c \
+PrioritizationResponse.c \
+PrioritizationResponseList.c \
+ConnectionManeuverAssist-addGrpC.c \
+IntersectionState-addGrpC.c \
+MapData-addGrpC.c \
+Position3D-addGrpC.c \
+RestrictionUserType-addGrpC.c \
+SignalHeadLocation.c \
+SignalHeadLocationList.c \
+VehicleToLanePosition.c \
+VehicleToLanePositionList.c \
+AddGrpB_Angle.c \
+Day.c \
+DayOfWeek.c \
+DegreesLat.c \
+DegreesLong.c \
+AddGrpB_Elevation.c \
+Holiday.c \
+Hour.c \
+LatitudeDMS.c \
+LongitudeDMS.c \
+MaxTimetoChange.c \
+MinTimetoChange.c \
+Minute.c \
+MinutesAngle.c \
+Month.c \
+AddGrpB_MsgCount.c \
+Second.c \
+SecondsAngle.c \
+SummerTime.c \
+TenthSecond.c \
+TimeRemaining.c \
+Year.c \
+LatitudeDMS2.c \
+LongitudeDMS2.c \
+Node-LLdms-48b.c \
+Node-LLdms-80b.c \
+LaneDataAttribute-addGrpB.c \
+MovementEvent-addGrpB.c \
+NodeOffsetPointXY-addGrpB.c \
+Position3D-addGrpB.c \
+AddGrpB_TimeMark.c \
+EssMobileFriction.c \
+EssPrecipRate.c \
+EssPrecipSituation.c \
+EssPrecipYesNo.c \
+EssSolarRadiation.c \
+GenericLocations.c \
+IncidentResponseEquipment.c \
+ITIStext.c \
+ResponderGroupAffected.c \
+VehicleGroupAffected.c \
+ITIScodesAndText.c \
+ITIScodes.c
 
 
-lib_LTLIBRARIES=libsomething.la
-libsomething_la_SOURCES=$(ASN_MODULE_SOURCES) $(ASN_MODULE_HEADERS)
+# JMC: These look to be standard ASN.1 code files that do not depend on a particular schema.
+# JMC: When the compiler is built, these are generated into objects that may be linked in
+# JMC: instead of compiling.
+ASN1C_MODULE_SOURCES+=ANY.c
+ASN1C_MODULE_SOURCES+=OPEN_TYPE.c
+ASN1C_MODULE_SOURCES+=BOOLEAN.c
+ASN1C_MODULE_SOURCES+=IA5String.c
+ASN1C_MODULE_SOURCES+=INTEGER.c
+ASN1C_MODULE_SOURCES+=NativeEnumerated.c
+ASN1C_MODULE_SOURCES+=NativeInteger.c
+ASN1C_MODULE_SOURCES+=asn_SEQUENCE_OF.c
+ASN1C_MODULE_SOURCES+=asn_SET_OF.c
+
+# JMC: had to add this to make this Makefile work.
+ASN1C_MODULE_SOURCES+=constr_CHOICE.c
+ASN1C_MODULE_SOURCES+=constr_SEQUENCE.c
+ASN1C_MODULE_SOURCES+=constr_SEQUENCE_OF.c
+ASN1C_MODULE_SOURCES+=constr_SET_OF.c
+ASN1C_MODULE_SOURCES+=asn_bit_data.c
+ASN1C_MODULE_SOURCES+=OCTET_STRING.c
+ASN1C_MODULE_SOURCES+=BIT_STRING.c
+ASN1C_MODULE_SOURCES+=asn_codecs_prim.c
+ASN1C_MODULE_SOURCES+=ber_tlv_length.c
+ASN1C_MODULE_SOURCES+=ber_tlv_tag.c
+ASN1C_MODULE_SOURCES+=ber_decoder.c
+ASN1C_MODULE_SOURCES+=der_encoder.c
+ASN1C_MODULE_SOURCES+=constr_TYPE.c
+ASN1C_MODULE_SOURCES+=constraints.c
+ASN1C_MODULE_SOURCES+=xer_support.c
+ASN1C_MODULE_SOURCES+=xer_decoder.c
+ASN1C_MODULE_SOURCES+=xer_encoder.c
+# JMC: had to get rid of these because of the DISABLE_OER_SUPPORT??
+# ASN1C_MODULE_SOURCES+=oer_decoder.c
+# ASN1C_MODULE_SOURCES+=oer_encoder.c
+# ASN1C_MODULE_SOURCES+=oer_support.c
+ASN1C_MODULE_SOURCES+=per_support.c
+ASN1C_MODULE_SOURCES+=per_decoder.c
+ASN1C_MODULE_SOURCES+=per_encoder.c
+ASN1C_MODULE_SOURCES+=per_opentype.c
+
+# JMC: these are installed into the /usr/local/share/asn1c/*.h
+# So I am not sure why they are being copied over by the asn1c execution every time.
+ASN1C_OTHER_HEADERS=asn_application.h \
+					asn_codecs.h \
+					asn_internal.h \
+					asn_system.h \
+					asn_ioc.h
+
+# JMC: I separated the SEMI testbed scheme files from the J2735 to ensure we are compiling with the minimal set of
+# files.
+# ASN_SCHEMAS += SEMI_v2.3.0_070616.ASN
+
+# Needed for the above SEMI Schema, but not J2735.
+# SEMI_ASN_MODULE_SOURCES+=ServiceRequest.c
+# SEMI_ASN_MODULE_SOURCES+=ServiceResponse.c
+# SEMI_ASN_MODULE_SOURCES+=DataRequest.c
+# SEMI_ASN_MODULE_SOURCES+=DataConfirmation.c
+# SEMI_ASN_MODULE_SOURCES+=DataAcceptance.c
+# SEMI_ASN_MODULE_SOURCES+=DataReceipt.c
+# SEMI_ASN_MODULE_SOURCES+=VehSitDataMessage.c	
+# SEMI_ASN_MODULE_SOURCES+=ObjectRegistrationData.c	
+# SEMI_ASN_MODULE_SOURCES+=ObjectDiscoveryDataRequest.c	
+# SEMI_ASN_MODULE_SOURCES+=ObjectDiscoveryData.c	
+# SEMI_ASN_MODULE_SOURCES+=DataSubscriptionRequest.c	
+# SEMI_ASN_MODULE_SOURCES+=DataSubscriptionResponse.c	
+# SEMI_ASN_MODULE_SOURCES+=DataSubscriptionCancel.c	
+# SEMI_ASN_MODULE_SOURCES+=AdvisorySituationData.c	
+# SEMI_ASN_MODULE_SOURCES+=AdvisorySituationDataDistribution.c	
+# SEMI_ASN_MODULE_SOURCES+=IntersectionSituationData.c	
+# SEMI_ASN_MODULE_SOURCES+=IntersectionSituationDataAcceptance.c	
+# SEMI_ASN_MODULE_SOURCES+=IntersectionSituationDataBundle.c	
+# SEMI_ASN_MODULE_SOURCES+=ServiceRecord.c	
+# SEMI_ASN_MODULE_SOURCES+=ConnectionPoint.c	
+# SEMI_ASN_MODULE_SOURCES+=GeoRegion.c	
+# SEMI_ASN_MODULE_SOURCES+=IpAddress.c	
+# SEMI_ASN_MODULE_SOURCES+=VehSitRecord.c	
+# SEMI_ASN_MODULE_SOURCES+=FundamentalSituationalStatus.c	
+# SEMI_ASN_MODULE_SOURCES+=Weather.c	
+# SEMI_ASN_MODULE_SOURCES+=VehicleSituationStatus.c	
+# SEMI_ASN_MODULE_SOURCES+=Environmental.c	
+# SEMI_ASN_MODULE_SOURCES+=ElectricVeh.c	
+# SEMI_ASN_MODULE_SOURCES+=AdvisoryDetails.c	
+# SEMI_ASN_MODULE_SOURCES+=AdvisoryBroadcast.c	
+# SEMI_ASN_MODULE_SOURCES+=BroadcastInstructions.c	
+# SEMI_ASN_MODULE_SOURCES+=DsrcInstructions.c	
+# SEMI_ASN_MODULE_SOURCES+=AdvisorySituationBundle.c	
+# SEMI_ASN_MODULE_SOURCES+=IntersectionBundle.c	
+# SEMI_ASN_MODULE_SOURCES+=IntersectionRecord.c	
+# SEMI_ASN_MODULE_SOURCES+=SpatRecord.c	
+# SEMI_ASN_MODULE_SOURCES+=SemiDialogID.c	
+# SEMI_ASN_MODULE_SOURCES+=SemiSequenceID.c	
+# SEMI_ASN_MODULE_SOURCES+=ServiceID.c	
+# SEMI_ASN_MODULE_SOURCES+=GroupID.c	
+# SEMI_ASN_MODULE_SOURCES+=VsmType.c	
+# SEMI_ASN_MODULE_SOURCES+=VsmEventFlag.c	
+# SEMI_ASN_MODULE_SOURCES+=IsdType.c	
+# SEMI_ASN_MODULE_SOURCES+=IPv4Address.c	
+# SEMI_ASN_MODULE_SOURCES+=IPv6Address.c	
+# SEMI_ASN_MODULE_SOURCES+=PortNumber.c	
+# SEMI_ASN_MODULE_SOURCES+=ServiceProviderID.c	
+# SEMI_ASN_MODULE_SOURCES+=Sha256Hash.c	
+# SEMI_ASN_MODULE_SOURCES+=Psid.c	
+# SEMI_ASN_MODULE_SOURCES+=AdvisoryBroadcastType.c	
+# SEMI_ASN_MODULE_SOURCES+=DistributionType.c	
+# SEMI_ASN_MODULE_SOURCES+=TimeToLive.c	
+# SEMI_ASN_MODULE_SOURCES+=TxMode.c	
+# SEMI_ASN_MODULE_SOURCES+=TxChannel.c	
+# SEMI_ASN_MODULE_SOURCES+=FuelConsumption.c	
+# SEMI_ASN_MODULE_SOURCES+=Emissions.c	
+# SEMI_ASN_MODULE_SOURCES+=FuelEconomy.c	
+# SEMI_ASN_MODULE_SOURCES+=StateOfCharge.c	
+# SEMI_ASN_MODULE_SOURCES+=Capacity.c	
+# SEMI_ASN_MODULE_SOURCES+=Range.c
+
+# ASN1C_CONVERTER_CLI_SOURCE=converter-sample.c
+ASN1C_CONVERTER_CLI_SOURCE=asn1-module-converter.c
+ASN1C_CONVERTER_LIB_SOURCE=asn1-j2735-lib.c
 
 # This file may be used as an input for make(3)
 # Remove the lines below to convert it into a pure .am file
-TARGET = j2735-dump
-CPPFLAGS += -DASN_CONVERTER_TITLE="J2735 DSRC decoder" -DASN_DISABLE_OER_SUPPORT -DPDU=MessageFrame -I.
-OBJS=${ASN_MODULE_SOURCES:.c=.o} ${ASN_CONVERTER_SOURCES:.c=.o}
+TARGET = j2735
+TARGET_J2735_CLI = ${TARGET}-parse
+TARGET_J2735_LIB = lib${TARGET}.a
+TARGET_SEMI = semi-dump
 
-all: MessageFrame.c $(TARGET)
+CFLAGS +=
+CPPFLAGS += -DASN_CONVERTER_TITLE="J2735 DSRC decoder" -DASN_DISABLE_OER_SUPPORT -DPDU=MessageFrame -I. 
+LDFLAGS += -L.
+LIBS += -l${TARGET}
 
-$(TARGET): ${OBJS}
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $(TARGET) ${OBJS} $(LDFLAGS) $(LIBS)
+OBJS=${J2735_ASN_MODULE_SOURCES:.c=.o} ${ASN1C_MODULE_SOURCES:.c=.o}
 
-.SUFFIXES:
-.SUFFIXES: .c .o
+CLI_OBJ=${ASN1C_CONVERTER_CLI_SOURCE:.c=.o}
+LIB_OBJ=${ASN1C_CONVERTER_LIB_SOURCE:.c=.o}
 
-.c.o:
+HEADERS=  ${J2735_ASN_MODULE_SOURCES:.c=.h} 
+HEADERS+= ${ASN1C_MODULE_SOURCES:.c=.h} 
+HEADERS+= ${ASN1C_CONVERTER_CLI_SOURCE:.c=.h} 
+HEADERS+= ${ASN1C_CONVERTER_LIB_SOURCE:.c=.h}
+HEADERS+= $(ASN1C_OTHER_HEADERS)
+
+all: $(TARGET_J2735_LIB) $(TARGET_J2735_CLI)
+
+# Build the objects using new wildcard syntax.
+%.o: %.c %.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
+# Build the library for the J2735 functions we will use in the Kafka module.
+$(TARGET_J2735_LIB): $(LIB_OBJ) $(OBJS)
+	ar -rcs $@ $(LIB_OBJ) $(OBJS)
+
+# Build the executable using the library.
+# $(OBJS)
+$(TARGET_J2735_CLI): $(TARGET_J2735_LIB) $(CLI_OBJ) 
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(CLI_OBJ) $(LIBS)
+
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET_J2735_CLI)
+	rm -f $(TARGET_J2735_LIB)
 	rm -f $(OBJS)
+	rm -f $(LIB_OBJ)
+	rm -f $(CLI_OBJ)
 
-regen: regenerate-from-asn1-source
+distclean: clean
+	rm -f $(J2735_ASN_MODULE_SOURCES)
+	rm -f $(ASN1C_MODULE_SOURCES)
+	# KEEP THIS AROUND FOR DEV! rm -f $(ASN1C_CONVERTER_CLI_SOURCE)
+	rm -f $(HEADERS)
+	rm -f Makefile.am.sample
 
-regenerate-from-asn1-source: $(ASN_SCHEMAS)
+# This command generates the source from the schema AND copies those files into the directory where make was called.
+regen: $(ASN_SCHEMAS)
 	asn1c -pdu=MessageFrame -fcompound-names -gen-PER $(ASN_SCHEMAS)
 
 MessageFrame.c: $(ASN_SCHEMAS)
@@ -1205,32 +677,27 @@ check-per:
 	for f in sample-MessageFrame-[1-9]-nopad.per; do \
 	for b in 1 17 33 980 8192; do \
 	echo "Recoding non-padded $$f into DER into XER and back ($$b)..."; \
-	./${TARGET} -b $$b -per-nopad -iper -oder $$f > ./.tmp.1.$$$$ || exit 2; \
-	./${TARGET} -b $$b -iber -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 3; \
-	./${TARGET} -b $$b -ixer -oder ./.tmp.2.$$$$ > ./.tmp.3.$$$$ || exit 4; \
+	./${TARGET_J2735} -b $$b -per-nopad -iper -oder $$f > ./.tmp.1.$$$$ || exit 2; \
+	./${TARGET_J2735} -b $$b -iber -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 3; \
+	./${TARGET_J2735} -b $$b -ixer -oder ./.tmp.2.$$$$ > ./.tmp.3.$$$$ || exit 4; \
 	diff ./.tmp.1.$$$$ ./.tmp.3.$$$$ || exit 5; \
 	rm -f ./.tmp.[123].$$$$; \
 	echo "Test junking $$f (please wait)..."; \
-	./${TARGET} -J0.0001 -n 1000 -b $$b -per-nopad -iper -onull $$f || exit 6; \
-	./${TARGET} -J0.001 -n 1000 -b $$b -per-nopad -iper -onull $$f || exit 7; \
+	./${TARGET_J2735} -J0.0001 -n 1000 -b $$b -per-nopad -iper -onull $$f || exit 6; \
+	./${TARGET_J2735} -J0.001 -n 1000 -b $$b -per-nopad -iper -onull $$f || exit 7; \
 	done; done; fi
 	@if test -f sample-MessageFrame-1.per ; then \
 	for f in sample-*-[1-9].per; do \
 	pdu=`echo $$f | sed -E -e "s/sample-([A-Za-z-]+)-[0-9].*/\1/"`; \
 	for b in 1 17 33 980 8192; do \
 	echo "Recoding $$f into DER into XER and back ($$b)..."; \
-	./${TARGET} -b $$b -p $$pdu -iper -oder $$f > ./.tmp.1.$$$$ || exit 3; \
-	./${TARGET} -b $$b -p $$pdu -iber -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 4; \
-	./${TARGET} -b $$b -p $$pdu -ixer -oper ./.tmp.2.$$$$ > ./.tmp.1.$$$$ || exit 5; \
+	./${TARGET_J2735} -b $$b -p $$pdu -iper -oder $$f > ./.tmp.1.$$$$ || exit 3; \
+	./${TARGET_J2735} -b $$b -p $$pdu -iber -oxer ./.tmp.1.$$$$ > ./.tmp.2.$$$$ || exit 4; \
+	./${TARGET_J2735} -b $$b -p $$pdu -ixer -oper ./.tmp.2.$$$$ > ./.tmp.1.$$$$ || exit 5; \
 	diff $$f ./.tmp.1.$$$$ || exit 6; \
 	rm -f ./.tmp.[12].$$$$; \
 	echo "Test junking $$f (please wait)..."; \
-	./${TARGET} -J0.0001 -n 1000 -b $$b -iper -onull $$f || exit 7; \
-	./${TARGET} -J0.001 -n 1000 -b $$b -iper -onull $$f || exit 8; \
+	./${TARGET_J2735} -J0.0001 -n 1000 -b $$b -iper -onull $$f || exit 7; \
+	./${TARGET_J2735} -J0.001 -n 1000 -b $$b -iper -onull $$f || exit 8; \
 	done; done; fi
 
-distclean: clean
-	rm -f $(ASN_MODULE_SOURCES)
-	rm -f $(ASN_MODULE_HEADERS)
-	rm -f $(ASN_CONVERTER_SOURCES) $(ASN_CONVERTER_HEADERS)
-	rm -f Makefile.am.sample
