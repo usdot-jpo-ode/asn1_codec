@@ -4,6 +4,9 @@
  *
  */
 
+#ifndef _ASN1_J2735_LIB_H
+#define _ASN1_J2735_LIB_H
+
 #include <asn_internal.h>    // Includes asn_application.h 
                              // for ASN__DEFAULT_STACK_MAX
 
@@ -21,7 +24,7 @@ extern "C" {
 
 extern asn_TYPE_descriptor_t PDU_Type;    /* ASN.1 type to be decoded */
 
-int opt_debug;    /* -d (or -dd) */
+extern int opt_debug;    /* -d (or -dd) */
 
 // Input data format selector.
 // NOTE: Moved these from the converter file with main to move more toward a lib.
@@ -66,4 +69,6 @@ void *data_decode_from_file(asn_TYPE_descriptor_t *pduType, FILE *file, const ch
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -43,11 +43,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ASN1_Codec.hpp"
+#include "acm.hpp"
+#include "utilities.hpp"
+
 #include "spdlog/spdlog.h"
+
+#include "asn1-j2735-lib.h"
+
 #include <csignal>
 #include <chrono>
 #include <thread>
+#include <cstdio>
 
 // for both windows and linux.
 #include <sys/types.h>
@@ -67,10 +73,12 @@
 #include <unistd.h>
 #endif
 
-bool ASN1_Codec::bsms_available = true;
+static FILE* dumpfile;
+
+bool ASN1_Codec::data_available = true;
 
 void ASN1_Codec::sigterm (int sig) {
-    bsms_available = false;
+    data_available = false;
 }
 
 ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description ) :
@@ -78,12 +86,12 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     exit_eof{true},
     eof_cnt{0},
     partition_cnt{1},
-    bsm_recv_count{0},
-    bsm_send_count{0},
-    bsm_filt_count{0},
-    bsm_recv_bytes{0},
-    bsm_send_bytes{0},
-    bsm_filt_bytes{0},
+    msg_recv_count{0},
+    msg_send_count{0},
+    msg_filt_count{0},
+    msg_recv_bytes{0},
+    msg_send_bytes{0},
+    msg_filt_bytes{0},
     iloglevel{ spdlog::level::trace },
     eloglevel{ spdlog::level::err },
     pconf{},
@@ -93,22 +101,22 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     debug{""},
     consumed_topics{},
     offset{RdKafka::Topic::OFFSET_BEGINNING},
-    published_topic{},
+    published_topic_name{},
     conf{nullptr},
     tconf{nullptr},
-    qptr{},
-    consumer{},
+    consumer_ptr{},
     consumer_timeout{500},
-    producer{},
-    filtered_topic{},
+    producer_ptr{},
+    published_topic_ptr{},
     ilogger{},
-    elogger{}
+    elogger{},
+    first_block{ true }
 {
 }
 
 ASN1_Codec::~ASN1_Codec() 
 {
-    if (consumer) consumer->close();
+    if (consumer_ptr) consumer_ptr->close();
 
     // free raw librdkafka pointers.
     if (tconf) delete tconf;
@@ -173,7 +181,7 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
     bool r = false;
 
     RdKafka::Metadata* md;
-    RdKafka::ErrorCode err = consumer->metadata( true, nullptr, &md, 5000 );
+    RdKafka::ErrorCode err = consumer_ptr->metadata( true, nullptr, &md, 5000 );
     // TODO: Will throw a broker transport error (ERR__TRANSPORT = -195) if the broker is not available.
 
     if ( err == RdKafka::ERR_NO_ERROR ) {
@@ -222,6 +230,20 @@ void ASN1_Codec::print_configuration() const
     }
 }
 
+
+/**
+ * JMC: asn1 reviewed.
+ *
+ * The following configuration settings are processed by configure:
+ *
+ asn1.j2735.kafka.partition
+ asn1.j2735.topic.consumer
+ asn1.j2735.topic.producer
+ asn1.j2735.consumer.timeout.ms
+
+JMC: TODO: All the ASN1C variables that are normally setup do here!
+
+*/
 bool ASN1_Codec::configure() {
 
     if ( optIsSet('v') ) {
@@ -305,23 +327,6 @@ bool ASN1_Codec::configure() {
 
     // All configuration file settings are overridden, if supplied, by CLI options.
 
-    // fail first on mapfile.
-    std::string mapfile;
-
-    if ( optIsSet('m') ) {
-        // map file is specified on command line.
-        mapfile = optString('m');
-
-    } else {
-        auto search = pconf.find("privacy.filter.geofence.mapfile");
-        if ( search != pconf.end() ) {
-            mapfile = search->second;
-        } else {
-            elogger->error("no map file specified; must fail.");
-            return false;
-        }
-    }
-
     if ( optIsSet('b') ) {
         // broker specified.
         ilogger->info("setting kafka broker to: {}", optString('b'));
@@ -333,7 +338,7 @@ bool ASN1_Codec::configure() {
         partition = optInt( 'p' );
 
     } else {
-        auto search = pconf.find("privacy.kafka.partition");
+        auto search = pconf.find("asn1.j2735.kafka.partition");
         if ( search != pconf.end() ) {
             partition = std::stoi(search->second);              // throws.    
         }  // otherwise leave at default; PARTITION_UA
@@ -375,7 +380,7 @@ bool ASN1_Codec::configure() {
     // librdkafka defined configuration.
     conf->set("default_topic_conf", tconf, error_string);
 
-    auto search = pconf.find("privacy.topic.consumer");
+    auto search = pconf.find("asn1.j2735.topic.consumer");
     if ( search != pconf.end() ) {
         consumed_topics.push_back( search->second );
         ilogger->info("consumed topic: {}", search->second);
@@ -388,22 +393,22 @@ bool ASN1_Codec::configure() {
 
     if (optIsSet('t')) {
         // this is the produced (filtered) topic.
-        published_topic = optString( 't' );
+        published_topic_name = optString( 't' );
 
     } else {
         // maybe it was specified in the configuration file.
-        auto search = pconf.find("privacy.topic.producer");
+        auto search = pconf.find("asn1.j2735.topic.producer");
         if ( search != pconf.end() ) {
-            published_topic = search->second;
+            published_topic_name = search->second;
         } else {
             elogger->error("no publisher topic was specified; must fail.");
             return false;
         }
     }
 
-    ilogger->info("published topic: {}", published_topic);
+    ilogger->info("published topic: {}", published_topic_name);
 
-    search = pconf.find("privacy.consumer.timeout.ms");
+    search = pconf.find("asn1.j2735.consumer.timeout.ms");
     if ( search != pconf.end() ) {
         try {
             consumer_timeout = std::stoi( search->second );
@@ -412,17 +417,37 @@ bool ASN1_Codec::configure() {
         }
     }
 
+    // TODO: This is a GLOBAL THAT NEEDS FIXING; hold over from asn1c
+    // This is the input (from the stream) file format.
+    iform = INP_PER;
+
     ilogger->trace("ending configure()");
     return true;
 }
 
-bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* opaque, BSMHandler& handler) {
+/**
+ * JMC:
+ *
+ * 1. No handler should be needed.
+ *
+ */
+bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* structure ) {
+
+    // For J2735, this points to the asn_TYPE_descriptor_t asn_DEF_MessageFrame structure defined in
+    // MessageFrame.c. The asn_TYPE_descriptor_t is in constr_TYPE.h (of the asn1c library)
+    static asn_TYPE_descriptor_t *pduType = &PDU_Type;
+
     static std::string tsname;
     static RdKafka::MessageTimestamp ts;
 
+
+    //void *structure;
+
     // payload is a void *
     // len is a size_t
-    std::string payload(static_cast<const char*>(message->payload()), message->len());
+    // std::string payload(static_cast<const char*>(message->payload()), message->len());
+
+    // TODO: Could make a library function to take this "message" type and process it..., or just use the raw bytes.
 
     switch (message->err()) {
         case RdKafka::ERR__TIMED_OUT:
@@ -431,10 +456,10 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* opaque, BSMHandler
 
         case RdKafka::ERR_NO_ERROR:
             /* Real message */
-            bsm_recv_count++;
-            bsm_recv_bytes += message->len();
+            msg_recv_count++;
+            msg_recv_bytes += message->len();
 
-            ilogger->trace("Read message at byte offset: {}", message->offset() );
+            ilogger->trace("Read message at byte offset: {} with length {}", message->offset(), message->len() );
 
             ts = message->timestamp();
 
@@ -454,18 +479,36 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* opaque, BSMHandler
                 ilogger->trace("Message key: {}", *message->key() );
             }
 
-            // Process the BSM payload.
-            if ( handler.process( payload ) ) {
-                // the complete BSM was parsed, so we have all the information.
-                ilogger->info("BSM [RETAINED]: {}", handler.get_bsm().logString());
-                return true;
-                
+
+            /**
+             * Strategy:
+             *
+             * 1. Load up the DynamicBuffer (global) until the function below returns and RC_OK.
+             * 2. When RC_OK is returned, take structure and write its decoded form to the output topic.
+             * 3. If RC_FAIL is returned we have something to recover from....
+             *
+             *
+             */
+
+            std::fwrite( message->payload(), sizeof(uint8_t), message->len(), dump_file );
+
+            // Process the ASN1 payload.
+            // TODO: just call the library method.
+            structure = data_decode_from_buffer( pduType, static_cast<const uint8_t*>(message->payload()), message->len(), first_block );
+
+            if ( structure == nullptr ) {
+                ilogger->warn("No structure returned from decoding.");
+                elogger->error("No structure returned from decoding.");
+                break;
             } else {
-                // Suppressed BSM.
-                ilogger->info("BSM [SUPPRESSED-{}]: {}", handler.get_result_string(), handler.get_bsm().logString());
-                bsm_filt_count++;
-                bsm_filt_bytes += message->len();
-            } // return false;
+                ilogger->info("We have a struture!!!!");
+            }
+
+            // JMC: Dump these to a string stream instead or directly to the kafka buffer.
+            // fprintf( stdout, "JMC: OUT_XER\n" );
+            if(xer_fprint(stdout, pduType, structure)) {
+                elogger->error("Cannot convert {} into XML.", pduType->name );
+            }
 
             break;
 
@@ -476,7 +519,7 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* opaque, BSMHandler
 
                 if (eof_cnt == partition_cnt) {
                     ilogger->info("EOF reached for all {} partition(s)", partition_cnt);
-                    bsms_available = false;
+                    data_available = false;
                 }
             }
             break;
@@ -486,93 +529,50 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* opaque, BSMHandler
 
         case RdKafka::ERR__UNKNOWN_PARTITION:
             elogger->error("cannot consume due to an UNKNOWN consumer partition: {}", message->errstr());
-            bsms_available = false;
+            data_available = false;
             break;
 
         default:
             elogger->error("cannot consume due to an error: {}", message->errstr());
-            bsms_available = false;
+            data_available = false;
     }
 
+    first_block = false;
     return false;
 }
 
-Quad::Ptr ASN1_Codec::BuildGeofence( const std::string& mapfile )  // throws
-{
-    geo::Point sw, ne;
-
-    ilogger->trace("Starting BuildGeofence.");
-
-    auto search = pconf.find("privacy.filter.geofence.sw.lat");
-    if ( search != pconf.end() ) {
-        sw.lat = std::stod(search->second);
-    }
-
-    search = pconf.find("privacy.filter.geofence.sw.lon");
-    if ( search != pconf.end() ) {
-        sw.lon = std::stod(search->second);
-    }
-
-    search = pconf.find("privacy.filter.geofence.ne.lat");
-    if ( search != pconf.end() ) {
-        ne.lat = std::stod(search->second);
-    }
-
-    search = pconf.find("privacy.filter.geofence.ne.lon");
-    if ( search != pconf.end() ) {
-        ne.lon = std::stod(search->second);
-    }
-
-    Quad::Ptr qptr = std::make_shared<Quad>(sw, ne);
-
-    // Read the file and parse the shapes.
-    shapes::CSVInputFactory shape_factory( mapfile );
-    shape_factory.make_shapes();
-
-    // Add all the shapes to the quad.
-    // NOTE: we are only using Edges right now.
-    for (auto& circle_ptr : shape_factory.get_circles()) {
-        Quad::insert(qptr, std::dynamic_pointer_cast<const geo::Entity>(circle_ptr)); 
-    }
-
-    for (auto& edge_ptr : shape_factory.get_edges()) {
-        Quad::insert(qptr, std::dynamic_pointer_cast<const geo::Entity>(edge_ptr)); 
-    }
-
-    for (auto& grid_ptr : shape_factory.get_grids()) {
-        Quad::insert(qptr, std::dynamic_pointer_cast<const geo::Entity>(grid_ptr)); 
-    }
-
-    ilogger->trace("Completed BuildGeofence.");
-    return qptr;
-}
-
+/**
+ * JMC: asn1 reviewed.
+ */
 bool ASN1_Codec::launch_producer()
 {
     std::string error_string;
 
-    producer = std::shared_ptr<RdKafka::Producer>( RdKafka::Producer::create(conf, error_string) );
-    if (!producer) {
+    producer_ptr = std::shared_ptr<RdKafka::Producer>( RdKafka::Producer::create(conf, error_string) );
+    if ( !producer_ptr ) {
         elogger->critical("Failed to create producer with error: {}.", error_string );
         return false;
     }
 
-    filtered_topic = std::shared_ptr<RdKafka::Topic>( RdKafka::Topic::create(producer.get(), published_topic, tconf, error_string) );
-    if ( !filtered_topic ) {
-        elogger->critical("Failed to create topic: {}. Error: {}.", published_topic, error_string );
+    published_topic_ptr = std::shared_ptr<RdKafka::Topic>( RdKafka::Topic::create(producer_ptr.get(), published_topic_name, tconf, error_string) );
+    if ( !published_topic_ptr ) {
+        elogger->critical("Failed to create topic: {}. Error: {}.", published_topic_name, error_string );
         return false;
     } 
 
-    ilogger->info("Producer: {} created using topic: {}.", producer->name(), published_topic);
+    ilogger->info("Producer: {} created using topic: {}.", producer_ptr->name(), published_topic_name);
     return true;
 }
 
+/**
+ * JMC: asn1 reviewed.
+ */
 bool ASN1_Codec::launch_consumer()
 {
     std::string error_string;
 
-    consumer = std::shared_ptr<RdKafka::KafkaConsumer>( RdKafka::KafkaConsumer::create(conf, error_string) );
-    if (!consumer) {
+    consumer_ptr = std::shared_ptr<RdKafka::KafkaConsumer>( RdKafka::KafkaConsumer::create(conf, error_string) );
+    if (!consumer_ptr) {
         elogger->critical("Failed to create consumer with error: {}",  error_string );
         return false;
     }
@@ -581,7 +581,7 @@ bool ASN1_Codec::launch_consumer()
     // loop terminates with a signal (CTRL-C) or when all the topics are available.
     int tcount = 0;
     for ( auto& topic : consumed_topics ) {
-        while ( bsms_available && tcount < consumed_topics.size() ) {
+        while ( data_available && tcount < consumed_topics.size() ) {
             if ( topic_available(topic) ) {
                 ilogger->trace("Consumer topic: {} is available.", topic);
                 // count it and attempt to get the next one if it exists.
@@ -596,7 +596,7 @@ bool ASN1_Codec::launch_consumer()
 
     if ( tcount == consumed_topics.size() ) {
         // all the needed topics are available for subscription.
-        RdKafka::ErrorCode status = consumer->subscribe(consumed_topics);
+        RdKafka::ErrorCode status = consumer_ptr->subscribe(consumed_topics);
         if (status) {
             elogger->critical("Failed to subscribe to {} topics. Error: {}.", consumed_topics.size(), RdKafka::err2str(status) );
             return false;
@@ -608,11 +608,11 @@ bool ASN1_Codec::launch_consumer()
 
     std::ostringstream buf{};
     for ( auto& topic : consumed_topics ) {
-        if (buf.tellp()!=0) buf << ", ";
+        if ( buf.tellp() != 0 ) buf << ", ";
         buf << topic;
     }
 
-    ilogger->info("Consumer: {} created using topics: {}.", consumer->name(), buf.str());
+    ilogger->info("Consumer: {} created using topics: {}.", consumer_ptr->name(), buf.str());
     return true;
 }
 
@@ -694,19 +694,19 @@ bool ASN1_Codec::make_loggers( bool remove_files )
     ilogname = path + ilogname;
     elogname = path + elogname;
 
-    if ( remove_files && fileExists( ilogname ) ) {
+    //if ( remove_files && fileExists( ilogname ) ) {
         if ( std::remove( ilogname.c_str() ) != 0 ) {
             std::cerr << "Error removing the previous information log file.\n";
             return false;
         }
-    }
+    //}
 
-    if ( remove_files && fileExists( elogname ) ) {
+    //if ( remove_files && fileExists( elogname ) ) {
         if ( std::remove( elogname.c_str() ) != 0 ) {
             std::cerr << "Error removing the previous error log file.\n";
             return false;
         }
-    }
+    //}
 
     // setup information logger.
     ilogger = spdlog::rotating_logger_mt("ilog", ilogname, ilogsize, ilognum);
@@ -743,23 +743,29 @@ int ASN1_Codec::operator()(void) {
     if ( !launch_consumer() ) return false;
     if ( !launch_producer() ) return false;
 
-    BSMHandler handler{qptr, pconf};
+    dump_file = std::fopen( "dumpfile.dat", "wb");
+    if ( !dump_file ) {
+        return EXIT_FAILURE;
+    }
 
     // consume-produce loop.
-    while (bsms_available) {
+    while (data_available) {
 
-        std::unique_ptr<RdKafka::Message> msg{ consumer->consume( consumer_timeout ) };
-        if ( msg_consume(msg.get(), NULL, handler) ) {
+        std::unique_ptr<RdKafka::Message> msg{ consumer_ptr->consume( consumer_timeout ) };
 
-            status = producer->produce(filtered_topic.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)handler.get_json().c_str(), handler.get_bsm_buffer_size(), NULL, NULL);
+        if ( msg_consume(msg.get(), NULL) ) {
+
+            // TODO: the output can be the XML string, packed without newlines.
+            // Here that is the handler c_str and the buffer size.
+            // status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)handler.get_json().c_str(), handler.get_msg_buffer_size(), NULL, NULL);
 
             if (status != RdKafka::ERR_NO_ERROR) {
                 elogger->error("failed to produce retained BSM because: {}", RdKafka::err2str( status ));
 
             } else {
                 // successfully sent; update counters.
-                bsm_send_count++;
-                bsm_send_bytes += msg->len();
+                msg_send_count++;
+                msg_send_bytes += msg->len();
                 ilogger->trace("produced BSM successfully.");
             }
 
@@ -769,10 +775,12 @@ int ASN1_Codec::operator()(void) {
         ilogger->flush();
     }
 
+    std::fclose( dump_file );
+
     ilogger->info("ASN1_Codec operations complete; shutting down...");
-    ilogger->info("ASN1_Codec consumed  : {} BSMs and {} bytes", bsm_recv_count, bsm_recv_bytes);
-    ilogger->info("ASN1_Codec published : {} BSMs and {} bytes", bsm_send_count, bsm_send_bytes);
-    ilogger->info("ASN1_Codec suppressed: {} BSMs and {} bytes", bsm_filt_count, bsm_filt_bytes);
+    ilogger->info("ASN1_Codec consumed  : {} BSMs and {} bytes", msg_recv_count, msg_recv_bytes);
+    ilogger->info("ASN1_Codec published : {} BSMs and {} bytes", msg_send_count, msg_send_bytes);
+    ilogger->info("ASN1_Codec suppressed: {} BSMs and {} bytes", msg_filt_count, msg_filt_bytes);
     return EXIT_SUCCESS;
 }
 
@@ -780,24 +788,27 @@ int ASN1_Codec::operator()(void) {
 
 int main( int argc, char* argv[] )
 {
-    ASN1_Codec asn1_codec{"ASN1_Codec","Privacy Protection Module"};
+    ASN1_Codec asn1_codec{"ASN1_Codec","ASN1 Processing Module"};
 
-    asn1_codec.addOption( 'c', "config", "Configuration for Kafka and Privacy Protection Module.", true );
-    asn1_codec.addOption( 'C', "config-check", "Check the configuration and output the settings.", false );
-    asn1_codec.addOption( 't', "produce-topic", "topic.", true );
+    asn1_codec.addOption( 'c', "config", "Configuration file name and path.", true );
+    asn1_codec.addOption( 'C', "config-check", "Check the configuration file contents and output the settings.", false );
+    asn1_codec.addOption( 't', "produce-topic", "The name of the topic to produce.", true );
     asn1_codec.addOption( 'p', "partition", "Consumer topic partition from which to read.", true );
     asn1_codec.addOption( 'g', "group", "Consumer group identifier", true );
     asn1_codec.addOption( 'b', "broker", "Broker address (localhost:9092)", true );
     asn1_codec.addOption( 'o', "offset", "Byte offset to start reading in the consumed topic.", true );
     asn1_codec.addOption( 'x', "exit", "Exit consumer when last message in partition has been received.", false );
     asn1_codec.addOption( 'd', "debug", "debug level.", true );
-    asn1_codec.addOption( 'm', "mapfile", "Map data file to specify the geofence.", true );
     asn1_codec.addOption( 'v', "log-level", "The info log level [trace,debug,info,warning,error,critical,off]", true );
     asn1_codec.addOption( 'D', "log-dir", "Directory for the log files.", true );
     asn1_codec.addOption( 'R', "log-rm", "Remove specified/default log files if they exist.", false );
     asn1_codec.addOption( 'i', "ilog", "Information log file name.", true );
     asn1_codec.addOption( 'e', "elog", "Error log file name.", true );
     asn1_codec.addOption( 'h', "help", "print out some help" );
+
+
+    // debug for ASN.1
+    opt_debug = 1;
 
     if (!asn1_codec.parseArgs(argc, argv)) {
         asn1_codec.usage();
@@ -832,6 +843,9 @@ int main( int argc, char* argv[] )
         }
     }
 
+
+
+    // The module will run and when it terminates return an appropriate error code.
     std::exit( asn1_codec.run() );
 }
 

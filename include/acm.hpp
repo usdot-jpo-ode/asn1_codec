@@ -2,7 +2,7 @@
  * @file 
  * @author   Jason M. Carter (carterjm@ornl.gov)
  * @author   Aaron E. Ferber (ferberae@ornl.gov)
- * @date     May 17, 2017
+ * @date     Sept 11, 2017
  * @version  0.1
  *
  * @copyright Copyright 2017 US DOT - Joint Program Office
@@ -51,13 +51,15 @@
 
 #include <librdkafka/rdkafkacpp.h>
 #include "tool.hpp"
-#include "bsmfilter.hpp"
-#include "cvlib.hpp"
+//#include "bsmfilter.hpp"
+//#include "cvlib.hpp"
 #include "spdlog/spdlog.h"
 
 class ASN1_Codec : public tool::Tool {
 
     public:
+
+        std::FILE* dump_file;
 
         std::shared_ptr<spdlog::logger> ilogger;
         std::shared_ptr<spdlog::logger> elogger;
@@ -72,8 +74,7 @@ class ASN1_Codec : public tool::Tool {
         bool configure();
         bool launch_consumer();
         bool launch_producer();
-        bool msg_consume(RdKafka::Message* message, void* opaque, BSMHandler& handler);
-        Quad::Ptr BuildGeofence( const std::string& mapfile );
+        bool msg_consume(RdKafka::Message* message, void* opaque);
         int operator()(void);
 
         /**
@@ -91,26 +92,31 @@ class ASN1_Codec : public tool::Tool {
 
     private:
 
-        static bool bsms_available;                                     ///> flag to exit application; set via signals so static.
+        static bool data_available;                                     ///> flag to exit application; set via signals so static.
 
         static constexpr long ilogsize = 1048576 * 5;                   ///> The size of a single information log; these rotate.
         static constexpr long elogsize = 1048576 * 2;                   ///> The size of a single error log; these rotate.
+        
+        // If this buffer size is too small then an entire record will not be processed and things will FAIL!
+        // buffer for the ASN1 stuff.
+        static constexpr std::size_t BUFSIZE = 2^10;
+        uint8_t buf[BUFSIZE];
 
         static constexpr int ilognum = 5;                               ///> The number of information logs to rotate.
         static constexpr int elognum = 2;                               ///> The number of error logs to rotate.
 
 
         bool exit_eof;                                                  ///> flag to cause the application to exit on stream eof.
-        int eof_cnt;                                                    ///> counts the number of eofs needed for exit_eof to work; each partition must end.
-        int partition_cnt;                                              ///> TODO: the number of partitions being processed; currently 1.
+        int32_t eof_cnt;                                                    ///> counts the number of eofs needed for exit_eof to work; each partition must end.
+        int32_t partition_cnt;                                              ///> TODO: the number of partitions being processed; currently 1.
 
         // counters.
-        long bsm_recv_count;                                            ///> Counter for the number of BSMs received.
-        long bsm_send_count;                                            ///> Counter for the number of BSMs published.
-        long bsm_filt_count;                                            ///> Counter for hte number of BSMs filtered/suppressed.
-        int64_t bsm_recv_bytes;                                         ///> Counter for the number of BSM bytes received.
-        int64_t bsm_send_bytes;                                         ///> Counter for the nubmer of BSM bytes published.
-        int64_t bsm_filt_bytes;                                         ///> Counter for the nubmer of BSM bytes filtered/suppressed.
+        uint64_t msg_recv_count;                                            ///> Counter for the number of BSMs received.
+        uint64_t msg_send_count;                                            ///> Counter for the number of BSMs published.
+        uint64_t msg_filt_count;                                            ///> Counter for hte number of BSMs filtered/suppressed.
+        uint64_t msg_recv_bytes;                                         ///> Counter for the number of BSM bytes received.
+        uint64_t msg_send_bytes;                                         ///> Counter for the nubmer of BSM bytes published.
+        uint64_t msg_filt_bytes;                                         ///> Counter for the nubmer of BSM bytes filtered/suppressed.
 
         spdlog::level::level_enum iloglevel;                            ///> Log level for the information log.
         spdlog::level::level_enum eloglevel;                            ///> Log level for the error log.
@@ -120,19 +126,19 @@ class ASN1_Codec : public tool::Tool {
         std::string brokers;
         int32_t partition;
         int64_t offset;
-        std::string published_topic;                                    ///> The topic we are publishing filtered BSM to.
+        std::string published_topic_name;                                    ///> The topic we are publishing filtered BSM to.
 
         // configurations; global and topic (the names in these are fixed)
         std::unordered_map<std::string, std::string> pconf;
         RdKafka::Conf *conf;
         RdKafka::Conf *tconf;
 
-        Quad::Ptr qptr;
-
         std::vector<std::string> consumed_topics;                       ///> consumer topics.
-        std::shared_ptr<RdKafka::KafkaConsumer> consumer;
+        std::shared_ptr<RdKafka::KafkaConsumer> consumer_ptr;
         int consumer_timeout;
-        std::shared_ptr<RdKafka::Producer> producer;
-        std::shared_ptr<RdKafka::Topic> filtered_topic;
+        std::shared_ptr<RdKafka::Producer> producer_ptr;
+        std::shared_ptr<RdKafka::Topic> published_topic_ptr;
+
+        bool first_block;
 };
 
