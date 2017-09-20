@@ -433,6 +433,9 @@ bool ASN1_Codec::configure() {
  */
 bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* structure ) {
 
+    size_t BUFSIZE = 1024;
+    uint8_t buf[1024];
+
     // For J2735, this points to the asn_TYPE_descriptor_t asn_DEF_MessageFrame structure defined in
     // MessageFrame.c. The asn_TYPE_descriptor_t is in constr_TYPE.h (of the asn1c library)
     static asn_TYPE_descriptor_t *pduType = &PDU_Type;
@@ -440,12 +443,22 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* structure ) {
     static std::string tsname;
     static RdKafka::MessageTimestamp ts;
 
+    // pduType->op is a structure of function pointers that perform operations on the ASN.1.
 
-    //void *structure;
+    //std::size_t suggested_bufsize = 8*2^10;
+    //size_t suggested_bufsize = 8*2^10;
+    size_t bytes_read = 0;
+    size_t total_bytes = 0;
+
+    bool first_block = true;
+
+    FILE* source;
+
+    // void *structure;
 
     // payload is a void *
     // len is a size_t
-    // std::string payload(static_cast<const char*>(message->payload()), message->len());
+    std::string payload(static_cast<const char*>(message->payload()), message->len());
 
     // TODO: Could make a library function to take this "message" type and process it..., or just use the raw bytes.
 
@@ -490,25 +503,55 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* structure ) {
              *
              */
 
-            std::fwrite( message->payload(), sizeof(uint8_t), message->len(), dump_file );
+            std::cout << "newfile: " << payload << '\n';
+
+            source = fopen( payload.c_str(), "rb" );
+
+            if ( !source ) {
+                std::cout << "file: " << payload << " cannot be opened.\n";
+
+            } else {
+
+                while ( !feof( source ) ) {
+
+                    // attempt to read 1K bytes into buffer.
+                    bytes_read = fread( buf, sizeof buf[0], BUFSIZE, source );
+                    total_bytes += bytes_read;
+
+                    structure = data_decode_from_buffer(pduType, buf, bytes_read, first_block);
+                    if(!structure) {
+                        std::cerr << "No structure returned from decoding.\n";
+                        return false;
+                    }
+
+                    // JMC: Dump these to a string stream instead or directly to the kafka buffer.
+                    // fprintf( stdout, "JMC: OUT_XER\n" );
+                    if(xer_fprint(stdout, pduType, structure)) {
+                        std::cerr << payload << ": Cannot convert " << pduType->name << " into XML\n";
+                        return false;
+                    }
+                    //std::cout << "**** BREAK ****\n";
+                    first_block = false;
+                }
+            }
 
             // Process the ASN1 payload.
             // TODO: just call the library method.
-            structure = data_decode_from_buffer( pduType, static_cast<const uint8_t*>(message->payload()), message->len(), first_block );
+            // structure = data_decode_from_buffer( pduType, static_cast<const uint8_t*>(message->payload()), message->len(), first_block );
 
-            if ( structure == nullptr ) {
-                ilogger->warn("No structure returned from decoding.");
-                elogger->error("No structure returned from decoding.");
-                break;
-            } else {
-                ilogger->info("We have a struture!!!!");
-            }
+            // if ( structure == nullptr ) {
+            //     ilogger->warn("No structure returned from decoding.");
+            //     elogger->error("No structure returned from decoding.");
+            //     break;
+            // } else {
+            //     ilogger->info("We have a struture!!!!");
+            // }
 
-            // JMC: Dump these to a string stream instead or directly to the kafka buffer.
-            // fprintf( stdout, "JMC: OUT_XER\n" );
-            if(xer_fprint(stdout, pduType, structure)) {
-                elogger->error("Cannot convert {} into XML.", pduType->name );
-            }
+            // // JMC: Dump these to a string stream instead or directly to the kafka buffer.
+            // // fprintf( stdout, "JMC: OUT_XER\n" );
+            // if(xer_fprint(stdout, pduType, structure)) {
+            //     elogger->error("Cannot convert {} into XML.", pduType->name );
+            // }
 
             break;
 
