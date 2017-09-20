@@ -67,6 +67,22 @@ void *data_decode_from_buffer(asn_TYPE_descriptor_t *pduType, const uint8_t *buf
  */
 void *data_decode_from_file(asn_TYPE_descriptor_t *pduType, FILE *file, const char *name, ssize_t suggested_bufsize, int on_first_pdu);
 
+/**
+ * Shadows the structure in xer_encoder.c
+ */
+struct xer_buffer {
+    char *buffer;
+    size_t buffer_size;      // this is really where we will write next.
+    size_t allocated_size;   // this is the total size of the buffer.
+};
+
+/**
+ * This is somewhat tightly coupled with xer_encoder.h/c.  Putting it in lib so we don't have to put it in the asn1
+ * repository; these functions get overwritten when you recompile the ASN.1 specification.
+ */
+int xer_buf(void *buf, struct asn_TYPE_descriptor_s *td, void *sptr);
+int xer_buffer_append(const void *buffer, size_t size, void *app_key);
+
 #ifdef __cplusplus
 }
 #endif

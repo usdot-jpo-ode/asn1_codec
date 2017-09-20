@@ -48,7 +48,6 @@
 
 #include "spdlog/spdlog.h"
 
-#include "asn1-j2735-lib.h"
 
 #include <csignal>
 #include <chrono>
@@ -267,6 +266,8 @@ bool ASN1_Codec::configure() {
     } // else it is already set to default.
 
     ilogger->trace("starting configure()");
+    std::cerr << "bufsize: " << BUFSIZE << '\n';
+    //ilogger->info("Buffer size: {}", ASN1_Codec::BUFSIZE);
 
     std::string line;
     std::string error_string;
@@ -425,43 +426,27 @@ bool ASN1_Codec::configure() {
     return true;
 }
 
-/**
- * JMC:
- *
- * 1. No handler should be needed.
- *
- */
-bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* structure ) {
-
-    size_t BUFSIZE = 1024;
-    uint8_t buf[1024];
+bool ASN1_Codec::msg_consume(RdKafka::Message* message, struct xer_buffer* xb ) {
 
     // For J2735, this points to the asn_TYPE_descriptor_t asn_DEF_MessageFrame structure defined in
     // MessageFrame.c. The asn_TYPE_descriptor_t is in constr_TYPE.h (of the asn1c library)
+    // pduType->op is a structure of function pointers that perform operations on the ASN.1.
     static asn_TYPE_descriptor_t *pduType = &PDU_Type;
 
     static std::string tsname;
     static RdKafka::MessageTimestamp ts;
 
-    // pduType->op is a structure of function pointers that perform operations on the ASN.1.
-
-    //std::size_t suggested_bufsize = 8*2^10;
-    //size_t suggested_bufsize = 8*2^10;
     size_t bytes_read = 0;
     size_t total_bytes = 0;
 
     bool first_block = true;
 
     FILE* source;
+    void *structure;
 
-    // void *structure;
-
-    // payload is a void *
-    // len is a size_t
     std::string payload(static_cast<const char*>(message->payload()), message->len());
 
     // TODO: Could make a library function to take this "message" type and process it..., or just use the raw bytes.
-
     switch (message->err()) {
         case RdKafka::ERR__TIMED_OUT:
             ilogger->info("Waiting for more BSMs from the ODE producer.");
@@ -492,23 +477,19 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* structure ) {
                 ilogger->trace("Message key: {}", *message->key() );
             }
 
-
             /**
              * Strategy:
              *
-             * 1. Load up the DynamicBuffer (global) until the function below returns and RC_OK.
-             * 2. When RC_OK is returned, take structure and write its decoded form to the output topic.
-             * 3. If RC_FAIL is returned we have something to recover from....
+             * 1. For now just pass an ASCII filename, read that in, open and process those bytes.
+             * 2. Next, we will handle the production of binary blobs.
+             * 3. Take blocks of the binary, pass them through the library function.
              *
              *
              */
-
-            std::cout << "newfile: " << payload << '\n';
-
             source = fopen( payload.c_str(), "rb" );
 
             if ( !source ) {
-                std::cout << "file: " << payload << " cannot be opened.\n";
+                elogger->error("No file: {}; cannot be opened for decoding.", payload);
 
             } else {
 
@@ -518,40 +499,29 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* structure ) {
                     bytes_read = fread( buf, sizeof buf[0], BUFSIZE, source );
                     total_bytes += bytes_read;
 
+                    ilogger->info("Reading {} from the file {} returned bytes {}.", BUFSIZE, payload, bytes_read);
+
                     structure = data_decode_from_buffer(pduType, buf, bytes_read, first_block);
                     if(!structure) {
-                        std::cerr << "No structure returned from decoding.\n";
+                        ilogger->error("No structure returned from decoding. payload size: {}", message->len());
+                        elogger->error("No structure returned from decoding. payload size: {}", message->len());
                         return false;
                     }
 
                     // JMC: Dump these to a string stream instead or directly to the kafka buffer.
-                    // fprintf( stdout, "JMC: OUT_XER\n" );
-                    if(xer_fprint(stdout, pduType, structure)) {
-                        std::cerr << payload << ": Cannot convert " << pduType->name << " into XML\n";
+                    if( xer_buf( static_cast<void *>(xb), pduType, structure) ) {
+                        ilogger->error("Cannot convert the file: {} of type {} into XML.", payload, pduType->name);
+                        elogger->error("Cannot convert the file: {} of type {} into XML.", payload, pduType->name);
                         return false;
                     }
-                    //std::cout << "**** BREAK ****\n";
+
                     first_block = false;
                 }
+
+                ilogger->info( "Finished decode/encode operation for {} bytes.", xb->buffer_size );
+                // Good data exit point.
+                return true;
             }
-
-            // Process the ASN1 payload.
-            // TODO: just call the library method.
-            // structure = data_decode_from_buffer( pduType, static_cast<const uint8_t*>(message->payload()), message->len(), first_block );
-
-            // if ( structure == nullptr ) {
-            //     ilogger->warn("No structure returned from decoding.");
-            //     elogger->error("No structure returned from decoding.");
-            //     break;
-            // } else {
-            //     ilogger->info("We have a struture!!!!");
-            // }
-
-            // // JMC: Dump these to a string stream instead or directly to the kafka buffer.
-            // // fprintf( stdout, "JMC: OUT_XER\n" );
-            // if(xer_fprint(stdout, pduType, structure)) {
-            //     elogger->error("Cannot convert {} into XML.", pduType->name );
-            // }
 
             break;
 
@@ -580,7 +550,6 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, void* structure ) {
             data_available = false;
     }
 
-    first_block = false;
     return false;
 }
 
@@ -649,13 +618,13 @@ bool ASN1_Codec::launch_consumer()
         return false;
     }
 
-    std::ostringstream buf{};
+    std::ostringstream osbuf{};
     for ( auto& topic : consumed_topics ) {
-        if ( buf.tellp() != 0 ) buf << ", ";
-        buf << topic;
+        if ( osbuf.tellp() != 0 ) osbuf << ", ";
+        osbuf << topic;
     }
 
-    ilogger->info("Consumer: {} created using topics: {}.", consumer_ptr->name(), buf.str());
+    ilogger->info("Consumer: {} created using topics: {}.", consumer_ptr->name(), osbuf.str());
     return true;
 }
 
@@ -737,19 +706,19 @@ bool ASN1_Codec::make_loggers( bool remove_files )
     ilogname = path + ilogname;
     elogname = path + elogname;
 
-    //if ( remove_files && fileExists( ilogname ) ) {
+    if ( remove_files && fileExists( ilogname ) ) {
         if ( std::remove( ilogname.c_str() ) != 0 ) {
             std::cerr << "Error removing the previous information log file.\n";
             return false;
         }
-    //}
+    }
 
-    //if ( remove_files && fileExists( elogname ) ) {
+    if ( remove_files && fileExists( elogname ) ) {
         if ( std::remove( elogname.c_str() ) != 0 ) {
             std::cerr << "Error removing the previous error log file.\n";
             return false;
         }
-    //}
+    }
 
     // setup information logger.
     ilogger = spdlog::rotating_logger_mt("ilog", ilogname, ilogsize, ilognum);
@@ -770,7 +739,7 @@ int ASN1_Codec::operator()(void) {
 
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);
-
+    
     try {
 
         // throws for mapfile and other items.
@@ -786,30 +755,28 @@ int ASN1_Codec::operator()(void) {
     if ( !launch_consumer() ) return false;
     if ( !launch_producer() ) return false;
 
-    dump_file = std::fopen( "dumpfile.dat", "wb");
-    if ( !dump_file ) {
-        return EXIT_FAILURE;
-    }
+    struct xer_buffer xb = {0, 0, 0};
 
     // consume-produce loop.
     while (data_available) {
 
+        // reset the write point to the start of the buffer.
+        xb.buffer_size = 0;
+
         std::unique_ptr<RdKafka::Message> msg{ consumer_ptr->consume( consumer_timeout ) };
 
-        if ( msg_consume(msg.get(), NULL) ) {
+        if ( msg_consume(msg.get(), &xb) ) {
 
-            // TODO: the output can be the XML string, packed without newlines.
-            // Here that is the handler c_str and the buffer size.
-            // status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)handler.get_json().c_str(), handler.get_msg_buffer_size(), NULL, NULL);
+            status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)xb.buffer, xb.buffer_size, NULL, NULL);
 
             if (status != RdKafka::ERR_NO_ERROR) {
-                elogger->error("failed to produce retained BSM because: {}", RdKafka::err2str( status ));
+                elogger->error("Failure of XER encoding: {}", RdKafka::err2str( status ));
 
             } else {
                 // successfully sent; update counters.
                 msg_send_count++;
-                msg_send_bytes += msg->len();
-                ilogger->trace("produced BSM successfully.");
+                msg_send_bytes += xb.buffer_size;
+                ilogger->trace("Success of XER encoding.");
             }
 
         } 
@@ -817,8 +784,6 @@ int ASN1_Codec::operator()(void) {
         elogger->flush();
         ilogger->flush();
     }
-
-    std::fclose( dump_file );
 
     ilogger->info("ASN1_Codec operations complete; shutting down...");
     ilogger->info("ASN1_Codec consumed  : {} BSMs and {} bytes", msg_recv_count, msg_recv_bytes);
@@ -851,7 +816,7 @@ int main( int argc, char* argv[] )
 
 
     // debug for ASN.1
-    opt_debug = 1;
+    opt_debug = 0;
 
     if (!asn1_codec.parseArgs(argc, argv)) {
         asn1_codec.usage();

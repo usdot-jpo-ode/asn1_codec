@@ -50,34 +50,28 @@
  */
 
 #include <librdkafka/rdkafkacpp.h>
-#include "asn1-j2735-lib.h"
 #include "tool.hpp"
 #include "spdlog/spdlog.h"
 
-class ASN1_Codec : public tool::Tool {
+class ACMBlobProducer : public tool::Tool {
 
     public:
-
-        //std::FILE* dump_file;
 
         std::shared_ptr<spdlog::logger> ilogger;
         std::shared_ptr<spdlog::logger> elogger;
 
         static void sigterm (int sig);
 
-        ASN1_Codec( const std::string& name, const std::string& description );
-        ~ASN1_Codec();
-        void metadata_print (const std::string &topic, const RdKafka::Metadata *metadata);
-        bool topic_available( const std::string& topic );
+        ACMBlobProducer( const std::string& name, const std::string& description );
+        ~ACMBlobProducer();
+
         void print_configuration() const;
         bool configure();
-        bool launch_consumer();
         bool launch_producer();
-        bool msg_consume(RdKafka::Message* message, struct xer_buffer* xb);
         int operator()(void);
 
         /**
-         * @brief Create and setup the two loggers used for the ASN1_Codec. The locations and filenames for the logs can be specified
+         * @brief Create and setup the two loggers used for the ACMBlobProducer. The locations and filenames for the logs can be specified
          * using command line parameters. The CANNOT be set via the configuration file, since these loggers are setup
          * prior to the configuration file being read.
          *
@@ -104,40 +98,24 @@ class ASN1_Codec : public tool::Tool {
         static constexpr int ilognum = 5;                               ///> The number of information logs to rotate.
         static constexpr int elognum = 2;                               ///> The number of error logs to rotate.
 
-
-        bool exit_eof;                                                  ///> flag to cause the application to exit on stream eof.
-        int32_t eof_cnt;                                                    ///> counts the number of eofs needed for exit_eof to work; each partition must end.
-        int32_t partition_cnt;                                              ///> TODO: the number of partitions being processed; currently 1.
-
         // counters.
-        uint64_t msg_recv_count;                                            ///> Counter for the number of BSMs received.
         uint64_t msg_send_count;                                            ///> Counter for the number of BSMs published.
-        uint64_t msg_filt_count;                                            ///> Counter for hte number of BSMs filtered/suppressed.
-        uint64_t msg_recv_bytes;                                         ///> Counter for the number of BSM bytes received.
         uint64_t msg_send_bytes;                                         ///> Counter for the nubmer of BSM bytes published.
-        uint64_t msg_filt_bytes;                                         ///> Counter for the nubmer of BSM bytes filtered/suppressed.
 
         spdlog::level::level_enum iloglevel;                            ///> Log level for the information log.
         spdlog::level::level_enum eloglevel;                            ///> Log level for the error log.
-        std::string mode;
         std::string debug;
+        std::string input_file;
 
-        std::string brokers;
         int32_t partition;
-        int64_t offset;
         std::string published_topic_name;                                    ///> The topic we are publishing filtered BSM to.
 
         // configurations; global and topic (the names in these are fixed)
-        std::unordered_map<std::string, std::string> pconf;
+        std::unordered_map<std::string, std::string> mconf;
         RdKafka::Conf *conf;
         RdKafka::Conf *tconf;
 
-        std::vector<std::string> consumed_topics;                       ///> consumer topics.
-        std::shared_ptr<RdKafka::KafkaConsumer> consumer_ptr;
-        int consumer_timeout;
         std::shared_ptr<RdKafka::Producer> producer_ptr;
         std::shared_ptr<RdKafka::Topic> published_topic_ptr;
-
-        bool first_block;
 };
 

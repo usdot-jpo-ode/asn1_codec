@@ -744,3 +744,47 @@ data_decode_from_file(asn_TYPE_descriptor_t *pduType, FILE *file, const char *na
     return 0;
 }
 
+/**
+ *
+ * TODO: Consider moving these to the ASN1_Codec class?
+ */
+int xer_buf(void *buf, asn_TYPE_descriptor_t *td, void *sptr) {
+	asn_enc_rval_t er;
+
+	if(!buf || !td || !sptr) return -1;
+
+	er = xer_encode(td, sptr, XER_F_BASIC, xer_buffer_append, buf);
+	//er = xer_encode(td, sptr, XER_F_CANONICAL, xer_buffer_append, buf);
+	if(er.encoded == -1)
+		return -1;
+
+    return 0;
+}
+
+/**
+ *
+ * TODO: Consider moving these to the ASN1_Codec class?
+ */
+int xer_buffer_append(const void *buffer, size_t size, void *app_key) {
+    struct xer_buffer *xb = app_key;
+
+    while(xb->buffer_size + size + 1 > xb->allocated_size) {
+        // increase size of buffer.
+        size_t new_size = 2 * (xb->allocated_size ? xb->allocated_size : 64);
+        char *new_buf = MALLOC(new_size);
+        if(!new_buf) return -1;
+        // move old to new.
+        memcpy(new_buf, xb->buffer, xb->buffer_size);
+
+        FREEMEM(xb->buffer);
+        xb->buffer = new_buf;
+        xb->allocated_size = new_size;
+    }
+
+    memcpy(xb->buffer + xb->buffer_size, buffer, size);
+    xb->buffer_size += size;
+    // null terminate the string.
+    xb->buffer[xb->buffer_size] = '\0';
+    return 0;
+}
+

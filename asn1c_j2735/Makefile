@@ -643,11 +643,14 @@ HEADERS=  ${J2735_ASN_MODULE_SOURCES:.c=.h}
 HEADERS+= ${ASN1C_MODULE_SOURCES:.c=.h} 
 HEADERS+= $(ASN1C_OTHER_HEADERS)
 
-all: MessageFrame.c $(TARGET_J2735_LIB) $(TARGET_J2735_CLI)
+all: SETUP MessageFrame.c $(TARGET_J2735_LIB) $(TARGET_J2735_CLI)
 
 # Build the objects using new wildcard syntax.
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+SETUP: 
+	mkdir -p $(J2735LIBDIR)
 
 # This command generates the source from the schema AND copies those files into the directory where make was called.
 regen: $(ASN_SCHEMAS)
