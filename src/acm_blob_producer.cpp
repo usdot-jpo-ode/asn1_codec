@@ -467,6 +467,8 @@ int ACMBlobProducer::operator()(void) {
             bytes_read = fread( buf, sizeof buf[0], BUFSIZE, source );
             total_bytes += bytes_read;
 
+            std::cerr << "file read: " << bytes_read << "\n";
+
             status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)buf, bytes_read, NULL, NULL);
 
             if (status != RdKafka::ERR_NO_ERROR) {
@@ -477,13 +479,16 @@ int ACMBlobProducer::operator()(void) {
                 // successfully sent; update counters.
                 msg_send_count++;
                 msg_send_bytes += bytes_read;
+                std::cerr << "successful produce of " << bytes_read << " bytes.\n";
                 ilogger->trace("Production success of {} bytes.", bytes_read);
             }
         }
 
         fclose( source );
         ilogger->info( "Finished producing the entire file.");
+        std::cerr << "sleeping for 5 seconds.\n";
         std::this_thread::sleep_for( std::chrono::seconds(5) ); 
+        std::cerr << "done sleeping.\n";
     }
 
     ilogger->info("ACMBlobProducer operations complete; shutting down...");

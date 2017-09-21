@@ -72,7 +72,39 @@
 #include <unistd.h>
 #endif
 
-static FILE* dumpfile;
+/**
+ * @brief predicate indicating whether a file exists on the filesystem.
+ *
+ * @return true if it exists, false otherwise.
+ */
+bool fileExists( const std::string& s ) {
+    struct stat info;
+
+    if (stat( s.c_str(), &info) != 0) {     // bad stat; doesn't exist.
+        return false;
+    } else if (info.st_mode & S_IFREG) {    // exists and is a regular file.
+        return true;
+    } 
+
+    return false;
+}
+
+/**
+ * @brief predicate indicating whether a path/directory exists on the filesystem.
+ *
+ * @return true if it exists, false otherwise.
+ */
+bool dirExists( const std::string& s ) {
+    struct stat info;
+
+    if (stat( s.c_str(), &info) != 0) {     // bad stat; doesn't exist.
+        return false;
+    } else if (info.st_mode & S_IFDIR) {    // exists and is a directory.
+        return true;
+    } 
+
+    return false;
+}
 
 bool ASN1_Codec::data_available = true;
 
@@ -111,11 +143,16 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     elogger{},
     first_block{ true }
 {
+    dump_file = fopen( "dump.file.dat", "wb" );
 }
 
 ASN1_Codec::~ASN1_Codec() 
 {
-    if (consumer_ptr) consumer_ptr->close();
+    fclose(dump_file);
+
+    if (consumer_ptr) {
+        consumer_ptr->close();
+    }
 
     // free raw librdkafka pointers.
     if (tconf) delete tconf;
@@ -436,15 +473,12 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, struct xer_buffer* xb ) 
     static std::string tsname;
     static RdKafka::MessageTimestamp ts;
 
-    size_t bytes_read = 0;
-    size_t total_bytes = 0;
-
-    bool first_block = true;
+    size_t bytes_processed = 0;
 
     FILE* source;
     void *structure;
 
-    std::string payload(static_cast<const char*>(message->payload()), message->len());
+    //std::string payload(static_cast<const char*>(message->payload()), message->len());
 
     // TODO: Could make a library function to take this "message" type and process it..., or just use the raw bytes.
     switch (message->err()) {
@@ -477,8 +511,7 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, struct xer_buffer* xb ) 
                 ilogger->trace("Message key: {}", *message->key() );
             }
 
-            /**
-             * Strategy:
+            /** * Strategy:
              *
              * 1. For now just pass an ASCII filename, read that in, open and process those bytes.
              * 2. Next, we will handle the production of binary blobs.
@@ -486,43 +519,32 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, struct xer_buffer* xb ) 
              *
              *
              */
-            source = fopen( payload.c_str(), "rb" );
 
-            if ( !source ) {
-                elogger->error("No file: {}; cannot be opened for decoding.", payload);
+            //            while ( message->len() - bytes_processed > 0 ) {
 
-            } else {
+            ilogger->info("Attempting to decode {} bytes total received {}.", message->len(), msg_recv_bytes );
 
-                while ( !feof( source ) ) {
+            fwrite( (const void*) message->payload(), 1, message->len(), dump_file );
 
-                    // attempt to read 1K bytes into buffer.
-                    bytes_read = fread( buf, sizeof buf[0], BUFSIZE, source );
-                    total_bytes += bytes_read;
-
-                    ilogger->info("Reading {} from the file {} returned bytes {}.", BUFSIZE, payload, bytes_read);
-
-                    structure = data_decode_from_buffer(pduType, buf, bytes_read, first_block);
-                    if(!structure) {
-                        ilogger->error("No structure returned from decoding. payload size: {}", message->len());
-                        elogger->error("No structure returned from decoding. payload size: {}", message->len());
-                        return false;
-                    }
-
-                    // JMC: Dump these to a string stream instead or directly to the kafka buffer.
-                    if( xer_buf( static_cast<void *>(xb), pduType, structure) ) {
-                        ilogger->error("Cannot convert the file: {} of type {} into XML.", payload, pduType->name);
-                        elogger->error("Cannot convert the file: {} of type {} into XML.", payload, pduType->name);
-                        return false;
-                    }
-
-                    first_block = false;
-                }
-
-                ilogger->info( "Finished decode/encode operation for {} bytes.", xb->buffer_size );
-                // Good data exit point.
-                return true;
+            structure = data_decode_from_buffer(pduType, (const uint8_t *) message->payload(), message->len(), first_block);
+            if(!structure) {
+                ilogger->error("No structure returned from decoding. payload size: {}", message->len());
+                elogger->error("No structure returned from decoding. payload size: {}", message->len());
+                return false;
             }
 
+            first_block = false;
+
+            // JMC: Dump these to a string stream instead or directly to the kafka buffer.
+            if( xer_buf( static_cast<void *>(xb), pduType, structure) ) {
+                ilogger->error("Cannot convert the block into XML.");
+                elogger->error("Cannot convert the block into XML.");
+                return false;
+            }
+
+            ilogger->info( "Finished decode/encode operation for {} bytes.", xb->buffer_size );
+            // Good data exit point.
+            return true;
             break;
 
         case RdKafka::ERR__PARTITION_EOF:
@@ -628,40 +650,6 @@ bool ASN1_Codec::launch_consumer()
     return true;
 }
 
-/**
- * @brief predicate indicating whether a file exists on the filesystem.
- *
- * @return true if it exists, false otherwise.
- */
-bool fileExists( const std::string& s ) {
-    struct stat info;
-
-    if (stat( s.c_str(), &info) != 0) {     // bad stat; doesn't exist.
-        return false;
-    } else if (info.st_mode & S_IFREG) {    // exists and is a regular file.
-        return true;
-    } 
-
-    return false;
-}
-
-/**
- * @brief predicate indicating whether a path/directory exists on the filesystem.
- *
- * @return true if it exists, false otherwise.
- */
-bool dirExists( const std::string& s ) {
-    struct stat info;
-
-    if (stat( s.c_str(), &info) != 0) {     // bad stat; doesn't exist.
-        return false;
-    } else if (info.st_mode & S_IFDIR) {    // exists and is a directory.
-        return true;
-    } 
-
-    return false;
-}
-
 bool ASN1_Codec::make_loggers( bool remove_files )
 {
     // defaults.
@@ -764,9 +752,11 @@ int ASN1_Codec::operator()(void) {
         xb.buffer_size = 0;
 
         std::unique_ptr<RdKafka::Message> msg{ consumer_ptr->consume( consumer_timeout ) };
+        std::cerr << "consumed: " << msg->len() << " bytes.\n";
 
         if ( msg_consume(msg.get(), &xb) ) {
 
+            std::cerr << "have xb: " << xb.buffer_size << " bytes.\n";
             status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)xb.buffer, xb.buffer_size, NULL, NULL);
 
             if (status != RdKafka::ERR_NO_ERROR) {
@@ -780,6 +770,8 @@ int ASN1_Codec::operator()(void) {
             }
 
         } 
+
+        std::cerr << "finished iteration.\n";
         // NOTE: good for troubleshooting, but bad for performance.
         elogger->flush();
         ilogger->flush();
