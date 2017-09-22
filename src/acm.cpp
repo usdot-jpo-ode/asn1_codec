@@ -143,12 +143,12 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     elogger{},
     first_block{ true }
 {
-    dump_file = fopen( "dump.file.dat", "wb" );
+    // dump_file = fopen( "dump.file.dat", "wb" );
 }
 
 ASN1_Codec::~ASN1_Codec() 
 {
-    fclose(dump_file);
+    // fclose(dump_file);
 
     if (consumer_ptr) {
         consumer_ptr->close();
@@ -303,8 +303,6 @@ bool ASN1_Codec::configure() {
     } // else it is already set to default.
 
     ilogger->trace("starting configure()");
-    std::cerr << "bufsize: " << BUFSIZE << '\n';
-    //ilogger->info("Buffer size: {}", ASN1_Codec::BUFSIZE);
 
     std::string line;
     std::string error_string;
@@ -468,6 +466,7 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, struct xer_buffer* xb ) 
     // For J2735, this points to the asn_TYPE_descriptor_t asn_DEF_MessageFrame structure defined in
     // MessageFrame.c. The asn_TYPE_descriptor_t is in constr_TYPE.h (of the asn1c library)
     // pduType->op is a structure of function pointers that perform operations on the ASN.1.
+    // TODO: Put in the class 
     static asn_TYPE_descriptor_t *pduType = &PDU_Type;
 
     static std::string tsname;
@@ -524,9 +523,11 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, struct xer_buffer* xb ) 
 
             ilogger->info("Attempting to decode {} bytes total received {}.", message->len(), msg_recv_bytes );
 
-            fwrite( (const void*) message->payload(), 1, message->len(), dump_file );
+            // fwrite( (const void*) message->payload(), 1, message->len(), dump_file );
 
             structure = data_decode_from_buffer(pduType, (const uint8_t *) message->payload(), message->len(), first_block);
+            // TODO: Identify this structure.
+
             if(!structure) {
                 ilogger->error("No structure returned from decoding. payload size: {}", message->len());
                 elogger->error("No structure returned from decoding. payload size: {}", message->len());
@@ -730,7 +731,7 @@ int ASN1_Codec::operator()(void) {
     
     try {
 
-        // throws for mapfile and other items.
+        // throws for a couple of options.
         if ( !configure() ) return EXIT_FAILURE;
 
     } catch ( std::exception& e ) {
@@ -743,6 +744,7 @@ int ASN1_Codec::operator()(void) {
     if ( !launch_consumer() ) return false;
     if ( !launch_producer() ) return false;
 
+    // TODO: Put this in the class.
     struct xer_buffer xb = {0, 0, 0};
 
     // consume-produce loop.
@@ -752,11 +754,10 @@ int ASN1_Codec::operator()(void) {
         xb.buffer_size = 0;
 
         std::unique_ptr<RdKafka::Message> msg{ consumer_ptr->consume( consumer_timeout ) };
-        std::cerr << "consumed: " << msg->len() << " bytes.\n";
 
-        if ( msg_consume(msg.get(), &xb) ) {
+        if ( msg->len() > 0 && msg_consume(msg.get(), &xb) ) {
 
-            std::cerr << "have xb: " << xb.buffer_size << " bytes.\n";
+            std::cerr << msg->len() << " bytes consumed from topic: " << consumed_topics[0] << '\n';
             status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)xb.buffer, xb.buffer_size, NULL, NULL);
 
             if (status != RdKafka::ERR_NO_ERROR) {
@@ -767,20 +768,23 @@ int ASN1_Codec::operator()(void) {
                 msg_send_count++;
                 msg_send_bytes += xb.buffer_size;
                 ilogger->trace("Success of XER encoding.");
+                std::cerr << xb.buffer_size << " bytes produced to topic: " << published_topic_ptr->name() << '\n';
             }
 
         } 
 
-        std::cerr << "finished iteration.\n";
         // NOTE: good for troubleshooting, but bad for performance.
         elogger->flush();
         ilogger->flush();
     }
 
     ilogger->info("ASN1_Codec operations complete; shutting down...");
-    ilogger->info("ASN1_Codec consumed  : {} BSMs and {} bytes", msg_recv_count, msg_recv_bytes);
-    ilogger->info("ASN1_Codec published : {} BSMs and {} bytes", msg_send_count, msg_send_bytes);
-    ilogger->info("ASN1_Codec suppressed: {} BSMs and {} bytes", msg_filt_count, msg_filt_bytes);
+    ilogger->info("ASN1_Codec consumed  : {} blocks and {} bytes", msg_recv_count, msg_recv_bytes);
+    ilogger->info("ASN1_Codec published : {} blocks and {} bytes", msg_send_count, msg_send_bytes);
+
+    std::cerr << "ASN1_Codec operations complete; shutting down...\n";
+    std::cerr << "ASN1_Codec consumed   : " << msg_recv_count << " blocks and " << msg_recv_bytes << " bytes\n";
+    std::cerr << "ASN1_Codec published  : " << msg_send_count << " blocks and " << msg_send_bytes << " bytes\n";
     return EXIT_SUCCESS;
 }
 

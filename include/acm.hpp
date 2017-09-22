@@ -58,7 +58,7 @@ class ASN1_Codec : public tool::Tool {
 
     public:
 
-        std::FILE* dump_file;
+        //std::FILE* dump_file;
 
         std::shared_ptr<spdlog::logger> ilogger;
         std::shared_ptr<spdlog::logger> elogger;

@@ -119,6 +119,7 @@ ACMBlobProducer::ACMBlobProducer( const std::string& name, const std::string& de
     mconf{},
     partition{RdKafka::Topic::PARTITION_UA},
     debug{""},
+    block_size{BUFSIZE},
     published_topic_name{},
     conf{nullptr},
     tconf{nullptr},
@@ -218,6 +219,21 @@ bool ACMBlobProducer::configure() {
     }
 
     input_file = optString('F');
+
+    if ( !fileExists( input_file ) ) {
+        elogger->error( "The input file: {} does not exist.", input_file );
+        return false;
+    }
+
+    ilogger->info("using input file: {}", input_file );
+
+    if ( optIsSet('B') ) {
+        try {
+            block_size = optInt('B');
+        } catch ( std::exception& e ) {
+            block_size = BUFSIZE;
+        }
+    }
 
     if ( !fileExists( input_file ) ) {
         elogger->error( "The input file: {} does not exist.", input_file );
@@ -428,8 +444,9 @@ int ACMBlobProducer::operator()(void) {
 
     std::string error_string;
     RdKafka::ErrorCode status;
+    FILE *source;
     std::size_t bytes_read = 0;
-    std::size_t total_bytes = 0;
+    int file_round = 0;
 
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);
@@ -448,13 +465,14 @@ int ACMBlobProducer::operator()(void) {
 
     if ( !launch_producer() ) return false;
 
-    // consume-produce loop.
     while (data_available) {
+        // data_available changed via interupt SIGINT or SIGTERM
 
+        // Process
         // 1. Read in the uper file.
         // 2. "Produce" some sized blocks of the file to the kafka topic with size indicated.
 
-        FILE *source = fopen( input_file.c_str(), "rb" );
+        source = fopen( input_file.c_str(), "rb" );
 
         if ( !source ) {
             elogger->error("No file: {}; cannot be opened for decoding.",input_file);
@@ -464,35 +482,37 @@ int ACMBlobProducer::operator()(void) {
         while ( !feof( source ) ) {
 
             // attempt to read 1K bytes into buffer.
-            bytes_read = fread( buf, sizeof buf[0], BUFSIZE, source );
-            total_bytes += bytes_read;
+            bytes_read = fread( buf, sizeof buf[0], block_size, source );
 
-            std::cerr << "file read: " << bytes_read << "\n";
+            if ( bytes_read > 0 ) {
 
-            status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)buf, bytes_read, NULL, NULL);
+                status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)buf, bytes_read, NULL, NULL);
 
-            if (status != RdKafka::ERR_NO_ERROR) {
-                elogger->error("Production failure code {} after reading {} bytes.", RdKafka::err2str( status ), bytes_read);
-                break;
+                if (status != RdKafka::ERR_NO_ERROR) {
+                    elogger->error("Production failure code {} after reading {} bytes.", RdKafka::err2str( status ), bytes_read);
+                    break;
 
-            } else {
-                // successfully sent; update counters.
-                msg_send_count++;
-                msg_send_bytes += bytes_read;
-                std::cerr << "successful produce of " << bytes_read << " bytes.\n";
-                ilogger->trace("Production success of {} bytes.", bytes_read);
+                } else {
+                    // successfully sent; update counters.
+                    msg_send_count++;
+                    msg_send_bytes += bytes_read;
+                    ilogger->trace("Production success of {} bytes.", bytes_read);
+                }
+
+
+                std::cerr << "Bytes from file: " << bytes_read << ". Successfully produced to: " << published_topic_name << '\n';
             }
         }
 
         fclose( source );
         ilogger->info( "Finished producing the entire file.");
-        std::cerr << "sleeping for 5 seconds.\n";
+        std::cerr << "Sleeping for 5 seconds after file round " << ++file_round << "\n";
         std::this_thread::sleep_for( std::chrono::seconds(5) ); 
-        std::cerr << "done sleeping.\n";
     }
 
     ilogger->info("ACMBlobProducer operations complete; shutting down...");
-    ilogger->info("ACMBlobProducer published : {} BSMs and {} bytes", msg_send_count, msg_send_bytes);
+    ilogger->info("ACMBlobProducer published : {} blocks and {} bytes", msg_send_count, msg_send_bytes);
+    std::cerr << "ACMBlobProducer published : " << msg_send_count << " binary blocks of size: " << block_size << " for " << msg_send_bytes << " bytes.\n";
     
     // NOTE: good for troubleshooting, but bad for performance.
     elogger->flush();
@@ -519,6 +539,7 @@ int main( int argc, char* argv[] )
     acm_blob_producer.addOption( 'i', "ilog", "Information log file name.", true );
     acm_blob_producer.addOption( 'e', "elog", "Error log file name.", true );
     acm_blob_producer.addOption( 'F', "file", "Input binary file", true );
+    acm_blob_producer.addOption( 'B', "blocksize", "The block size to read and write.", true );
     acm_blob_producer.addOption( 'h', "help", "print out some help" );
 
     if (!acm_blob_producer.parseArgs(argc, argv)) {
