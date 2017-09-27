@@ -475,6 +475,9 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, struct xer_buffer* xb ) 
     size_t bytes_processed = 0;
 
     FILE* source;
+
+    // This is the ASN.1 compiler generated structure that is filled with the input data.
+    // The memory / data is dynamically allocated and filled.
     void *structure;
 
     //std::string payload(static_cast<const char*>(message->payload()), message->len());
