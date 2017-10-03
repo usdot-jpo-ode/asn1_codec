@@ -326,6 +326,8 @@ add_bytes_to_buffer(const void *data2add, size_t bytes) {
 void *
 data_decode_from_buffer(asn_TYPE_descriptor_t *pduType, const uint8_t *buffer, ssize_t bufsize, int on_first_pdu) {
 
+    // this is the C structure that will be written into as the data from buffer is decoded.
+    // For example, MessageFrame (which is a union of all the various types in the spec, e.g., BasicSafetyMessage) 
     void *structure = 0;                            // value returned from this function; contains decoded data.
     asn_dec_rval_t rval;                            // return status from decode functions called below.
     rval.consumed = 0;
@@ -420,6 +422,7 @@ data_decode_from_buffer(asn_TYPE_descriptor_t *pduType, const uint8_t *buffer, s
                         break;
 
                     case RC_WMORE:
+                        // Treat this attempt as a "noop" and when we get more data try again.
                         ASN_STRUCT_FREE(*pduType, structure);
                         structure = 0;
                         rval.consumed = 0;

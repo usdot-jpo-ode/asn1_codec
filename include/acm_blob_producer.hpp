@@ -92,7 +92,7 @@ class ACMBlobProducer : public tool::Tool {
         
         // If this buffer size is too small then an entire record will not be processed and things will FAIL!
         // buffer for the ASN1 stuff.
-        static constexpr std::size_t BUFSIZE = 1<<10;
+        static constexpr std::size_t BUFSIZE = 1<<12;                   ///> 4k
         uint8_t buf[BUFSIZE];
 
         static constexpr int ilognum = 5;                               ///> The number of information logs to rotate.
@@ -106,6 +106,7 @@ class ACMBlobProducer : public tool::Tool {
         spdlog::level::level_enum eloglevel;                            ///> Log level for the error log.
         std::string debug;
         std::string input_file;
+        std::size_t block_size;
 
         int32_t partition;
         std::string published_topic_name;                                    ///> The topic we are publishing filtered BSM to.
