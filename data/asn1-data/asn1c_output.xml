@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+   <metadata>
+      <generatedAt>2017-09-08T14:50:34.125Z[UTC]</generatedAt>
+      <logFileName>bsmLogDuringEvent_1504882236_2001_3A470_3A41af_3A1_3A0_3A63ff_3Afead_3A525.csv</logFileName>
+      <payloadType>us.dot.its.jpo.ode.model.OdeBsmPayload</payloadType>
+      <receivedAt>2017-09-27T15:57:13.998Z[UTC]</receivedAt>
+      <sanitized>false</sanitized>
+      <schemaVersion>2</schemaVersion>
+      <serialId>
+         <bundleId>581</bundleId>
+         <bundleSize>1</bundleSize>
+         <recordId>572</recordId>
+         <serialNumber>0</serialNumber>
+         <streamId>9d5f51c2-9428-40d0-a0c3-c8ac2aea29af</streamId>
+      </serialId>
+      <validSignature>false</validSignature>
+   </metadata>
+   <payload>
+      <data>
+         <coreData>
+            <accelSet>
+               <accelLat null="true" />
+               <accelLong null="true" />
+               <accelVert null="true" />
+               <accelYaw>0.0</accelYaw>
+            </accelSet>
+            <accuracy>
+               <orientation null="true" />
+               <semiMajor>12.15</semiMajor>
+               <semiMinor>12.7</semiMinor>
+            </accuracy>
+            <angle null="true" />
+            <brakes>
+               <abs>unavailable</abs>
+               <auxBrakes>unavailable</auxBrakes>
+               <brakeBoost>unavailable</brakeBoost>
+               <scs>unavailable</scs>
+               <traction>unavailable</traction>
+               <wheelBrakes>
+                  <leftFront>false</leftFront>
+                  <leftRear>false</leftRear>
+                  <rightFront>false</rightFront>
+                  <rightRear>false</rightRear>
+                  <unavailable>true</unavailable>
+               </wheelBrakes>
+            </brakes>
+            <heading>202.9</heading>
+            <id>495D0000</id>
+            <msgCnt>76</msgCnt>
+            <position>
+               <elevation>1502.3</elevation>
+               <latitude>40.474037</latitude>
+               <longitude>-104.96918</longitude>
+            </position>
+            <secMark>34200</secMark>
+            <size>
+               <length null="true" />
+               <width null="true" />
+            </size>
+            <speed>0.08</speed>
+            <transmission null="true" />
+         </coreData>
+         <partII>
+            <element>
+               <id>VEHICLESAFETYEXT</id>
+               <value>
+                  <events null="true" />
+                  <lights null="true" />
+                  <pathHistory>
+                     <crumbData>
+                        <element>
+                           <elevationOffset>-6.8</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>-4.106E-4</latOffset>
+                           <lonOffset>-1.402E-4</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>122.03</timeOffset>
+                        </element>
+                        <element>
+                           <elevationOffset>-0.8</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>-3.221E-4</latOffset>
+                           <lonOffset>-1.442E-4</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>133.53</timeOffset>
+                        </element>
+                        <element>
+                           <elevationOffset>-1.7</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>-2.61E-4</latOffset>
+                           <lonOffset>-1.207E-4</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>141.04</timeOffset>
+                        </element>
+                        <element>
+                           <elevationOffset>0.6</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>-1.918E-4</latOffset>
+                           <lonOffset>-8.69E-5</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>153.44</timeOffset>
+                        </element>
+                        <element>
+                           <elevationOffset>2.7</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>-1.571E-4</latOffset>
+                           <lonOffset>-7.34E-5</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>160.64</timeOffset>
+                        </element>
+                        <element>
+                           <elevationOffset>10.0</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>-3.3E-6</latOffset>
+                           <lonOffset>-1.24E-5</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>177.64</timeOffset>
+                        </element>
+                        <element>
+                           <elevationOffset>7.8</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>2.776E-4</latOffset>
+                           <lonOffset>3.55E-5</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>485.63</timeOffset>
+                        </element>
+                        <element>
+                           <elevationOffset>2.5</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>3.2E-5</latOffset>
+                           <lonOffset>5.71E-5</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>521.93</timeOffset>
+                        </element>
+                        <element>
+                           <elevationOffset>5.4</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>5.69E-5</latOffset>
+                           <lonOffset>6.25E-5</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>556.84</timeOffset>
+                        </element>
+                        <element>
+                           <elevationOffset>5.7</elevationOffset>
+                           <heading null="true" />
+                           <latOffset>5.02E-5</latOffset>
+                           <lonOffset>5.7E-5</lonOffset>
+                           <posAccuracy null="true" />
+                           <speed null="true" />
+                           <timeOffset>557.95</timeOffset>
+                        </element>
+                     </crumbData>
+                     <currGNSSstatus null="true" />
+                     <initialPosition null="true" />
+                  </pathHistory>
+                  <pathPrediction>
+                     <confidence>50.0</confidence>
+                     <radiusOfCurve>0.0</radiusOfCurve>
+                  </pathPrediction>
+               </value>
+            </element>
+            <element>
+               <id>SUPPLEMENTALVEHICLEEXT</id>
+               <value>
+                  <classDetails>
+                     <fuelType>UNKNOWNFUEL</fuelType>
+                     <hpmsType>NONE</hpmsType>
+                     <iso3883 null="true" />
+                     <keyType>0</keyType>
+                     <regional />
+                     <responderType null="true" />
+                     <responseEquip null="true" />
+                     <role>BASICVEHICLE</role>
+                     <vehicleType null="true" />
+                  </classDetails>
+                  <classification null="true" />
+                  <obstacle null="true" />
+                  <regional />
+                  <speedProfile null="true" />
+                  <status null="true" />
+                  <theRTCM null="true" />
+                  <vehicleData null="true" />
+                  <weatherProbe>
+                     <airPressure null="true" />
+                     <airTemp null="true" />
+                     <rainRates null="true" />
+                  </weatherProbe>
+                  <weatherReport null="true" />
+               </value>
+            </element>
+         </partII>
+      </data>
+      <dataType>us.dot.its.jpo.ode.plugin.j2735.J2735Bsm</dataType>
+   </payload>
+</root>

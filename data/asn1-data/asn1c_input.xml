@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+   <metadata>
+      <generatedAt>2017-09-08T14:50:35.820Z[UTC]</generatedAt>
+      <logFileName>bsmLogDuringEvent_1504882236_2001_3A470_3A41af_3A1_3A0_3A63ff_3Afead_3A525.csv</logFileName>
+      <payloadType>us.dot.its.jpo.ode.model.OdeBsmPayload</payloadType>
+      <receivedAt>2017-09-27T15:57:14.471Z[UTC]</receivedAt>
+      <sanitized>false</sanitized>
+      <schemaVersion>2</schemaVersion>
+      <serialId>
+         <bundleId>632</bundleId>
+         <bundleSize>1</bundleSize>
+         <recordId>623</recordId>
+         <serialNumber>0</serialNumber>
+         <streamId>9d5f51c2-9428-40d0-a0c3-c8ac2aea29af</streamId>
+      </serialId>
+      <validSignature>false</validSignature>
+   </metadata>
+   <payload>
+      <data>03807c001479575ce2c000238c26e26035165c657f25307f7f7ffff0008639fdfa1fa1007fff80000000010124c0e10084c0ad4fb5f87a0ffb34044d0808ea60fe6e40aa6f717c960ff3d402330dff5fe10028bf9b8e65882e100e1bf7c4f0d9d3210080bfb38f47a3360fdaec2424ca72d80fffe640207240d10000004bf0</data>
+   </payload>
+</root>
