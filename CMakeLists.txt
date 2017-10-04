@@ -30,7 +30,6 @@ endif ()
 #### BUILD TARGET FOR THE ASN1_Codec ####
 
 # before the add_executable
-# link_directories("${CMAKE_SOURCE_DIR}/j2735/lib")
 link_directories("${CMAKE_SOURCE_DIR}/asn1c_combined")
 
 # configure_file("j2735/include/asn1-j2735-lib.h" "asn1-j23735-lib.h" COPYONLY)

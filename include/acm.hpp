@@ -146,7 +146,7 @@ class ASN1_Codec : public tool::Tool {
         std::shared_ptr<RdKafka::Topic> published_topic_ptr;
 
         char *payload_bytes_ = nullptr;
-        size_t decode_hex_(const std::string& payload_hex);
+        int decode_hex_(const std::string& payload_hex);
 
 };
 

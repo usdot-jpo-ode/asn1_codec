@@ -47,6 +47,7 @@
 #include "utilities.hpp"
 
 #include "spdlog/spdlog.h"
+#include "pguixml.hpp"
 
 
 #include <csignal>
@@ -485,10 +486,16 @@ bool ASN1_Codec::configure() {
 
 bool ASN1_Codec::msg_consume(RdKafka::Message* message, xer_buffer_t* xb ) {
 
+    pugi::xml_document doc;
+    pugi::xml_parse_result result;
+    pugi::xml_node payload;
+    std::string hex_str;
+
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
 
-    MessageFrame_t *messageframe = 0;           // must initialize to 0 according to asn.1 instructions.
+    Ieee1609Dot2Data_t *ieee1609data = 0;        // must initialize to 0 according to asn.1 instructions.
+    MessageFrame_t *messageframe = 0;            // must initialize to 0 according to asn.1 instructions.
 
     static std::string tsname;
     static RdKafka::MessageTimestamp ts;
@@ -526,10 +533,44 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, xer_buffer_t* xb ) {
                 ilogger->trace("Message key: {}", *message->key() );
             }
 
+            // XML parsing
+            result = doc.load_buffer((const void*) message->payload(), message->len());
+
+            if (!result) {
+                ilogger->trace("XML parsing error {} (offset = {})!", result.description(), result.offset);
+                return false; 
+            } 
+             
+            payload = doc.child("root").child("payload");
+            
+            if (!payload) {
+                ilogger->trace("XML missing payload node!");
+                return false;
+            }
+
+            if (!payload.child("data")) {
+                ilogger->trace("XML missing payload data node!");
+                return false;
+            }
+
+            hex_str = payload.child_value("data"); 
+
+            if (hex_str.empty()) {
+                ilogger->trace("XML missing payload data hex bytes!");
+                return false;
+            }
+
+            if (decode_hex_(hex_str) != hex_str.length()) {
+                // TODO could log n bytes succesfully decoded
+                ilogger->trace("Could not decode XML payload data hex bytes!");
+                return false;
+            }
+
             ilogger->info("Attempting to decode {} bytes total received {}.", message->len(), msg_recv_bytes );
 
             // Decode Kafka bytes payload into the C struct that was compiled from the ASN.1
-            decode_rval = uper_decode_complete( 0, &asn_DEF_MessageFrame, (void **)&messageframe, (const char *) message->payload(), message->len());
+            decode_rval = uper_decode_complete( 0, &asn_DEF_Ieee1609Dot2Data, (void **)&ieee1609data, (const char *) payload_bytes_, hex_str.length());
+            // decode_rval = uper_decode_complete( 0, &asn_DEF_MessageFrame, (void **)&messageframe, (const char *) message->payload(), message->len());
 
             if ( decode_rval.code != RC_OK ) {
                 ilogger->error("No structure returned from decoding. payload size: {}", message->len());
@@ -788,6 +829,48 @@ int ASN1_Codec::operator()(void) {
     std::cerr << "ASN1_Codec consumed   : " << msg_recv_count << " blocks and " << msg_recv_bytes << " bytes\n";
     std::cerr << "ASN1_Codec published  : " << msg_send_count << " blocks and " << msg_send_bytes << " bytes\n";
     return EXIT_SUCCESS;
+}
+
+int decode_hex(const std::string& payload_hex, char **tmp) {
+}
+
+int ASN1_Codec::decode_hex_(const std::string& payload_hex) {
+    uint8_t d = 0;
+    int i = 0;          // so we can return -1;
+
+    if (payload_bytes_) {
+        delete payload_bytes_;
+    }
+
+    // a byte is 2 characters in the string.
+    payload_bytes_ = new char[payload_hex.length()/2];
+
+    if (!payload_bytes_) return -1;
+
+    for (const char& c : payload_hex) {
+        if ( c <= '9' && c >= '0' ) {
+            d = c-'0';
+        } else if ( c <= 'F' && c >= 'A' ) {
+            d = c-55;       // c - 'A' + 10
+        } else if ( c <= 'f' && c >= 'a' ) {
+            d = c-87;        // c - 'a' + 10;
+        } else {
+            return -1;
+        }
+
+        if (i%2) {
+            // low order nibble.
+            payload_bytes_[i/2] |= d;
+        } else {
+            // high order nibble.
+            payload_bytes_[i/2] = 0;
+            payload_bytes_[i/2] = d << 4;
+        }
+        ++i;
+    }
+
+    // the number of bytes in the buf.
+    return i/2;
 }
 
 #ifndef _ASN1_CODEC_TESTS
