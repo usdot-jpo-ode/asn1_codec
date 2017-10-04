@@ -14,10 +14,11 @@ target_include_directories(acm PUBLIC
     "${acm_SOURCE_DIR}/include/catch"
     "${acm_SOURCE_DIR}/include/rapidjson"
     "${acm_SOURCE_DIR}/include/spdlog"
-    "${acm_SOURCE_DIR}/j2735/include"
-    "${acm_SOURCE_DIR}/asn1c_j2735"
     "${acm_SOURCE_DIR}/asn1c/skeletons"
+    "${acm_SOURCE_DIR}/asn1c_combined"
     )
+    #    "${acm_SOURCE_DIR}/j2735/include"
+    #    "${acm_SOURCE_DIR}/asn1c_j2735"
 
 # The sources in this directory that are needed for compilation.
 target_sources(acm-blob-producer PUBLIC

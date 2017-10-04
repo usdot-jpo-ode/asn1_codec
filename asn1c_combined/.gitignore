@@ -1,0 +1,6 @@
+*.c
+*.h
+*.asn
+*.ASN
+Makefile*
+

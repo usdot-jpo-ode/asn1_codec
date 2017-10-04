@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.6)
-# cmake_minimum_required(VERSION 3.1)
+# cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 
 project(acm)
 
@@ -30,9 +30,10 @@ endif ()
 #### BUILD TARGET FOR THE ASN1_Codec ####
 
 # before the add_executable
-link_directories("${CMAKE_SOURCE_DIR}/j2735/lib")
+# link_directories("${CMAKE_SOURCE_DIR}/j2735/lib")
+link_directories("${CMAKE_SOURCE_DIR}/asn1c_combined")
 
-configure_file("j2735/include/asn1-j2735-lib.h" "asn1-j23735-lib.h" COPYONLY)
+# configure_file("j2735/include/asn1-j2735-lib.h" "asn1-j23735-lib.h" COPYONLY)
 
 # CPP Preprocessor variable PDU is used in the asn1-j2735-lib.h file to build a variable to a ASN.1 parsing structure.
 # This variable may need changing if we are parsing some other type of ASN.1 schema.
@@ -45,9 +46,9 @@ add_executable(test_xml "")
 
 include( "src/CMakeLists.txt" )
 
-target_link_libraries(acm pthread rdkafka++ j2735 pugixml)
+target_link_libraries(acm pthread rdkafka++ asncodec pugixml)
 target_link_libraries(acm-blob-producer pthread rdkafka++)
-target_link_libraries(test_xml j2735 pugixml)
+# target_link_libraries(test_xml j2735 pugixml)
 
 
 # set(CATCH_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include/catch")
