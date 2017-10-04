@@ -1,0 +1,36 @@
+{
+"metadata": {
+"encodings": [
+{
+"elementName": "root",
+"elementType": "Ieee1609Dot2Data",
+"encodingRule": "COER"
+},
+{
+"elementName": "unsecuredData",
+"elementType": "MessageFrame",
+"encodingRule": "UPER"
+}
+],
+"generatedAt": "2017-08-10T21:02:14.799Z[UTC]",
+"logFileName": "bsmLogDuringEvent.bin",
+"validSignature": true,
+"sanitized": false,
+"payloadType": "us.dot.its.jpo.ode.model.OdeAsn1Payload",
+"serialId": {
+"streamId": "cb81cbd4-a8ee-42ba-9cef-927988e0ec9a",
+"bundleSize": 1,
+"bundleId": 2,
+"recordId": 2,
+"serialNumber": 0
+},
+"receivedAt": "2017-10-03T16:50:25.829Z[UTC]",
+"schemaVersion": 2
+},
+"payload": {
+"dataType": "us.dot.its.jpo.ode.model.OdeHexByteArray",
+"data": {
+"bytes": "03804100143E4EF2D280000E7426E26103165C6569A56F7F7F7FFFF0021000FD7CEFA1007FFF80000000010038C001009F3FD2D214DE72FFFE6400207240D10000004BF0"
+}
+}
+}
