@@ -49,7 +49,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <librdkafka/rdkafkacpp.h>
 #include "MessageFrame.h"
 #include "Ieee1609Dot2Data.h"
 #include "tool.hpp"
@@ -145,5 +144,9 @@ class ASN1_Codec : public tool::Tool {
         int consumer_timeout;
         std::shared_ptr<RdKafka::Producer> producer_ptr;
         std::shared_ptr<RdKafka::Topic> published_topic_ptr;
+
+        char *payload_bytes_ = nullptr;
+        size_t decode_hex_(const std::string& payload_hex);
+
 };
 
