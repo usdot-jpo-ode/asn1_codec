@@ -50,9 +50,17 @@
  */
 
 #include <librdkafka/rdkafkacpp.h>
-#include "asn1-j2735-lib.h"
+#include "MessageFrame.h"
+#include "Ieee1609Dot2Data.h"
 #include "tool.hpp"
 #include "spdlog/spdlog.h"
+
+// TODO: integrate this with the class?
+typedef struct xer_buffer {
+    char *buffer;
+    size_t buffer_size;      // this is really where we will write next.
+    size_t allocated_size;   // this is the total size of the buffer.
+} xer_buffer_t;
 
 class ASN1_Codec : public tool::Tool {
 
@@ -73,7 +81,7 @@ class ASN1_Codec : public tool::Tool {
         bool configure();
         bool launch_consumer();
         bool launch_producer();
-        bool msg_consume(RdKafka::Message* message, struct xer_buffer* xb);
+        bool msg_consume(RdKafka::Message* message, xer_buffer_t* xb);
         int operator()(void);
 
         /**
@@ -137,7 +145,5 @@ class ASN1_Codec : public tool::Tool {
         int consumer_timeout;
         std::shared_ptr<RdKafka::Producer> producer_ptr;
         std::shared_ptr<RdKafka::Topic> published_topic_ptr;
-
-        bool first_block;
 };
 

@@ -106,6 +106,33 @@ bool dirExists( const std::string& s ) {
     return false;
 }
 
+/**
+ *
+ * TODO: Consider moving these to the ASN1_Codec class?
+ */
+static int xer_buffer_append(const void *buffer, size_t size, void *app_key) {
+    xer_buffer_t *xb = static_cast<xer_buffer_t *>(app_key);
+
+    while(xb->buffer_size + size + 1 > xb->allocated_size) {
+        // increase size of buffer.
+        size_t new_size = 2 * (xb->allocated_size ? xb->allocated_size : 64);
+        char *new_buf = static_cast<char *>(MALLOC(new_size));
+        if(!new_buf) return -1;
+        // move old to new.
+        memcpy(new_buf, xb->buffer, xb->buffer_size);
+
+        FREEMEM(xb->buffer);
+        xb->buffer = new_buf;
+        xb->allocated_size = new_size;
+    }
+
+    memcpy(xb->buffer + xb->buffer_size, buffer, size);
+    xb->buffer_size += size;
+    // null terminate the string.
+    xb->buffer[xb->buffer_size] = '\0';
+    return 0;
+}
+
 bool ASN1_Codec::data_available = true;
 
 void ASN1_Codec::sigterm (int sig) {
@@ -140,8 +167,7 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     producer_ptr{},
     published_topic_ptr{},
     ilogger{},
-    elogger{},
-    first_block{ true }
+    elogger{}
 {
     // dump_file = fopen( "dump.file.dat", "wb" );
 }
@@ -453,37 +479,24 @@ bool ASN1_Codec::configure() {
         }
     }
 
-    // TODO: This is a GLOBAL THAT NEEDS FIXING; hold over from asn1c
-    // This is the input (from the stream) file format.
-    iform = INP_PER;
-
     ilogger->trace("ending configure()");
     return true;
 }
 
-bool ASN1_Codec::msg_consume(RdKafka::Message* message, struct xer_buffer* xb ) {
+bool ASN1_Codec::msg_consume(RdKafka::Message* message, xer_buffer_t* xb ) {
 
-    // For J2735, this points to the asn_TYPE_descriptor_t asn_DEF_MessageFrame structure defined in
-    // MessageFrame.c. The asn_TYPE_descriptor_t is in constr_TYPE.h (of the asn1c library)
-    // pduType->op is a structure of function pointers that perform operations on the ASN.1.
-    // TODO: Put in the class 
-    static asn_TYPE_descriptor_t *pduType = &PDU_Type;
+    asn_dec_rval_t decode_rval;
+    asn_enc_rval_t encode_rval;
+
+    MessageFrame_t *messageframe = 0;           // must initialize to 0 according to asn.1 instructions.
 
     static std::string tsname;
     static RdKafka::MessageTimestamp ts;
 
     size_t bytes_processed = 0;
 
-    FILE* source;
-
-    // This is the ASN.1 compiler generated structure that is filled with the input data.
-    // The memory / data is dynamically allocated and filled.
-    void *structure;
-
-    //std::string payload(static_cast<const char*>(message->payload()), message->len());
-
-    // TODO: Could make a library function to take this "message" type and process it..., or just use the raw bytes.
     switch (message->err()) {
+
         case RdKafka::ERR__TIMED_OUT:
             ilogger->info("Waiting for more BSMs from the ODE producer.");
             break;
@@ -513,41 +526,27 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, struct xer_buffer* xb ) 
                 ilogger->trace("Message key: {}", *message->key() );
             }
 
-            /** * Strategy:
-             *
-             * 1. For now just pass an ASCII filename, read that in, open and process those bytes.
-             * 2. Next, we will handle the production of binary blobs.
-             * 3. Take blocks of the binary, pass them through the library function.
-             *
-             *
-             */
-
-            //            while ( message->len() - bytes_processed > 0 ) {
-
             ilogger->info("Attempting to decode {} bytes total received {}.", message->len(), msg_recv_bytes );
 
-            // fwrite( (const void*) message->payload(), 1, message->len(), dump_file );
+            // Decode Kafka bytes payload into the C struct that was compiled from the ASN.1
+            decode_rval = uper_decode_complete( 0, &asn_DEF_MessageFrame, (void **)&messageframe, (const char *) message->payload(), message->len());
 
-            structure = data_decode_from_buffer(pduType, (const uint8_t *) message->payload(), message->len(), first_block);
-            // TODO: Identify this structure.
-
-            if(!structure) {
+            if ( decode_rval.code != RC_OK ) {
                 ilogger->error("No structure returned from decoding. payload size: {}", message->len());
                 elogger->error("No structure returned from decoding. payload size: {}", message->len());
                 return false;
             }
 
-            first_block = false;
+            // Encode the ASN.1 C struct into XML.
+            encode_rval = xer_encode( &asn_DEF_MessageFrame, messageframe, XER_F_BASIC, xer_buffer_append, static_cast<void *>(xb) );
 
-            // JMC: Dump these to a string stream instead or directly to the kafka buffer.
-            if( xer_buf( static_cast<void *>(xb), pduType, structure) ) {
+            if ( encode_rval.encoded == -1 ) {
                 ilogger->error("Cannot convert the block into XML.");
                 elogger->error("Cannot convert the block into XML.");
                 return false;
             }
 
             ilogger->info( "Finished decode/encode operation for {} bytes.", xb->buffer_size );
-            // Good data exit point.
             return true;
             break;
 
@@ -748,7 +747,7 @@ int ASN1_Codec::operator()(void) {
     if ( !launch_producer() ) return false;
 
     // TODO: Put this in the class.
-    struct xer_buffer xb = {0, 0, 0};
+    xer_buffer_t xb = {0, 0, 0};
 
     // consume-produce loop.
     while (data_available) {
@@ -815,7 +814,7 @@ int main( int argc, char* argv[] )
 
 
     // debug for ASN.1
-    opt_debug = 0;
+    // opt_debug = 0;
 
     if (!asn1_codec.parseArgs(argc, argv)) {
         asn1_codec.usage();
