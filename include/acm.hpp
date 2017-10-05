@@ -53,6 +53,7 @@
 #include "Ieee1609Dot2Data.h"
 #include "tool.hpp"
 #include "spdlog/spdlog.h"
+#include "rdkafkacpp.h"
 
 // TODO: integrate this with the class?
 typedef struct xer_buffer {
@@ -81,6 +82,7 @@ class ASN1_Codec : public tool::Tool {
         bool launch_consumer();
         bool launch_producer();
         bool msg_consume(RdKafka::Message* message, xer_buffer_t* xb);
+        bool filetest( std::string& inputfile );
         int operator()(void);
 
         /**
@@ -145,8 +147,7 @@ class ASN1_Codec : public tool::Tool {
         std::shared_ptr<RdKafka::Producer> producer_ptr;
         std::shared_ptr<RdKafka::Topic> published_topic_ptr;
 
-        char *payload_bytes_ = nullptr;
-        int decode_hex_(const std::string& payload_hex);
+        bool decode_hex_(const std::string& payload_hex, std::vector<char>& byte_buffer);
 
 };
 

@@ -31,6 +31,7 @@ endif ()
 
 # before the add_executable
 link_directories("${CMAKE_SOURCE_DIR}/asn1c_combined")
+link_directories("/usr/local/lib/pugixml-1.8")
 
 # configure_file("j2735/include/asn1-j2735-lib.h" "asn1-j23735-lib.h" COPYONLY)
 

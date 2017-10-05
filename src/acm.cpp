@@ -47,8 +47,7 @@
 #include "utilities.hpp"
 
 #include "spdlog/spdlog.h"
-#include "pguixml.hpp"
-
+#include "pugixml.hpp"
 
 #include <csignal>
 #include <chrono>
@@ -486,9 +485,11 @@ bool ASN1_Codec::configure() {
 
 bool ASN1_Codec::msg_consume(RdKafka::Message* message, xer_buffer_t* xb ) {
 
-    pugi::xml_document doc;
-    pugi::xml_parse_result result;
-    pugi::xml_node payload;
+    pugi::xml_document input_doc{};
+    pugi::xml_document j2735_doc{};
+    pugi::xml_parse_result result{};
+    pugi::xml_node payload{};
+
     std::string hex_str;
 
     asn_dec_rval_t decode_rval;
@@ -501,6 +502,8 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, xer_buffer_t* xb ) {
     static RdKafka::MessageTimestamp ts;
 
     size_t bytes_processed = 0;
+
+    std::vector<char> byte_buffer;
 
     switch (message->err()) {
 
@@ -534,14 +537,14 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, xer_buffer_t* xb ) {
             }
 
             // XML parsing
-            result = doc.load_buffer((const void*) message->payload(), message->len());
+            result = input_doc.load_buffer((const void*) message->payload(), message->len());
 
             if (!result) {
                 ilogger->trace("XML parsing error {} (offset = {})!", result.description(), result.offset);
                 return false; 
             } 
              
-            payload = doc.child("root").child("payload");
+            payload = input_doc.child("root").child("payload");
             
             if (!payload) {
                 ilogger->trace("XML missing payload node!");
@@ -553,6 +556,7 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, xer_buffer_t* xb ) {
                 return false;
             }
 
+            // extract out the IEEE1609.2 frame as a byte string.
             hex_str = payload.child_value("data"); 
 
             if (hex_str.empty()) {
@@ -560,17 +564,20 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, xer_buffer_t* xb ) {
                 return false;
             }
 
-            if (decode_hex_(hex_str) != hex_str.length()) {
+            if (!decode_hex_(hex_str, byte_buffer)) {
                 // TODO could log n bytes succesfully decoded
                 ilogger->trace("Could not decode XML payload data hex bytes!");
                 return false;
             }
 
-            ilogger->info("Attempting to decode {} bytes total received {}.", message->len(), msg_recv_bytes );
-
             // Decode Kafka bytes payload into the C struct that was compiled from the ASN.1
-            decode_rval = uper_decode_complete( 0, &asn_DEF_Ieee1609Dot2Data, (void **)&ieee1609data, (const char *) payload_bytes_, hex_str.length());
-            // decode_rval = uper_decode_complete( 0, &asn_DEF_MessageFrame, (void **)&messageframe, (const char *) message->payload(), message->len());
+            decode_rval = uper_decode_complete( 
+                    0, 
+                    &asn_DEF_Ieee1609Dot2Data, 
+                    (void **)&ieee1609data, 
+                    byte_buffer.data(), 
+                    byte_buffer.size() 
+                    );
 
             if ( decode_rval.code != RC_OK ) {
                 ilogger->error("No structure returned from decoding. payload size: {}", message->len());
@@ -578,8 +585,82 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, xer_buffer_t* xb ) {
                 return false;
             }
 
+            // ieee1609data is a structure representing the ASN.1 bytes in the XML.
+
             // Encode the ASN.1 C struct into XML.
-            encode_rval = xer_encode( &asn_DEF_MessageFrame, messageframe, XER_F_BASIC, xer_buffer_append, static_cast<void *>(xb) );
+            encode_rval = xer_encode( 
+                    &asn_DEF_Ieee1609Dot2Data, 
+                    ieee1609data, 
+                    XER_F_CANONICAL, 
+                    xer_buffer_append, 
+                    static_cast<void *>(xb) 
+                    );
+
+            if ( encode_rval.encoded == -1 ) {
+                ilogger->error("Cannot convert the block into XML.");
+                elogger->error("Cannot convert the block into XML.");
+                return false;
+            }
+
+            // XML parsing
+            result = j2735_doc.load_buffer((const void*) xb->buffer, xb->buffer_size);
+
+            if (!result) {
+                ilogger->trace("XML parsing error {} (offset = {})!", result.description(), result.offset);
+                return false; 
+            } 
+             
+            payload = j2735_doc.child("Ieee1609Dot2Data").child("content");
+            
+            if (!payload) {
+                ilogger->trace("XML missing payload node!");
+                return false;
+            }
+
+            if (!payload.child("unsecuredData")) {
+                ilogger->trace("XML missing payload data node!");
+                return false;
+            }
+
+            // extract out the IEEE1609.2 frame as a byte string.
+            hex_str = payload.child_value("unsecuredData"); 
+
+            if (hex_str.empty()) {
+                ilogger->trace("XML missing payload data hex bytes!");
+                return false;
+            }
+
+            byte_buffer.clear();
+            if (!decode_hex_(hex_str, byte_buffer)) {
+                // TODO could log n bytes succesfully decoded
+                ilogger->trace("Could not decode XML payload data hex bytes!");
+                return false;
+            }
+
+            // Decode Kafka bytes payload into the C struct that was compiled from the ASN.1
+            decode_rval = uper_decode_complete( 
+                    0, 
+                    &asn_DEF_MessageFrame, 
+                    (void **)&messageframe, 
+                    byte_buffer.data(), 
+                    byte_buffer.size() 
+                    );
+
+            if ( decode_rval.code != RC_OK ) {
+                ilogger->error("No structure returned from decoding. payload size: {}", message->len());
+                elogger->error("No structure returned from decoding. payload size: {}", message->len());
+                return false;
+            }
+
+            xb->buffer_size=0;
+            // Encode the ASN.1 C struct into XML.
+            encode_rval = xer_encode( 
+                    &asn_DEF_MessageFrame, 
+                    messageframe, 
+                    XER_F_CANONICAL, 
+                    xer_buffer_append, 
+                    static_cast<void *>(xb) 
+                    );
 
             if ( encode_rval.encoded == -1 ) {
                 ilogger->error("Cannot convert the block into XML.");
@@ -764,6 +845,213 @@ bool ASN1_Codec::make_loggers( bool remove_files )
     return true;
 }
 
+bool ASN1_Codec::filetest( std::string& inputfile ) {
+
+    std::string error_string;
+    RdKafka::ErrorCode status;
+
+    signal(SIGINT, sigterm);
+    signal(SIGTERM, sigterm);
+    
+    try {
+
+        // throws for a couple of options.
+        if ( !configure() ) return EXIT_FAILURE;
+
+    } catch ( std::exception& e ) {
+
+        // don't use logger in case we cannot configure it correctly.
+        std::cerr << "Fatal Exception: " << e.what() << '\n';
+        return EXIT_FAILURE;
+    }
+
+    std::FILE* ifile = std::fopen( inputfile.c_str(), "r" );
+    if (!ifile) {
+        std::cerr << "cannot open " << inputfile << '\n';
+        return false;
+    }
+    std::fseek(ifile, 0, SEEK_END);
+    std::size_t ifile_size = std::ftell(ifile);
+    std::fseek(ifile, 0, SEEK_SET);
+
+    std::vector<uint8_t> buffer{ ifile_size };
+    std::fread( buffer.data(), sizeof( uint8_t ), buffer.size(), ifile );
+    
+        pugi::xml_document input_doc{};
+        pugi::xml_document j2735_doc{};
+        pugi::xml_parse_result result{};
+        pugi::xml_node payload{};
+
+        std::string hex_str;
+
+        asn_dec_rval_t decode_rval;
+        asn_enc_rval_t encode_rval;
+
+        Ieee1609Dot2Data_t *ieee1609data = 0;        // must initialize to 0 according to asn.1 instructions.
+        MessageFrame_t *messageframe = 0;            // must initialize to 0 according to asn.1 instructions.
+
+        std::vector<char> byte_buffer;
+
+    // TODO: Put this in the class.
+    xer_buffer_t xb = {0, 0, 0};
+
+    if ( buffer.size() > 0 ) {
+
+        size_t bytes_processed = 0;
+
+            case RdKafka::ERR_NO_ERROR:
+                /* Real message */
+                msg_recv_count++;
+                msg_recv_bytes += message->len();
+
+                ilogger->trace("Read message at byte offset: {} with length {}", message->offset(), message->len() );
+
+                // XML parsing
+                result = input_doc.load_buffer((const void*) message->payload(), message->len());
+
+                if (!result) {
+                    ilogger->trace("XML parsing error {} (offset = {})!", result.description(), result.offset);
+                    return false; 
+                } 
+
+                payload = input_doc.child("root").child("payload");
+
+                if (!payload) {
+                    ilogger->trace("XML missing payload node!");
+                    return false;
+                }
+
+                if (!payload.child("data")) {
+                    ilogger->trace("XML missing payload data node!");
+                    return false;
+                }
+
+                // extract out the IEEE1609.2 frame as a byte string.
+                hex_str = payload.child_value("data"); 
+
+                if (hex_str.empty()) {
+                    ilogger->trace("XML missing payload data hex bytes!");
+                    return false;
+                }
+
+                if (!decode_hex_(hex_str, byte_buffer)) {
+                    // TODO could log n bytes succesfully decoded
+                    ilogger->trace("Could not decode XML payload data hex bytes!");
+                    return false;
+                }
+
+                // Decode Kafka bytes payload into the C struct that was compiled from the ASN.1
+                decode_rval = uper_decode_complete( 
+                        0, 
+                        &asn_DEF_Ieee1609Dot2Data, 
+                        (void **)&ieee1609data, 
+                        byte_buffer.data(), 
+                        byte_buffer.size() 
+                        );
+
+                if ( decode_rval.code != RC_OK ) {
+                    ilogger->error("No structure returned from decoding. payload size: {}", message->len());
+                    elogger->error("No structure returned from decoding. payload size: {}", message->len());
+                    return false;
+                }
+
+                // ieee1609data is a structure representing the ASN.1 bytes in the XML.
+
+                // Encode the ASN.1 C struct into XML.
+                encode_rval = xer_encode( 
+                        &asn_DEF_Ieee1609Dot2Data, 
+                        ieee1609data, 
+                        XER_F_CANONICAL, 
+                        xer_buffer_append, 
+                        static_cast<void *>(xb) 
+                        );
+
+                if ( encode_rval.encoded == -1 ) {
+                    ilogger->error("Cannot convert the block into XML.");
+                    elogger->error("Cannot convert the block into XML.");
+                    return false;
+                }
+
+                // XML parsing
+                result = j2735_doc.load_buffer((const void*) xb->buffer, xb->buffer_size);
+
+                if (!result) {
+                    ilogger->trace("XML parsing error {} (offset = {})!", result.description(), result.offset);
+                    return false; 
+                } 
+
+                payload = j2735_doc.child("Ieee1609Dot2Data").child("content");
+
+                if (!payload) {
+                    ilogger->trace("XML missing payload node!");
+                    return false;
+                }
+
+                if (!payload.child("unsecuredData")) {
+                    ilogger->trace("XML missing payload data node!");
+                    return false;
+                }
+
+                // extract out the IEEE1609.2 frame as a byte string.
+                hex_str = payload.child_value("unsecuredData"); 
+
+                if (hex_str.empty()) {
+                    ilogger->trace("XML missing payload data hex bytes!");
+                    return false;
+                }
+
+                byte_buffer.clear();
+                if (!decode_hex_(hex_str, byte_buffer)) {
+                    // TODO could log n bytes succesfully decoded
+                    ilogger->trace("Could not decode XML payload data hex bytes!");
+                    return false;
+                }
+
+                // Decode Kafka bytes payload into the C struct that was compiled from the ASN.1
+                decode_rval = uper_decode_complete( 
+                        0, 
+                        &asn_DEF_MessageFrame, 
+                        (void **)&messageframe, 
+                        byte_buffer.data(), 
+                        byte_buffer.size() 
+                        );
+
+                if ( decode_rval.code != RC_OK ) {
+                    ilogger->error("No structure returned from decoding. payload size: {}", message->len());
+                    elogger->error("No structure returned from decoding. payload size: {}", message->len());
+                    return false;
+                }
+
+                xb->buffer_size=0;
+                // Encode the ASN.1 C struct into XML.
+                encode_rval = xer_encode( 
+                        &asn_DEF_MessageFrame, 
+                        messageframe, 
+                        XER_F_CANONICAL, 
+                        xer_buffer_append, 
+                        static_cast<void *>(xb) 
+                        );
+
+                if ( encode_rval.encoded == -1 ) {
+                    ilogger->error("Cannot convert the block into XML.");
+                    elogger->error("Cannot convert the block into XML.");
+                    return false;
+                }
+
+                ilogger->info( "Finished decode/encode operation for {} bytes.", xb->buffer_size );
+                return true;
+                break;
+
+        } 
+
+    // NOTE: good for troubleshooting, but bad for performance.
+    elogger->flush();
+    ilogger->flush();
+
+    std::fclose( ifile );
+    return true;
+}
+
 int ASN1_Codec::operator()(void) {
 
     std::string error_string;
@@ -831,21 +1119,9 @@ int ASN1_Codec::operator()(void) {
     return EXIT_SUCCESS;
 }
 
-int decode_hex(const std::string& payload_hex, char **tmp) {
-}
-
-int ASN1_Codec::decode_hex_(const std::string& payload_hex) {
+bool ASN1_Codec::decode_hex_(const std::string& payload_hex, std::vector<char>& byte_buffer) {
     uint8_t d = 0;
     int i = 0;          // so we can return -1;
-
-    if (payload_bytes_) {
-        delete payload_bytes_;
-    }
-
-    // a byte is 2 characters in the string.
-    payload_bytes_ = new char[payload_hex.length()/2];
-
-    if (!payload_bytes_) return -1;
 
     for (const char& c : payload_hex) {
         if ( c <= '9' && c >= '0' ) {
@@ -855,22 +1131,23 @@ int ASN1_Codec::decode_hex_(const std::string& payload_hex) {
         } else if ( c <= 'f' && c >= 'a' ) {
             d = c-87;        // c - 'a' + 10;
         } else {
-            return -1;
+            return false;
         }
 
         if (i%2) {
             // low order nibble.
-            payload_bytes_[i/2] |= d;
+            byte_buffer.back() |= d;
+            //byte_buffer[i/2] |= d;
         } else {
             // high order nibble.
-            payload_bytes_[i/2] = 0;
-            payload_bytes_[i/2] = d << 4;
+            byte_buffer.push_back( d<<4 );
+            //byte_buffer[i/2] = d << 4;
         }
         ++i;
     }
 
     // the number of bytes in the buf.
-    return i/2;
+    return true;
 }
 
 #ifndef _ASN1_CODEC_TESTS

@@ -3,9 +3,28 @@
 The following files should be checked (can't remember if some of these are OK)
 
 - TwoDLocation.h
+    - #include "Latitude.h"
+    - #include "Longitude.h"
+    - Latitude_t
+    - Longitude_t
+
 - ThreeDLocation.h
-- DSRC_Latitude.h
-- DSRC_Longitude.h
+    - #include "Latitude.h"
+    - #include "Longitude.h"
+    - #include "Elevation.h"
+    - Latitude_t
+    - Longitude_t
+    - Elevation_t
+
+- ThreeDLocation.c
+    - &asn_DEF_Latitude -> &asn_DEF_DSRC_Latitude
+    - &asn_DEF_Longitude -> &asn_DEF_DSRC_Longitude
+    - &asn_DEF_Elevation -> &asn_DEF_DSRC_Elevation
+
+- TwoDLocation.c
+    - &asn_DEF_Latitude -> &asn_DEF_DSRC_Latitude
+    - &asn_DEF_Longitude -> &asn_DEF_DSRC_Longitude
+    - &asn_DEF_Elevation -> &asn_DEF_DSRC_Elevation
 
 The following names should be updated:
 
@@ -26,3 +45,5 @@ story).
 
 - -DPDU=<something>     // this allows the #ifndef statements in the above c file to work correctly.
 - -DASN_PDU_COLLECTION  // if you have several message types you want to use.
+
+
