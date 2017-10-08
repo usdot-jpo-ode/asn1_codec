@@ -31,9 +31,9 @@ endif ()
 
 # before the add_executable
 link_directories("${CMAKE_SOURCE_DIR}/asn1c_combined")
-link_directories("/usr/local/lib/pugixml-1.8")
 
-# configure_file("j2735/include/asn1-j2735-lib.h" "asn1-j23735-lib.h" COPYONLY)
+# NOTE: This may need to be changed depending on install location.
+link_directories("/usr/local/lib/pugixml-1.8")
 
 # CPP Preprocessor variable PDU is used in the asn1-j2735-lib.h file to build a variable to a ASN.1 parsing structure.
 # This variable may need changing if we are parsing some other type of ASN.1 schema.
@@ -49,11 +49,6 @@ include( "src/CMakeLists.txt" )
 target_link_libraries(acm pthread rdkafka++ asncodec pugixml)
 # target_link_libraries(acm-blob-producer pthread rdkafka++)
 # target_link_libraries(test_xml j2735 pugixml)
-
-
-# set(CATCH_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include/catch")
-# add_library(Catch INTERFACE)
-# target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})       # catch is header only; tell where to find header.
 
 # Copy the data to the build. TODO make this part of the test or data target.
 set(DATA_DIR $<TARGET_FILE_DIR:acm>/data)
