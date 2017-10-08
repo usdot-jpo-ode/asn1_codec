@@ -167,6 +167,7 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     producer_ptr{},
     published_topic_ptr{},
     ieee1609dot2_unsecuredData_query{"content/unsecuredData"},
+    xml_parse_options{ pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata },
     ilogger{},
     elogger{}
 {
@@ -529,7 +530,7 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
 
                 // Load BAH XML Input Document.
                 pugi::xml_document input_doc{};
-                pugi::xml_parse_result result = input_doc.load_buffer((const void*) message->payload(), message->len());
+                pugi::xml_parse_result result = input_doc.load_buffer((const void*) message->payload(), message->len(), xml_parse_options );
 
                 if (!result) {
                     ilogger->trace("Error parsing consumed XML file: {} (offset = {})!", result.description(), result.offset);
@@ -783,9 +784,14 @@ bool ASN1_Codec::extract_payload_xml( std::string& data_as_hex, xer_buffer_t* xm
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
 
+    char errbuf[128];
+    std::size_t errlen = sizeof(errbuf);
+
     std::vector<char> byte_buffer;
 
     Ieee1609Dot2Data_t *ieee1609data = 0;        // must initialize to 0 according to asn.1 instructions.
+
+    ilogger->trace("Start encode/decode operation on the input hex encoding.");
 
     // remove all spaces.
     data_as_hex.erase( remove_if ( data_as_hex.begin(), data_as_hex.end(), isspace), data_as_hex.end());
@@ -795,10 +801,14 @@ bool ASN1_Codec::extract_payload_xml( std::string& data_as_hex, xer_buffer_t* xm
         return false;
     }
 
+    ilogger->trace("Successfully extracted {} hex string: {}", asn_DEF_Ieee1609Dot2Data.name, data_as_hex );
+
     if (!decode_hex_(data_as_hex, byte_buffer)) {
         elogger->warn("Could not decode XML payload data hex bytes!");
         return false;
     }
+
+    ilogger->trace("Successful conversion to raw byte buffer.");
 
     // Decode BAH Bytes (A 1609.2 Frame) into the appropriate structure.
     decode_rval = uper_decode_complete( 
@@ -810,7 +820,16 @@ bool ASN1_Codec::extract_payload_xml( std::string& data_as_hex, xer_buffer_t* xm
             );
 
     if ( decode_rval.code != RC_OK ) {
-        elogger->error("No structure returned from decoding. payload size: {}", byte_buffer.size());
+        elogger->error("Decode error for {} bytes.", asn_DEF_Ieee1609Dot2Data.name );
+        return false;
+    }
+
+    ilogger->trace("Successful ASN.1 Decode from bytes to C structure.");
+
+    if (asn_check_constraints( &asn_DEF_Ieee1609Dot2Data, ieee1609data, errbuf, &errlen )) {
+        ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, ieee1609data);
+        std::string m{ errbuf, errlen };
+        elogger->error("{} constraint checks failed: {} this message will be dropped.", asn_DEF_Ieee1609Dot2Data.name, m );
         return false;
     }
 
@@ -830,43 +849,43 @@ bool ASN1_Codec::extract_payload_xml( std::string& data_as_hex, xer_buffer_t* xm
         return false;
     }
 
+    ilogger->trace("Completed encode/decode operation on the input hex encoding; now have XML of 1609.2 frame.");
     return true;
 }
 
 /**
- * This method should be generalizable to any type def and structure pointer -- tried but moved on.
+ * TODO: This method should be generalizable to any type def and structure pointer -- tried but moved on.
  */
 // bool ASN1_Codec::test( std::string& data_as_hex, xer_buffer_t* xml_buffer, struct asn_TYPE_descriptor_s *type_desc, void **sptr ) {
 bool ASN1_Codec::extract_unsecuredData_hex( std::string& data_as_hex, xer_buffer_t* xml_buffer ) {
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
 
+    char errbuf[128];
+    std::size_t errlen = sizeof(errbuf);
+
     std::vector<char> byte_buffer;
 
     MessageFrame_t *messageframe = 0;           // must be initialized to 0.
 
+    ilogger->trace("Start encode/decode operation on the IEEE 1609.2 unsecuredData (J2735 MessageFrame).");
+
     // remove all spaces.
     data_as_hex.erase( remove_if ( data_as_hex.begin(), data_as_hex.end(), isspace), data_as_hex.end());
 
-    std::cout << data_as_hex << '\n';
     if (data_as_hex.empty()) {
         elogger->warn("IEEE {} in hex has no data.", asn_DEF_MessageFrame.name );
         return false;
     }
+
+    ilogger->trace("Successfully extracted {} hex string: {}", asn_DEF_MessageFrame.name, data_as_hex );
 
     if (!decode_hex_(data_as_hex, byte_buffer)) {
         elogger->warn("Could not decode XML payload data hex bytes!");
         return false;
     }
 
-    ilogger->info("{} decode buffer length: {} data: {}", asn_DEF_MessageFrame.name, byte_buffer.size(), data_as_hex );
-
-// asn_dec_rval_t uper_decode_complete( const struct asn_codec_ctx_s *opt_codec_ctx,
-//     struct asn_TYPE_descriptor_s *type_descriptor, /* Type to decode */
-//     void **struct_ptr,  /* Pointer to a target structure's pointer */
-//     const void *buffer, /* Data to be decoded */
-//     size_t size         /* Size of data buffer */
-//     );
+    ilogger->trace("Successful conversion to raw byte buffer.");
 
     decode_rval = uper_decode_complete( 
             0, 
@@ -877,16 +896,18 @@ bool ASN1_Codec::extract_unsecuredData_hex( std::string& data_as_hex, xer_buffer
             );
 
     if ( decode_rval.code != RC_OK ) {
-        elogger->error("No structure returned from decoding. payload size: {}", byte_buffer.size());
+        elogger->error("Decode error for {} bytes.", asn_DEF_MessageFrame.name );
         return false;
     }
 
-//    asn_enc_rval_t xer_encode(struct asn_TYPE_descriptor_s *type_descriptor,
-//            void *struct_ptr,	/* Structure to be encoded */
-//            enum xer_encoder_flags_e xer_flags,
-//            asn_app_consume_bytes_f *consume_bytes_cb,
-//            void *app_key		/* Arbitrary callback argument */
-//            );
+    ilogger->trace("Successful ASN.1 Decode from bytes to C structure.");
+
+    if (asn_check_constraints( &asn_DEF_MessageFrame, messageframe, errbuf, &errlen )) {
+        ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
+        std::string m{ errbuf, errlen };
+        elogger->error("{} constraint checks failed: {} this message will be dropped.", asn_DEF_MessageFrame.name, m );
+        return false;
+    }
 
     // Encode the Ieee1609Dot2Data ASN.1 C struct into XML, so we can extract out the BSM.
     encode_rval = xer_encode( 
@@ -904,9 +925,14 @@ bool ASN1_Codec::extract_unsecuredData_hex( std::string& data_as_hex, xer_buffer
         return false;
     }
 
+    ilogger->trace("Completed ASN.1 encode/decode to final XML form.");
     return true;
 }
 
+/**
+ * Used as a test stub to bypass Kafka and work through the parsing, encoding, decoding.
+ *
+ */
 bool ASN1_Codec::filetest() {
 
     std::string error_string;
@@ -1061,18 +1087,13 @@ int ASN1_Codec::operator()(void) {
     if ( !launch_consumer() ) return false;
     if ( !launch_producer() ) return false;
 
-    // TODO: Put this in the class.
-    // xer_buffer_t xb = {0, 0, 0};
-
     // consume-produce loop.
     while (data_available) {
-
-        // reset the write point to the start of the buffer.
-        // xb.buffer_size = 0;
 
         std::unique_ptr<RdKafka::Message> msg{ consumer_ptr->consume( consumer_timeout ) };
 
         if ( msg->len() > 0 && msg_consume(msg.get(), xmlss) ) {
+
 
             std::cerr << msg->len() << " bytes consumed from topic: " << consumed_topics[0] << '\n';
 
@@ -1090,14 +1111,15 @@ int ASN1_Codec::operator()(void) {
                 std::cerr << xml_output.size() << " bytes produced to topic: " << published_topic_ptr->name() << '\n';
             }
 
+            // clear out the stream
+            xmlss.str("");
+            xmlss.clear();
         } 
 
         // NOTE: good for troubleshooting, but bad for performance.
         elogger->flush();
         ilogger->flush();
     }
-
-   // std::free( xb.buffer );
 
     ilogger->info("ASN1_Codec operations complete; shutting down...");
     ilogger->info("ASN1_Codec consumed  : {} blocks and {} bytes", msg_recv_count, msg_recv_bytes);
@@ -1127,11 +1149,9 @@ bool ASN1_Codec::decode_hex_(const std::string& payload_hex, std::vector<char>& 
         if (i%2) {
             // low order nibble.
             byte_buffer.back() |= d;
-            //byte_buffer[i/2] |= d;
         } else {
             // high order nibble.
             byte_buffer.push_back( d<<4 );
-            //byte_buffer[i/2] = d << 4;
         }
         ++i;
     }
@@ -1198,8 +1218,6 @@ int main( int argc, char* argv[] )
             std::exit( EXIT_FAILURE );
         }
     }
-
-
 
     // The module will run and when it terminates return an appropriate error code.
     // std::exit( asn1_codec.filetest() );              // good for testing parsing.

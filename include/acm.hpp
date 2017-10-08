@@ -150,6 +150,7 @@ class ASN1_Codec : public tool::Tool {
         std::shared_ptr<RdKafka::Topic> published_topic_ptr;
 
         pugi::xpath_query ieee1609dot2_unsecuredData_query;
+        unsigned int xml_parse_options;
 
         bool decode_hex_(const std::string& payload_hex, std::vector<char>& byte_buffer);
 
