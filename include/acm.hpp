@@ -82,7 +82,8 @@ class ASN1_Codec : public tool::Tool {
         bool configure();
         bool launch_consumer();
         bool launch_producer();
-        bool msg_consume(RdKafka::Message* message, xer_buffer_t* xb);
+        bool msg_consume(RdKafka::Message* message, std::stringstream& xmlss);
+        //bool msg_consume(RdKafka::Message* message, xer_buffer_t* xb);
         bool filetest();
         int operator()(void);
 
@@ -152,8 +153,9 @@ class ASN1_Codec : public tool::Tool {
 
         bool decode_hex_(const std::string& payload_hex, std::vector<char>& byte_buffer);
 
-        bool extract_payload_xml( const pugi::xml_document& doc, xer_buffer_t* xml_buffer );
-        bool extract_unsecuredData_hex( const pugi::xml_document& doc, xer_buffer_t* xml_buffer );
+        bool extract_payload_xml( std::string& data_as_hex, xer_buffer_t* xml_buffer );
+        // bool test( std::string& data_as_hex, xer_buffer_t* xml_buffer, struct asn_TYPE_descriptor_s *type_desc, void **sptr );
+        bool extract_unsecuredData_hex( std::string& data_as_hex, xer_buffer_t* xml_buffer );
 
 };
 
