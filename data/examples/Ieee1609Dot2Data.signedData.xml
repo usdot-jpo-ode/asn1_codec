@@ -1,0 +1,69 @@
+<Ieee1609Dot2Data>
+<protocolVersion>3</protocolVersion>
+<content>
+<signedData>
+			<hashId>sha256</hashId>
+			<tbsData>
+				<payload> 
+					<data> 
+						<protocolVersion>3</protocolVersion>
+						<content>
+                             <unsecuredData>5468697320697320612042534D0D0A</unsecuredData>
+                        </content>
+					</data>
+				</payload>
+				<headerInfo>
+					<psid>32</psid>
+					<generationTime>1112131415161718</generationTime>
+				</headerInfo>
+			</tbsData>
+			<signer> 
+				<certificate>
+				   <version>3</version>
+				   <type>implicit</type>
+				   <issuer>
+				      <sha256AndDigest>2122232425262728</sha256AndDigest>
+				   </issuer>
+				   <toBeSigned>
+				      <id> 
+						<linkageData>
+				          <iCert>1000</iCert>
+				          <linkage-value>313233343536373839</linkage-value>
+				          <group-linkage-value>
+				             <jValue>41424344</jValue>
+				             <value>515253545556575859</value>
+				          </group-linkage-value>
+					    </linkageData>
+					  </id>
+				      <cracaId>616263</cracaId>
+				      <crlSeries>70</crlSeries>
+				      <validityPeriod>
+                            <start>81828384</start><duration><hours>169</hours></duration>
+				      </validityPeriod>
+				      <region> 
+					      <identifiedRegion> <countryOnly>124</countryOnly> <countryOnly>484</countryOnly> <countryOnly>840</countryOnly> </identifiedRegion> 
+					  </region>
+					  <appPermissions><psid>32</psid><psid>38</psid></appPermissions>
+				      <verifyKeyIndicator>
+                         <reconstructionValue>
+                            <compressed-y-0>9192939495969798919293949596979891929394959697989192939495969798</compressed-y-0>
+                         </reconstructionValue>
+                      </verifyKeyIndicator>
+				   </toBeSigned>
+				   <signature> 
+					  <ecdsaNistP256Signature>
+						 <rSig><compressed-y-0>3132333435363738313233343536373831323334353637383132333435363738</compressed-y-0></rSig>
+						 <sSig>4142434445464748414243444546474841424344454647484142434445464748</sSig>
+					  </ecdsaNistP256Signature>
+				   </signature>
+				</certificate>
+			</signer> 
+		    <signature> 
+			  <ecdsaNistP256Signature>
+				 <rSig><compressed-y-0>3132333435363738313233343536373831323334353637383132333435363738</compressed-y-0></rSig>
+				 <sSig>4142434445464748414243444546474841424344454647484142434445464748</sSig>
+			  </ecdsaNistP256Signature>
+			</signature>
+		</signedData>
+	</content>
+</Ieee1609Dot2Data>

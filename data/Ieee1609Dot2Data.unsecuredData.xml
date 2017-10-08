@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<Ieee1609Dot2Data>
+    <protocolVersion>3</protocolVersion>
+    <content>
+        <unsecuredData>
+            00 14 80 AD 56 2F A8 40 00 39 E8 E7 17 09 0F 96 
+            65 FE 1B AC C3 7F FF FF FF F0 00 3B BA FD FA 1F 
+            A1 00 7F FF 80 00 00 00 00 02 02 14 C1 C1 00 41 
+            7F FF FF FE 82 4E 10 0A 3F FF FF FF E8 94 21 02 
+            04 7F FF FF FE 92 2A 10 26 A4 01 43 FF E9 5D 61 
+            04 23 40 5D 7F FE A7 56 10 32 2C 05 99 FF EA DF 
+            A1 03 91 C0 6B 5F FE B7 E6 10 3C B4 0A 03 FF ED 
+            21 21 03 3B C0 8A DF FE D9 A6 10 2E 84 08 E5 FF 
+            ED E2 E1 02 BD C0 88 5F FE DF 0A 10 00 BC 01 9B 
+            FF F7 F3 21 FF FF C0 05 DF FF C5 5A 1F FF FF FF 
+            FF FF FD D1 A1 00 40 7F FF FF FF E1 A2 FF FE 00 
+            00
+        </unsecuredData>
+    </content>
+</Ieee1609Dot2Data>
