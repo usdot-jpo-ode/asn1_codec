@@ -1,0 +1,120 @@
+nks Tony!
+ 
+Is this what we received from WYDOT? I thought the TIM will be in a MessageFrame, no?
+ 
+Anyway, Jason, the hex data here represents a “TravelerInformation” message all by itself (no Messageframe). So the encodings element specified in the metadata would be something like this:
+           <encodings>
+                <encodings>
+                      <elementName>root</elementName>
+                     <elementType>TravelerInformation</elementType>
+                      <encodingRule>UPER</encodingRule>
+                </encodings>
+           </encodings>
+ 
+This should decode to the following (as dene by OSS)
+ 
+value TravelerInformation ::=
+{
+  msgCnt 1,
+  timeStamp 309505,
+  packetID '000000000000000000'H,
+  urlB "null",
+  dataFrames
+  {
+    {
+      sspTimRights 0,
+      frameType advisory,
+      msgId roadSignID :
+        {
+          position
+          {
+            lat 416784730,
+            long -1087827750,
+            elevation 9171
+          },
+          viewAngle { from022-5to045-0degrees, ... },
+          mutcdCode guide,
+          crc '0000'H
+        },
+      startYear 2017,
+      startTime 308065,
+      duratonTime 1,
+      priority 0,
+      sspLocationRights 3,
+      regions
+      {
+        {
+          name "Testing TIM",
+          id
+          {
+            region 0,
+            id 33
+          },
+          anchor
+          {
+            lat 412500807,
+            long -1110093847,
+            elevation 20206
+          },
+          laneWidth 700,
+          directionality both,
+          closedPath FALSE,
+          direction { from247-5to270-0degrees, ... },
+          description path :
+            {
+              scale 0,
+              offset ll : nodes :
+                  {
+                    {
+                      delta node-LL3 :
+                        {
+                          lon 14506,
+                          lat 31024
+                        }
+                    },
+                    {
+                      delta node-LL3 :
+                        {
+                          lon 14568,
+                          lat 30974
+                        }
+                    },
+                    {
+                      delta node-LL3 :
+                        {
+                          lon 14559,
+                          lat 30983
+                        }
+                    },
+                    {
+                      delta node-LL3 :
+                        {
+                          lon 14563,
+                          lat 30980
+                        }
+                    },
+                    {
+                      delta node-LL3 :
+                        {
+                          lon 14562,
+                          lat 30982
+                        }
+                    }
+                  }
+            }
+        }
+      },
+      sspMsgRights1 2,
+      sspMsgRights2 3,
+      content advisory :
+        {
+          {
+            item itis : 513
+          }
+        },
+      url "null"
+    }
+  }
+}
+ 
+ 

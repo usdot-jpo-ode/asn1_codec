@@ -2,8 +2,8 @@
 <root>
    <metadata>
       <generatedAt>2017-09-08T14:50:35.820Z[UTC]</generatedAt>
-      <logFileName>bsmLogDuringEvent_1504882236_2001_3A470_3A41af_3A1_3A0_3A63ff_3Afead_3A525.csv</logFileName>
-      <payloadType>us.dot.its.jpo.ode.model.OdeBsmPayload</payloadType>
+      <logFileName>TimLogDuringEvent_1504882236_2001_3A470_3A41af_3A1_3A0_3A63ff_3Afead_3A525.csv</logFileName>
+      <payloadType>us.dot.its.jpo.ode.model.OdeTimPayload</payloadType>
       <receivedAt>2017-09-27T15:57:14.471Z[UTC]</receivedAt>
       <sanitized>false</sanitized>
       <schemaVersion>2</schemaVersion>
@@ -17,13 +17,7 @@
       <validSignature>false</validSignature>
    </metadata>
    <payload>
-       <data>
-101620029015aac5f50800073d1ce2e121f2ccbfc375986ffffffffe0007
-775fbf43f4200ffff000000000004042983820082fffffffd049c20147ff
-fffffd128420408fffffffd2454204d480287ffd2bac2084680bafffd4ea
-c2064580b33ffd5bf42072380d6bffd6fcc2079681407ffda42420677811
-5bffdb34c205d0811cbffdbc5c2057b8110bffdbe142001780337ffefe64
-3ffff800bbfff8ab43ffffffffffffba3420080ffffffffc345fffc00000
-           </data>
+      <data>7014B9010000000000000000000F775D9B0301EA73E452D1539716C99E9AAAA280003F0A59B080010307F8AA9979F4D3BB3A0A9266C000000854E3B2C47291F21E85EEE057980050420C57155F2602B8E8F8FE15C6FFC838AE38FE410571C5F20C2180002013DDD766C0
+</data>
    </payload>
 </root>
