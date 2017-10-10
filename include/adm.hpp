@@ -154,6 +154,7 @@ class ASN1_Codec : public tool::Tool {
         std::shared_ptr<RdKafka::Topic> published_topic_ptr;
 
         pugi::xpath_query ieee1609dot2_unsecuredData_query;
+        pugi::xpath_query ode_payload_query;
         unsigned int xml_parse_options;
         std::deque<std::tuple<std::string,std::string,std::string>> element_type_stack;
         std::deque<pugi::xml_document*> doc_stack;

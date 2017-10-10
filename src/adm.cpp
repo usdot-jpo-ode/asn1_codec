@@ -166,7 +166,8 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     consumer_timeout{500},
     producer_ptr{},
     published_topic_ptr{},
-    ieee1609dot2_unsecuredData_query{"content/unsecuredData"},
+    ieee1609dot2_unsecuredData_query{"Ieee1609Dot2Data/content/unsecuredData"},
+    ode_payload_query{"OdeAsn1Data/payload/data"},
     element_type_stack{},
     doc_stack{},
     xml_parse_options{ pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata },
@@ -528,173 +529,88 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
 
             if ( message->len() > 0 ) {
 
+                xer_buffer_t xb = {0, 0, 0};
+
                 // Load BAH XML Input Document.
-                // pugi::xml_document input_doc{};
-//                doc_stack.clear();
-//                doc_stack.emplace_back( pugi::xml_document{} );
-//                pugi::xml_parse_result result = doc_stack.back()->load_buffer((const void*) message->payload(), message->len(), xml_parse_options );
-//
-//                if (!result) {
-//                    ilogger->trace("Error parsing consumed XML file: {} (offset = {})!", result.description(), result.offset);
-//                    return false; 
-//                } 
-//
-//                pugi::xml_node odedata = doc_stack.back()->child("OdeAsn1Data");
-//                pugi::xml_node encodings_node = odedata.child("metadata").child("encodings");
-//
-//                for ( pugi::xml_node n = encodings_node.first_child(); n; n = n.next_sibling()) {
-//                    std::string ename{ n.child("elementName").text().get() };
-//                    std::string etype{ n.child("elementType").text().get() };
-//                    std::string erule{ n.child("encodingRule").text().get() };
-//                    std::cout << "name: " << ename << " type: " << etype << " rule: " << erule << '\n';
-//                    element_type_stack.emplace_front( ename, etype, erule ); 
-//                }
-//
-//                for ( auto i = element_type_stack.begin(); i != element_type_stack.end(); ++i ) {
-//
-//                    
-//                    // reset the buffer.
-//                    xer_buffer_t xb = { 0,0,0 };
-//                    // begin this with a valid XML document.
-//                    // the stack items indicates where in document to find data.
-//                    std::shared_ptr<pugi::xml_document> dptr = doc_stack.back();
-//
-//                    if ( "Ieee1609Dot2Data" == std::get<1>(*i) ) {
-//
-//                        // xpath query = ".//bytes";
-//                        std::string qry{".//"};
-//                        qry += std::get<0>(*i);
-//
-//                        pugi::xpath_node n = dptr->select_node( qry );
-//                        text = n.node().text();
-//
-//                        if ( !text ) {
-//                            elogger->warn("No text node (data source) in the consumed XML file.");
-//                            return false;
-//                        }
-//
-//                        std::string hstr{ text.get() };
-//
-//                        if ( decode_1609dot2_data(hstr, &xb ) == false ) {
-//                            elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
-//                            return false;
-//                        }
-//
-//                        doc_stack.emplace_back( pugi::xml_document{} );
-//                        result = doc_stack.back()->load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
-//                        std::free( static_cast<void *>(xb.buffer) );
-//
-//                        if (!result) {
-//                            ilogger->trace("Error parsing IEEE 1609.2 XML data: {} (offset = {})!", result.description(), result.offset);
-//                            return false; 
-//                        } 
-//
-//                    } else if ( "MessageFrame" == std::get<1>(*i) ) {
-//
-//                        // XPath search the IEEE structure for the unsecured data.
-//                        // pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( ieee_doc.child("Ieee1609Dot2Data") );
-//                        // text = unsecuredDataNode.node().text();
-//
-//                        // xpath query = ".//bytes";
-//                        std::string qry{".//"};
-//                        qry += std::get<0>(*i);
-//
-//                        pugi::xpath_node n = dptr->select_node( qry );
-//                        text = n.node().text();
-//
-//                        if ( !text ) {
-//                            elogger->warn("No text node (data source) in the consumed XML file.");
-//                            return false;
-//                        }
-//
-//                        std::string hstr{ text.get() };
-//
-//                        if ( !text ) {
-//                            elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
-//                            return false;
-//                        }
-//
-//                        hstr = std::string( text.get() );
-//                        //if ( extract_unsecuredData_hex( hstr, &xb ) == false ) {
-//                        if ( decode_messageframe_data( hstr, &xb ) == false ) {
-//                            elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
-//                            return false;
-//                        }
-//
-//                        ilogger->info( "IEEE 1609.2 Unsecured Data Field Payload decode/encode operation complete (usually a J2735 MessageFrame)." );
-//
-//                        doc_stack.emplace_back( pugi::xml_document{} );
-//                        // build an XML document from the ascii data.
-//                        //pugi::xml_document messageframexml{};
-//                        result = doc_stack.back()->load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
-//                        std::free( static_cast<void *>(xb.buffer) );
-//
-//                        if (!result) {
-//                            ilogger->trace("Error parsing J2735 XML data: {} (offset = {})!", result.description(), result.offset);
-//                            return false; 
-//                        } 
-//
-//                    } else if ( "TravelerInformation" == std::get<0>(*i) ) {
-//
-//                        std::string qry{".//"};
-//                        qry += std::get<0>(*i);
-//
-//                        pugi::xpath_node n = dptr->select_node( qry );
-//                        text = n.node().text();
-//
-//                        if ( !text ) {
-//                            elogger->warn("No text node (data source) in the consumed XML file.");
-//                            return false;
-//                        }
-//
-//                        std::string hstr{ text.get() };
-//
-//                        if ( !text ) {
-//                            elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
-//                            return false;
-//                        }
-//
-//                        hstr = std::string( text.get() );
-//                        //if ( extract_unsecuredData_hex( hstr, &xb ) == false ) {
-//                        if ( decode_travelerinformation_data( hstr, &xb ) == false ) {
-//                            elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
-//                            return false;
-//                        }
-//
-//                        ilogger->info( "IEEE 1609.2 Unsecured Data Field Payload decode/encode operation complete (usually a J2735 MessageFrame)." );
-//
-//                        doc_stack.emplace_back( pugi::xml_document{} );
-//                        result = doc_stack.back()->load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
-//                        std::free( static_cast<void *>(xb.buffer) );
-//
-//                        if (!result) {
-//                            ilogger->trace("Error parsing J2735 XML data: {} (offset = {})!", result.description(), result.offset);
-//                            return false; 
-//                        } 
-//
-//                    } else {
-//                        ilogger->warn("element in the xml that cannot be decoded.");
-//                        return false;
-//                    }
-//                }
-//
-//
-//                // everthing is contained in documents pointed to int he doc_stack.
-//                // the front of this stack is the top-level document.
-//                // the back of this stack is the bottom-level document that must be inserted into the top-level.
-//            
-//                pugi::xml_node payload_node = odedata.child("payload").child("data").child("bytes");
-//                //pugi::xml_text text = payload_node.text();
-//
-//                // zero out hex string.
-//                payload_node.text().set("");
-//
-//                // replace the hex data with XML data.
-//                payload_node.append_copy( doc_stack.back()->document_element() );
-//
-//                // convert DOM to a RAW string representation: no spaces, no tabs.
-//                xmlss.clear();
-//                doc_stack.front()->save(xmlss,"",pugi::format_raw);
+                pugi::xml_document input_doc{};
+                pugi::xml_parse_result result = input_doc.load_buffer((const void*) message->payload(), message->len(), xml_parse_options );
+
+                if (!result) {
+                    ilogger->trace("Error parsing consumed XML file: {} (offset = {})!", result.description(), result.offset);
+                    return false; 
+                } 
+
+                pugi::xpath_node payload_xpath_node = ode_payload_query.evaluate_node( input_doc );
+                pugi::xml_node payload_node = payload_xpath_node.node();
+
+                // access this directly because we remove the bytes branch.
+                pugi::xml_text text = payload_node.child("bytes").text();
+
+                // pugi::xml_node payload_node = input_doc.child("OdeAsn1Data").child("payload").child("data");
+                // pugi::xml_text text = payload_node.child("bytes").text();
+
+                if ( !text ) {
+                    elogger->warn("No text node (data source) in the consumed XML file.");
+                    return false;
+                }
+
+                std::string hstr{ text.get() };
+
+                if ( decode_1609dot2_data(hstr, &xb ) == false ) {
+                    elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
+                    return false;
+                }
+
+                pugi::xml_document ieee_doc{};
+                result = ieee_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
+                std::free( static_cast<void *>(xb.buffer) );
+
+                if (!result) {
+                    ilogger->trace("Error parsing IEEE 1609.2 XML data: {} (offset = {})!", result.description(), result.offset);
+                    return false; 
+                } 
+
+                // reset the buffer.
+                xb = { 0,0,0 };
+
+                // XPath search the IEEE structure for the unsecured data.
+                pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( ieee_doc );// .child("Ieee1609Dot2Data") );
+                text = unsecuredDataNode.node().text();
+
+                if ( !text ) {
+                    elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
+                    return false;
+                }
+
+                hstr = std::string( text.get() );
+                if ( decode_messageframe_data( hstr, &xb ) == false ) {
+                    elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
+                    return false;
+                }
+
+                ilogger->info( "IEEE 1609.2 Unsecured Data Field Payload decode/encode operation complete (usually a J2735 MessageFrame)." );
+
+                // zero out hex string.
+                payload_node.text().set("");
+
+                // build an XML document from the ascii data.
+                pugi::xml_document messageframexml{};
+                result = messageframexml.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
+                std::free( static_cast<void *>(xb.buffer) );
+
+                if (!result) {
+                    ilogger->trace("Error parsing J2735 XML data: {} (offset = {})!", result.description(), result.offset);
+                    return false; 
+                } 
+
+                // replace the hex data with XML data.
+                payload_node.remove_child("bytes");
+                payload_node.append_copy( messageframexml.document_element() );
+
+                // convert DOM to a RAW string representation: no spaces, no tabs.
+                xmlss.clear();
+                input_doc.save(xmlss,"",pugi::format_raw);
+                //std::cout << ss.str() << "\n";
                 return true;
             } 
 
@@ -1106,9 +1022,6 @@ bool ASN1_Codec::filetest() {
     std::string error_string;
     RdKafka::ErrorCode status;
 
-    pugi::xml_text text;
-    pugi::xml_document* dptr;
-
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);
     
@@ -1148,6 +1061,8 @@ bool ASN1_Codec::filetest() {
         msg_recv_count++;
         msg_recv_bytes += consumed_xml_buffer.size();
 
+        xer_buffer_t xb = {0, 0, 0};
+
         // Load BAH XML Input Document.
         pugi::xml_document input_doc{};
         pugi::xml_parse_result result = input_doc.load_buffer((const void*) consumed_xml_buffer.data(), consumed_xml_buffer.size(), xml_parse_options );
@@ -1157,244 +1072,77 @@ bool ASN1_Codec::filetest() {
             return false; 
         } 
 
-        //pugi::xml_node odedata = input_doc.child("OdeAsn1Data");
-        pugi::xml_node odedata = input_doc.child("OdeAsn1Data");
-        pugi::xml_node encodings_node = odedata.child("metadata").child("encodings");
+        pugi::xpath_node payload_xpath_node = ode_payload_query.evaluate_node( input_doc );
+        pugi::xml_node payload_node = payload_xpath_node.node();
 
-        for ( pugi::xml_node n = encodings_node.first_child(); n; n = n.next_sibling()) {
-            std::string ename{ n.child("elementName").text().get() };
-            std::string etype{ n.child("elementType").text().get() };
-            std::string erule{ n.child("encodingRule").text().get() };
-            std::cout << "name: " << ename << " type: " << etype << " rule: " << erule << '\n';
-            element_type_stack.emplace_front( ename, etype, erule ); 
+        // access this directly because we remove the bytes branch.
+        pugi::xml_text text = payload_node.child("bytes").text();
+
+        if ( !text ) {
+            elogger->warn("No text node (data source) in the consumed XML file.");
+            return false;
         }
 
-        auto i = element_type_stack.begin();
+        std::string hstr{ text.get() };
 
-        // reset the buffer.
-        xer_buffer_t xb = { 0,0,0 };
-
-        if ( "Ieee1609Dot2Data" == std::get<1>(*i) ) {
-
-            std::cout << "decoder: " << std::get<1>(*i);
-
-            // xpath query = ".//bytes";
-            std::string qry{".//"};
-            qry += std::get<0>(*i);
-
-            pugi::xml_node tnode = input_doc.child("OdeAsn1Data").child("payload").child("data").child("bytes");
-            text = tnode.text();
-
-            if ( !text ) {
-                elogger->warn("No text node (data source) in the consumed XML file.");
-                return false;
-            }
-
-            std::string hstr{ text.get() };
-
-            if ( decode_1609dot2_data(hstr, &xb ) == false ) {
-                elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
-                return false;
-            }
-
+        if ( decode_1609dot2_data(hstr, &xb ) == false ) {
+            elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
+            return false;
         }
 
-        pugi::xml_document d1{};
-        result = d1.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
+        pugi::xml_document ieee_doc{};
+        result = ieee_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
         std::free( static_cast<void *>(xb.buffer) );
-        xb = { 0,0,0 };
+
         if (!result) {
             ilogger->trace("Error parsing IEEE 1609.2 XML data: {} (offset = {})!", result.description(), result.offset);
             return false; 
         } 
 
-        d1.save(std::cout);
+        // reset the buffer.
+        xb = { 0,0,0 };
 
-        ++i;
+        // XPath search the IEEE structure for the unsecured data.
+        pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( ieee_doc );
+        text = unsecuredDataNode.node().text();
 
-        if ( i != element_type_stack.end() && "MessageFrame" == std::get<1>(*i) ) {
+        if ( !text ) {
+            elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
+            return false;
+        }
 
-            std::cout << "decoder: " << std::get<1>(*i);
-            // XPath search the IEEE structure for the unsecured data.
-            // pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( ieee_doc.child("Ieee1609Dot2Data") );
-            // text = unsecuredDataNode.node().text();
-
-            // xpath query = ".//bytes";
-            std::string qry{".//"};
-            qry += std::get<0>(*i);
-
-            pugi::xml_node tnode = d1.child("Ieee1609Dot2Data").child("content").child("unsecuredData");
-            text = tnode.text();
-
-            if ( !text ) {
-                elogger->warn("No text node (data source) in the consumed XML file.");
-                return false;
-            }
-
-            std::string hstr{ text.get() };
-
-            if ( !text ) {
-                elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
-                return false;
-            }
-
-            hstr = std::string( text.get() );
-            if ( decode_messageframe_data( hstr, &xb ) == false ) {
-                elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
-                return false;
-            }
+        hstr = std::string( text.get() );
+        if ( decode_messageframe_data( hstr, &xb ) == false ) {
+            elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
+            return false;
         }
 
         ilogger->info( "IEEE 1609.2 Unsecured Data Field Payload decode/encode operation complete (usually a J2735 MessageFrame)." );
 
-        pugi::xml_document d2{};
-        result = d2.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
+        // zero out hex string.
+        payload_node.text().set("");
+
+        // build an XML document from the ascii data.
+        pugi::xml_document messageframexml{};
+        result = messageframexml.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
         std::free( static_cast<void *>(xb.buffer) );
-        xb = { 0,0,0 };
 
         if (!result) {
             ilogger->trace("Error parsing J2735 XML data: {} (offset = {})!", result.description(), result.offset);
             return false; 
         } 
-        d2.save(std::cout);
-
-
-//            } else if ( "TravelerInformation" == std::get<0>(*i) ) {
-//
-//                std::cout << "decoder: " << std::get<1>(*i);
-//                std::string qry{".//"};
-//                qry += std::get<0>(*i);
-//
-//                pugi::xpath_node n = doc_stack.back()->select_node( qry.c_str() );
-//                text = n.node().text();
-//
-//                if ( !text ) {
-//                    elogger->warn("No text node (data source) in the consumed XML file.");
-//                    return false;
-//                }
-//
-//                std::string hstr{ text.get() };
-//
-//                if ( !text ) {
-//                    elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
-//                    return false;
-//                }
-//
-//                hstr = std::string( text.get() );
-//                if ( decode_travelerinformation_data( hstr, &xb ) == false ) {
-//                    elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
-//                    return false;
-//                }
-//
-//                ilogger->info( "IEEE 1609.2 Unsecured Data Field Payload decode/encode operation complete (usually a J2735 MessageFrame)." );
-//
-//                pugi::xml_document d{};
-//                doc_stack.push_back( &d );
-//                result = doc_stack.back()->load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
-//                std::free( static_cast<void *>(xb.buffer) );
-//
-//                if (!result) {
-//                    ilogger->trace("Error parsing J2735 XML data: {} (offset = {})!", result.description(), result.offset);
-//                    return false; 
-//                } 
-//
-//            } else {
-//                ilogger->warn("element in the xml that cannot be decoded.");
-//                return false;
-//            }
-        //}
-        // everthing is contained in documents pointed to int he doc_stack.
-        // the front of this stack is the top-level document.
-        // the back of this stack is the bottom-level document that must be inserted into the top-level.
-
-        pugi::xml_node payload_node = odedata.child("payload").child("data").child("bytes");
-
-        // zero out hex string.
-        payload_node.text().set("");
 
         // replace the hex data with XML data.
-        payload_node.append_copy( d2.document_element() );
+        payload_node.remove_child("bytes");
+        payload_node.append_copy( messageframexml.document_element() );
 
+        // convert DOM to a RAW string representation: no spaces, no tabs.
         std::stringstream ss;
         input_doc.save(ss,"",pugi::format_raw);
         std::cout << ss.str() << "\n";
+        return true;
 
     }
-
-//        // Load BAH XML Input Document.
-//        pugi::xml_document input_doc{};
-//        pugi::xml_parse_result result = input_doc.load_buffer((const void*) consumed_xml_buffer.data(), consumed_xml_buffer.size());
-//
-//        if (!result) {
-//            ilogger->trace("Error parsing consumed XML file: {} (offset = {})!", result.description(), result.offset);
-//            return false; 
-//        } 
-//
-//        pugi::xml_node payload_node = input_doc.child("root").child("payload").child("data");
-//        pugi::xml_text text = payload_node.text();
-//
-//        if ( !text ) {
-//            elogger->warn("No text node (data source) in the consumed XML file.");
-//            return false;
-//        }
-//
-//        std::string hstr{ text.get() };
-//
-//        if ( extract_payload_xml(hstr, &xb ) == false ) {
-//            elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
-//            return false;
-//        }
-//
-//        pugi::xml_document ieee_doc{};
-//        result = ieee_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
-//        std::free( static_cast<void *>(xb.buffer) );
-//
-//        if (!result) {
-//            ilogger->trace("Error parsing IEEE 1609.2 XML data: {} (offset = {})!", result.description(), result.offset);
-//            return false; 
-//        } 
-//
-//        // reset the buffer.
-//        xb = { 0,0,0 };
-//
-//        // XPath search the IEEE structure for the unsecured data.
-//        pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( ieee_doc.child("Ieee1609Dot2Data") );
-//        text = unsecuredDataNode.node().text();
-//
-//        if ( !text ) {
-//            elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
-//            return false;
-//        }
-//
-//        hstr = std::string( text.get() );
-//        if ( extract_unsecuredData_hex( hstr, &xb ) == false ) {
-//            elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
-//            return false;
-//        }
-//
-//        ilogger->info( "IEEE 1609.2 Unsecured Data Field Payload decode/encode operation complete (usually a J2735 MessageFrame)." );
-//
-//        // zero out hex string.
-//        payload_node.text().set("");
-//
-//        // build an XML document from the ascii data.
-//        pugi::xml_document messageframexml{};
-//        result = messageframexml.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
-//        std::free( static_cast<void *>(xb.buffer) );
-//
-//        if (!result) {
-//            ilogger->trace("Error parsing J2735 XML data: {} (offset = {})!", result.description(), result.offset);
-//            return false; 
-//        } 
-//
-//        // replace the hex data with XML data.
-//        payload_node.append_copy( messageframexml.document_element() );
-//
-//        // convert DOM to a RAW string representation: no spaces, no tabs.
-//        std::stringstream ss;
-//        input_doc.save(ss,"",pugi::format_raw);
-//        std::cout << ss.str() << "\n";
-//    } 
 
     // NOTE: good for troubleshooting, but bad for performance.
     elogger->flush();
@@ -1522,6 +1270,7 @@ int main( int argc, char* argv[] )
     asn1_codec.addOption( 'i', "ilog", "Information log file name.", true );
     asn1_codec.addOption( 'e', "elog", "Error log file name.", true );
     asn1_codec.addOption( 'h', "help", "print out some help" );
+    asn1_codec.addOption( 'F', "infile", "accept a file and bypass kafka.", false );
 
 
     // debug for ASN.1
@@ -1560,9 +1309,13 @@ int main( int argc, char* argv[] )
         }
     }
 
-    // The module will run and when it terminates return an appropriate error code.
-    std::exit( asn1_codec.filetest() );              // good for testing parsing.
-    //std::exit( asn1_codec.run() );
+    if (asn1_codec.optIsSet('F')) {
+        // Use a file for testing and bypass Kafka; file is the first operand.
+        std::exit( asn1_codec.filetest() );
+    } else {
+        // The module will run and when it terminates return an appropriate error code.
+        std::exit( asn1_codec.run() );
+    }
 }
 
 #endif
