@@ -18,16 +18,20 @@ make install
 # configure OS
 export LD_LIBRARY_PATH=/usr/local/lib CC=gcc
 
-echo Generating SAE J2735 API ...
-mkdir -p /asn1_codec/sae_j2735_SEMI_api && cd /asn1_codec/sae_j2735_SEMI_api
+# Install pugixml
+echo Installing pugixml
+cd /asn1_codec/pugixml && mkdir -p build && cd build
+cmake ..
+make
+make install
+
+echo Generating ASN.1 API ...
+cd /asn1_codec/asn1c_combined
+./doIt.sh
+
+cd ..
+mkdir -p build && cd build
+cmake ..
 make
 
-echo Generating IEEE 1609.2 API
-mkdir -p /asn1_codec/ieee_1609dot2_api && cd /asn1_codec/ieee_1609dot2_api
-make
-
-#echo building asn1_codec ...
-#mkdir -p /asn1_codec/build && cd /asn1_codec/build
-#cmake /asn1_codec
-#make
 

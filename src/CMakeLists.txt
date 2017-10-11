@@ -16,7 +16,7 @@ target_include_directories(adm PUBLIC
     "${ACM_SOURCE_DIR}/include/spdlog"
     "${ACM_SOURCE_DIR}/asn1c/skeletons"
     "${ACM_SOURCE_DIR}/asn1c_combined"
-    "/usr/local/include/pugixml-1.8"
+    "/usr/local/include"
     "/usr/local/include/librdkafka"
     )
 
@@ -36,7 +36,7 @@ target_include_directories(aem PUBLIC
     "${ACM_SOURCE_DIR}/include/spdlog"
     "${ACM_SOURCE_DIR}/asn1c/skeletons"
     "${ACM_SOURCE_DIR}/asn1c_combined"
-    "/usr/local/include/pugixml-1.8"
+    "/usr/local/include"
     "/usr/local/include/librdkafka"
     )
 

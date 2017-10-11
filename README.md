@@ -40,8 +40,8 @@
 
 ## Running the adm with kafka
 
-1. You can run the adm WITHOUT kafka to test it.
-1. The test file I have been using is: `asn1_codec/data/InputData.Ieee1609Dot2Data.packed.xml`
+1. You can run the adm WITH kafka to test it.
+1. The test file I have been using is: `asn1_codec/data/InputData.Ieee1609Dot2Data.Bsm.packed.xml`
     - If the file has newlines/pretty printed parsing fails.
 	- I think this reflects most of the recent metadata file format.
 1. Test from the `build` directory using the following command:

@@ -33,7 +33,7 @@ endif ()
 link_directories("${CMAKE_SOURCE_DIR}/asn1c_combined")
 
 # NOTE: This may need to be changed depending on install location.
-link_directories("/usr/local/lib/pugixml-1.8")
+link_directories("/usr/local/lib")
 
 # CPP Preprocessor variable PDU is used in the asn1-j2735-lib.h file to build a variable to a ASN.1 parsing structure.
 # This variable may need changing if we are parsing some other type of ASN.1 schema.
