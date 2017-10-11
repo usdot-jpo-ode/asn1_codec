@@ -35,6 +35,13 @@ RUN apt-mark hold bison
 # Install librdkafka.
 RUN git clone https://github.com/edenhill/librdkafka.git && cd librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
 
+# Install pugixml library
+#RUN wget https://github.com/zeux/pugixml/releases/download/v1.8/pugixml-1.8.tar.gz && tar -xvf pugixml-1.8.tar.gz
+#cd pugixml-1.8 && mkdir -p build && cd build
+#cmake ..
+#make
+#make install
+
 # add the source and build files
 ADD ./build_codec.sh /home
 RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.profile
