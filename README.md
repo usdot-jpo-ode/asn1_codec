@@ -1,3 +1,8 @@
+# Required Encoding / Decoding Rules
+
+- SAE j2735 ASN.1 is encoded into UPER (unaligned packed encoding rules): compiler api commands - uper_decoder and uper_encoder.
+- IEEE 1609.2 ASN.1 is encoded as COER (canonical octet encoding rules): compiler api commands - oer_decoder and oer_encoder.
+
 # Branch ODE-581 Instructions
 
 1. Clone the asn1_codec repository, and switch to the ODE-581 branch.
