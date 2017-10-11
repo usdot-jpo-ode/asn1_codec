@@ -161,11 +161,12 @@ class ASN1_Codec : public tool::Tool {
         std::deque<std::tuple<std::string,std::string,std::string>> element_type_stack;
         std::deque<pugi::xml_document*> doc_stack;
 
+        enum asn_transfer_syntax get_ats_transfer_syntax( const char* ats_type );
         bool decode_hex_(const std::string& payload_hex, std::vector<char>& byte_buffer);
 
-        bool decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* xml_buffer );
+        bool decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* xml_buffer, enum asn_transfer_syntax atype );
         // bool test( std::string& data_as_hex, xer_buffer_t* xml_buffer, struct asn_TYPE_descriptor_s *type_desc, void **sptr );
-        bool decode_messageframe_data( std::string& data_as_hex, xer_buffer_t* xml_buffer );
+        bool decode_messageframe_data( std::string& data_as_hex, xer_buffer_t* xml_buffer, enum asn_transfer_syntax atype );
         bool decode_travelerinformation_data( std::string& data_as_hex, xer_buffer_t* xml_buffer );
 
 };

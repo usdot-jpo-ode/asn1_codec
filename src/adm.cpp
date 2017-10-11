@@ -489,6 +489,58 @@ bool ASN1_Codec::configure() {
     return true;
 }
 
+enum asn_transfer_syntax ASN1_Codec::get_ats_transfer_syntax( const char* ats ) {
+
+    enum asn_transfer_syntax r = ATS_INVALID;
+
+    if ( std::strcmp( ats, "UPER" ) == 0 ) {
+
+        ilogger->trace("resolved ATS Code: UPER");
+        r = ATS_UNALIGNED_BASIC_PER;
+
+    } if ( std::strcmp( ats, "COER" ) == 0 ) {
+
+        ilogger->trace("resolved ATS Code: COER");
+        r = ATS_CANONICAL_OER;
+
+    } if ( std::strcmp( ats, "XER" ) == 0 ) {
+
+        ilogger->trace("resolved ATS Code: XER");
+        r = ATS_BASIC_XER;
+
+    } if ( std::strcmp( ats, "CPER" ) == 0 ) {
+
+        ilogger->trace("resolved ATS Code: CPER");
+        r = ATS_UNALIGNED_CANONICAL_PER;
+
+    } if ( std::strcmp( ats, "CXER" ) == 0 ) {
+        
+        ilogger->trace("resolved ATS Code: CXER");
+        r = ATS_CANONICAL_XER;
+
+    } if ( std::strcmp( ats, "BER" ) == 0 ) {
+
+        ilogger->trace("resolved ATS Code: BER");
+        r = ATS_BER;
+
+    } if ( std::strcmp( ats, "DER" ) == 0 ) {
+
+        ilogger->trace("resolved ATS Code: DER");
+        r = ATS_DER;
+
+    } if ( std::strcmp( ats, "CER" ) == 0 ) {
+
+        ilogger->trace("resolved ATS Code: CER");
+        r = ATS_CER;
+
+    } else {
+        ilogger->trace("resolved ATS Code: INVALID");
+    }
+
+    ilogger->trace("resolved ATS Code: {}", r);
+    return r;
+}
+
 bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss ) {
 
     static std::string tsname;
@@ -497,6 +549,8 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
     // flags for type of decoding required.
     bool decode_1609dot2 = false;
     bool decode_messageframe = false;
+    enum asn_transfer_syntax decode_1609dot2_type = ATS_CANONICAL_OER;
+    enum asn_transfer_syntax decode_messageframe_type = ATS_UNALIGNED_BASIC_PER;
 
     size_t bytes_processed = 0;
 
@@ -538,7 +592,6 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
                 // Load BAH XML Input Document.
                 pugi::xml_document input_doc{};
                 pugi::xml_parse_result result = input_doc.load_buffer((const void*) message->payload(), message->len(), xml_parse_options );
-                //pugi::xml_parse_result result = input_doc.load_buffer((const void*) consumed_xml_buffer.data(), consumed_xml_buffer.size(), xml_parse_options );
 
                 if (!result) {
                     ilogger->trace("Error parsing consumed XML file: {} (offset = {})!", result.description(), result.offset);
@@ -547,21 +600,38 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
 
                 // Determine which decodings are needed.
                 pugi::xpath_node encodings_xpath_node = ode_encodings_query.evaluate_node( input_doc );
+
+                enum asn_transfer_syntax atstype = ATS_INVALID;
+
                 for ( pugi::xml_node n = encodings_xpath_node.node().first_child(); n; n = n.next_sibling()) {
+    
+                    pugi::xml_text ats_node = n.child("encodingRule").text();
+                    if ( ats_node ) {
+                        atstype = get_ats_transfer_syntax( ats_node.get() );
+                    }
+
                     ilogger->trace("Inside the loop.");
                     std::cout << n.child("elementType").text().get() << '\n';
                     if ( std::strcmp(n.child("elementType").text().get(), "Ieee1609Dot2Data") == 0 ) {
                         decode_1609dot2 = true;
+                        if ( atstype != ATS_INVALID ) {
+                            // only change the default values if a new type is provided in the XML.
+                            decode_1609dot2_type = atstype;
+                        }
                         ilogger->trace("Setting the decode 1609.2 flag.");
                     } else if ( std::strcmp(n.child("elementType").text().get(), "MessageFrame") == 0 ) {
                         decode_messageframe = true;
+                        if ( atstype != ATS_INVALID ) {
+                            // only change the default values if a new type is provided in the XML.
+                            decode_messageframe_type = atstype;
+                        }
                         ilogger->trace("Setting the decode message frame flag.");
                     }
                 }
 
                 pugi::xpath_node payload_xpath_node = ode_payload_query.evaluate_node( input_doc );
 
-                // this is the node to write back to.
+                // This node is where the resultant data is written; save for future reference.
                 pugi::xml_node payload_node = payload_xpath_node.node();
 
                 // access this directly because we remove the bytes branch.
@@ -580,7 +650,7 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
                 // first must be 1609dot2
                 if ( decode_1609dot2 ) {
 
-                    if ( decode_1609dot2_data(hstr, &xb ) == false ) {
+                    if ( decode_1609dot2_data(hstr, &xb, decode_1609dot2_type ) == false ) {
                         elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
                         return false;
                     }
@@ -614,7 +684,7 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
                 internal_doc.reset();
 
                 if ( decode_messageframe ) {
-                    if ( decode_messageframe_data( hstr, &xb ) == false ) {
+                    if ( decode_messageframe_data( hstr, &xb, decode_messageframe_type ) == false ) {
                         elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
                         return false;
                     }
@@ -650,96 +720,10 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
                 // convert DOM to a RAW string representation: no spaces, no tabs.
                 xmlss.clear();
                 input_doc.save(xmlss,"",pugi::format_raw);
-                //std::cout << ss.str() << "\n";
                 return true;
             } 
 
             break;
-
-//                xer_buffer_t xb = {0, 0, 0};
-//
-//                // Load BAH XML Input Document.
-//                pugi::xml_document input_doc{};
-//                pugi::xml_parse_result result = input_doc.load_buffer((const void*) message->payload(), message->len(), xml_parse_options );
-//
-//                if (!result) {
-//                    ilogger->trace("Error parsing consumed XML file: {} (offset = {})!", result.description(), result.offset);
-//                    return false; 
-//                } 
-//
-//                pugi::xpath_node payload_xpath_node = ode_payload_query.evaluate_node( input_doc );
-//                pugi::xml_node payload_node = payload_xpath_node.node();
-//
-//                // access this directly because we remove the bytes branch.
-//                pugi::xml_text text = payload_node.child("bytes").text();
-//
-//                // pugi::xml_node payload_node = input_doc.child("OdeAsn1Data").child("payload").child("data");
-//                // pugi::xml_text text = payload_node.child("bytes").text();
-//
-//                if ( !text ) {
-//                    elogger->warn("No text node (data source) in the consumed XML file.");
-//                    return false;
-//                }
-//
-//                std::string hstr{ text.get() };
-//
-//                if ( decode_1609dot2_data(hstr, &xb ) == false ) {
-//                    elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
-//                    return false;
-//                }
-//
-//                pugi::xml_document ieee_doc{};
-//                result = ieee_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
-//                std::free( static_cast<void *>(xb.buffer) );
-//
-//                if (!result) {
-//                    ilogger->trace("Error parsing IEEE 1609.2 XML data: {} (offset = {})!", result.description(), result.offset);
-//                    return false; 
-//                } 
-//
-//                // reset the buffer.
-//                xb = { 0,0,0 };
-//
-//                // XPath search the IEEE structure for the unsecured data.
-//                pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( ieee_doc );// .child("Ieee1609Dot2Data") );
-//                text = unsecuredDataNode.node().text();
-//
-//                if ( !text ) {
-//                    elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
-//                    return false;
-//                }
-//
-//                hstr = std::string( text.get() );
-//                if ( decode_messageframe_data( hstr, &xb ) == false ) {
-//                    elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
-//                    return false;
-//                }
-//
-//                ilogger->info( "IEEE 1609.2 Unsecured Data Field Payload decode/encode operation complete (usually a J2735 MessageFrame)." );
-//
-//                // zero out hex string.
-//                payload_node.text().set("");
-//
-//                // build an XML document from the ascii data.
-//                pugi::xml_document messageframexml{};
-//                result = messageframexml.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
-//                std::free( static_cast<void *>(xb.buffer) );
-//
-//                if (!result) {
-//                    ilogger->trace("Error parsing J2735 XML data: {} (offset = {})!", result.description(), result.offset);
-//                    return false; 
-//                } 
-//
-//                // replace the hex data with XML data.
-//                payload_node.remove_child("bytes");
-//                payload_node.append_copy( messageframexml.document_element() );
-//
-//                // convert DOM to a RAW string representation: no spaces, no tabs.
-//                xmlss.clear();
-//                input_doc.save(xmlss,"",pugi::format_raw);
-//                //std::cout << ss.str() << "\n";
-//                return true;
-//            } 
 
         case RdKafka::ERR__PARTITION_EOF:
             ilogger->info("ODE BSM consumer partition end of file, but ASN1_Codec still alive.");
@@ -988,7 +972,7 @@ bool ASN1_Codec::decode_travelerinformation_data( std::string& data_as_hex, xer_
     return true;
 }
 
-bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* xml_buffer ) {
+bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* xml_buffer, enum asn_transfer_syntax asntype ) {
 
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
@@ -1020,13 +1004,23 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* x
     ilogger->trace("Successful conversion to raw byte buffer.");
 
     // Decode BAH Bytes (A 1609.2 Frame) into the appropriate structure.
-    decode_rval = uper_decode_complete( 
+    // asntype is specifiedin input xml from ODE.
+    decode_rval = asn_decode( 
             0, 
+            asntype, 
             &asn_DEF_Ieee1609Dot2Data, 
             (void **)&ieee1609data, 
             byte_buffer.data(), 
             byte_buffer.size() 
             );
+
+    // decode_rval = uper_decode_complete( 
+    //         0, 
+    //         &asn_DEF_Ieee1609Dot2Data, 
+    //         (void **)&ieee1609data, 
+    //         byte_buffer.data(), 
+    //         byte_buffer.size() 
+    //         );
 
     if ( decode_rval.code != RC_OK ) {
         elogger->error("Decode error for {} bytes.", asn_DEF_Ieee1609Dot2Data.name );
@@ -1042,7 +1036,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* x
         return false;
     }
 
-    // Encode the Ieee1609Dot2Data ASN.1 C struct into XML, so we can extract out the BSM.
+    // target form is always XML (for now).
     encode_rval = xer_encode( 
             &asn_DEF_Ieee1609Dot2Data, 
             ieee1609data, 
@@ -1066,7 +1060,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* x
  * TODO: This method should be generalizable to any type def and structure pointer -- tried but moved on.
  */
 // bool ASN1_Codec::test( std::string& data_as_hex, xer_buffer_t* xml_buffer, struct asn_TYPE_descriptor_s *type_desc, void **sptr ) {
-bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, xer_buffer_t* xml_buffer ) {
+bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, xer_buffer_t* xml_buffer, enum asn_transfer_syntax atype ) {
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
 
@@ -1150,6 +1144,8 @@ bool ASN1_Codec::filetest() {
     // flags for type of decoding required.
     bool decode_1609dot2 = false;
     bool decode_messageframe = false;
+    enum asn_transfer_syntax decode_1609dot2_type = ATS_CANONICAL_OER;
+    enum asn_transfer_syntax decode_messageframe_type = ATS_UNALIGNED_BASIC_PER;
 
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);
@@ -1203,21 +1199,37 @@ bool ASN1_Codec::filetest() {
 
         // Determine which decodings are needed.
         pugi::xpath_node encodings_xpath_node = ode_encodings_query.evaluate_node( input_doc );
+
+        enum asn_transfer_syntax atstype = ATS_INVALID;
+
         for ( pugi::xml_node n = encodings_xpath_node.node().first_child(); n; n = n.next_sibling()) {
+
+            pugi::xml_text ats_node = n.child("encodingRule").text();
+            if ( ats_node ) {
+                atstype = get_ats_transfer_syntax( ats_node.get() );
+            }
+
             ilogger->trace("Inside the loop.");
-            std::cout << n.child("elementType").text().get() << '\n';
             if ( std::strcmp(n.child("elementType").text().get(), "Ieee1609Dot2Data") == 0 ) {
                 decode_1609dot2 = true;
+                if ( atstype != ATS_INVALID ) {
+                    // only change the default values if a new type is provided in the XML.
+                    decode_1609dot2_type = atstype;
+                }
                 ilogger->trace("Setting the decode 1609.2 flag.");
             } else if ( std::strcmp(n.child("elementType").text().get(), "MessageFrame") == 0 ) {
                 decode_messageframe = true;
+                if ( atstype != ATS_INVALID ) {
+                    // only change the default values if a new type is provided in the XML.
+                    decode_messageframe_type = atstype;
+                }
                 ilogger->trace("Setting the decode message frame flag.");
             }
         }
 
         pugi::xpath_node payload_xpath_node = ode_payload_query.evaluate_node( input_doc );
 
-        // this is the node to write back to.
+        // Retain this node reference. It is where the decoded result will be inserted.
         pugi::xml_node payload_node = payload_xpath_node.node();
 
         // access this directly because we remove the bytes branch.
@@ -1230,13 +1242,15 @@ bool ASN1_Codec::filetest() {
 
         std::string hstr{ text.get() };
 
-        // declare outside of the below scopes and reuse.
+        // Declaration needed outside of the scope of the below conditionals.
+        // Reuse since we do not need to retain the outer frame (if required).
         pugi::xml_document internal_doc{};
 
         // first must be 1609dot2
         if ( decode_1609dot2 ) {
 
-            if ( decode_1609dot2_data(hstr, &xb ) == false ) {
+            // TODO Refactor: input = hstr, decode type; output = hstr (or EXIT_FAILURE)
+            if ( decode_1609dot2_data(hstr, &xb, decode_1609dot2_type ) == false ) {
                 elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
                 return EXIT_FAILURE;
             }
@@ -1263,14 +1277,15 @@ bool ASN1_Codec::filetest() {
                 return EXIT_FAILURE;
             }
 
+            // replacing the original hex string, so the next processing step works.
             hstr = std::string( text.get() );
-            // done with the 1609.2 DOM.
         }
 
         internal_doc.reset();
 
         if ( decode_messageframe ) {
-            if ( decode_messageframe_data( hstr, &xb ) == false ) {
+
+            if ( decode_messageframe_data( hstr, &xb, decode_messageframe_type ) == false ) {
                 elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
                 return EXIT_FAILURE;
             }
@@ -1307,6 +1322,7 @@ bool ASN1_Codec::filetest() {
         input_doc.save(ss,"",pugi::format_raw);
         std::cout << ss.str() << "\n";
         return true;
+
     } else {
         ilogger->trace("Read an empty file.");
     }
