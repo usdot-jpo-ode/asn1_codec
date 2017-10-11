@@ -166,7 +166,7 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     consumer_timeout{500},
     producer_ptr{},
     published_topic_ptr{},
-    ieee1609dot2_unsecuredData_query{"Ieee1609Dot2Data/content/unsecuredData"},
+    ieee1609dot2_unsecuredData_query{"Ieee1609Dot2Data/content//unsecuredData"},  // this will work on both signed and unsigned.
     ode_payload_query{"OdeAsn1Data/payload/data"},
     ode_encodings_query{"OdeAsn1Data/metadata/encodings"},
     element_type_stack{},
