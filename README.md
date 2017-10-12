@@ -1,5 +1,6 @@
 # Changes, etc.
 
+- The module performs both *encoding* and *decoding* now.
 - IMPORTANT: There is one executable (`acm`) that performs both encoding and decoding depending on options used when starting.
 - The `-T` options is used with either `-T encode` or `-T decode` to specify the behavior of the module during
   execution.
