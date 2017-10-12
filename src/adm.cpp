@@ -110,8 +110,8 @@ bool dirExists( const std::string& s ) {
  *
  * TODO: Consider moving these to the ASN1_Codec class?
  */
-static int xer_buffer_append(const void *buffer, size_t size, void *app_key) {
-    xer_buffer_t *xb = static_cast<xer_buffer_t *>(app_key);
+static int dynamic_buffer_append(const void *buffer, size_t size, void *app_key) {
+    buffer_structure_t *xb = static_cast<buffer_structure_t *>(app_key);
 
     while(xb->buffer_size + size + 1 > xb->allocated_size) {
         // increase size of buffer.
@@ -134,6 +134,8 @@ static int xer_buffer_append(const void *buffer, size_t size, void *app_key) {
 }
 
 bool ASN1_Codec::data_available = true;
+const char* ASN1_Codec::ODEHEXDATATYPE = "us.dot.its.jpo.ode.model.OdeHexByteArray";
+const char* ASN1_Codec::ODEXMLDATATYPE = "us.dot.its.jpo.ode.model.OdeXml";
 
 void ASN1_Codec::sigterm (int sig) {
     data_available = false;
@@ -166,14 +168,21 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     consumer_timeout{500},
     producer_ptr{},
     published_topic_ptr{},
+    input_doc{},
+    internal_doc{},
+    xml_parse_options{ pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata },
     ieee1609dot2_unsecuredData_query{"Ieee1609Dot2Data/content//unsecuredData"},  // this will work on both signed and unsigned.
     ode_payload_query{"OdeAsn1Data/payload/data"},
+    byte_buffer{},
     ode_encodings_query{"OdeAsn1Data/metadata/encodings"},
-    xml_parse_options{ pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata },
+    decode_1609dot2{ false },
+    decode_messageframe{ false },
+    decode_functionality{ true },
+    decode_1609dot2_type{ATS_CANONICAL_OER},
+    decode_messageframe_type{ATS_UNALIGNED_BASIC_PER},
     ilogger{},
     elogger{}
 {
-    // dump_file = fopen( "dump.file.dat", "wb" );
 }
 
 ASN1_Codec::~ASN1_Codec() 
@@ -296,21 +305,19 @@ void ASN1_Codec::print_configuration() const
     }
 }
 
-
-/**
- * JMC: asn1 reviewed.
- *
- * The following configuration settings are processed by configure:
- *
- asn1.j2735.kafka.partition
- asn1.j2735.topic.consumer
- asn1.j2735.topic.producer
- asn1.j2735.consumer.timeout.ms
-
-JMC: TODO: All the ASN1C variables that are normally setup do here!
-
-*/
 bool ASN1_Codec::configure() {
+
+    static const char* fnname = "configure()";
+    std::string line;
+    std::string error_string;
+    StrVector pieces;
+
+    ilogger->trace("{}: starting...", fnname );
+
+    // decode is the default so this is set to true in the constructor.
+    if (optIsSet('T')) {
+        decode_functionality = ( "encode" == optString('T') ) ? false : true;
+    } 
 
     if ( optIsSet('v') ) {
         if ( "trace" == optString('v') ) {
@@ -332,28 +339,22 @@ bool ASN1_Codec::configure() {
         }
     } // else it is already set to default.
 
-    ilogger->trace("starting configure()");
-
-    std::string line;
-    std::string error_string;
-    StrVector pieces;
-
     // configurations; global and topic (the names in these are fixed)
     conf  = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
     tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
 
     // must use a configuration file.
     if ( !optIsSet('c') ) {
-        elogger->error( "asked to use a configuration file, but option not set." );
+        elogger->error( "{}: asked to use a configuration file, but option not set.", fnname  );
         return false;
     }
 
     const std::string& cfile = optString('c');              // needed for error message.
-    ilogger->info("using configuration file: {}", cfile );
+    ilogger->info("{}: using configuration file: {}", fnname , cfile );
     std::ifstream ifs{ cfile };
 
     if (!ifs) {
-        elogger->error("cannot open configuration file: {}", cfile);
+        elogger->error("{}: cannot open configuration file: {}", fnname , cfile);
         return false;
     }
 
@@ -368,24 +369,24 @@ bool ASN1_Codec::configure() {
                 string_utilities::strip( pieces[1] );
                 // some of these configurations are stored in each...?? strange.
                 if ( tconf->set(pieces[0], pieces[1], error_string) == RdKafka::Conf::CONF_OK ) {
-                    ilogger->info("kafka topic configuration: {} = {}", pieces[0], pieces[1]);
+                    ilogger->info("{}: kafka topic configuration: {} = {}", fnname , pieces[0], pieces[1]);
                     done = true;
                 }
 
                 if ( conf->set(pieces[0], pieces[1], error_string) == RdKafka::Conf::CONF_OK ) {
-                    ilogger->info("kafka configuration: {} = {}", pieces[0], pieces[1]);
+                    ilogger->info("{}: kafka configuration: {} = {}", fnname , pieces[0], pieces[1]);
                     done = true;
                 }
 
                 if ( !done ) { 
-                    ilogger->info("ASN1_Codec configuration: {} = {}", pieces[0], pieces[1]);
+                    ilogger->info("{}: ASN1_Codec configuration: {} = {}", fnname , pieces[0], pieces[1]);
                     // These configuration options are not expected by Kafka.
                     // Assume there are for the ASN1_Codec.
                     pconf[ pieces[0] ] = pieces[1];
                 }
 
             } else {
-                elogger->warn("too many pieces in the configuration file line: {}", line);
+                elogger->warn("{}: too many pieces in the configuration file line: {}", fnname , line);
             }
 
         } // otherwise: empty or comment line.
@@ -395,7 +396,7 @@ bool ASN1_Codec::configure() {
 
     if ( optIsSet('b') ) {
         // broker specified.
-        ilogger->info("setting kafka broker to: {}", optString('b'));
+        ilogger->info("{}: setting kafka broker to: {}", fnname , optString('b'));
         conf->set("metadata.broker.list", optString('b'), error_string);
     } 
 
@@ -410,11 +411,11 @@ bool ASN1_Codec::configure() {
         }  // otherwise leave at default; PARTITION_UA
     }
 
-    ilogger->info("kafka partition: {}", partition);
+    ilogger->info("{}: kafka partition: {}", fnname , partition);
 
     if ( getOption('g').isSet() && conf->set("group.id", optString('g'), error_string) != RdKafka::Conf::CONF_OK) {
         // NOTE: there are some checks in librdkafka that require this to be present and set.
-        elogger->error("kafka error setting configuration parameters group.id h: {}", error_string);
+        elogger->error("{}: kafka error setting configuration parameters group.id h: {}", fnname , error_string);
         return false;
     }
 
@@ -432,14 +433,14 @@ bool ASN1_Codec::configure() {
             offset = strtoll(o.c_str(), NULL, 10);              // throws
         }
 
-        ilogger->info("offset in partition set to byte: {}", o);
+        ilogger->info("{}: offset in partition set to byte: {}", fnname , o);
     }
 
     // Do we want to exit if a stream eof is sent.
     exit_eof = getOption('x').isSet();
 
     if (optIsSet('d') && conf->set("debug", optString('d'), error_string) != RdKafka::Conf::CONF_OK) {
-        elogger->error("kafka error setting configuration parameter debug: {}", error_string);
+        elogger->error("{}: kafka error setting configuration parameter debug: {}", fnname , error_string);
         return false;
     }
 
@@ -449,11 +450,11 @@ bool ASN1_Codec::configure() {
     auto search = pconf.find("asn1.j2735.topic.consumer");
     if ( search != pconf.end() ) {
         consumed_topics.push_back( search->second );
-        ilogger->info("consumed topic: {}", search->second);
+        ilogger->info("{}: consumed topic: {}", fnname , search->second);
 
     } else {
         
-        elogger->error("no consumer topic was specified; must fail.");
+        elogger->error("{}: no consumer topic was specified; must fail.", fnname );
         return false;
     }
 
@@ -467,23 +468,86 @@ bool ASN1_Codec::configure() {
         if ( search != pconf.end() ) {
             published_topic_name = search->second;
         } else {
-            elogger->error("no publisher topic was specified; must fail.");
+            elogger->error("{}: no publisher topic was specified; must fail.", fnname );
             return false;
         }
     }
 
-    ilogger->info("published topic: {}", published_topic_name);
+    ilogger->info("{}: published topic: {}", fnname , published_topic_name);
 
     search = pconf.find("asn1.j2735.consumer.timeout.ms");
     if ( search != pconf.end() ) {
         try {
             consumer_timeout = std::stoi( search->second );
         } catch( std::exception& e ) {
-            ilogger->info("using the default consumer timeout value.");
+            ilogger->info("{}: using the default consumer timeout value.", fnname );
         }
     }
 
-    ilogger->trace("ending configure()");
+    ilogger->trace("{}: finished.", fnname );
+    return true;
+}
+
+bool ASN1_Codec::hex_to_bytes_(const std::string& payload_hex, std::vector<char>& buf) {
+    uint8_t d = 0;
+    int i = 0;          // so we can return -1;
+
+    for (const char& c : payload_hex) {
+        if ( c <= '9' && c >= '0' ) {
+            d = c-'0';
+        } else if ( c <= 'F' && c >= 'A' ) {
+            d = c-55;       // c - 'A' + 10
+        } else if ( c <= 'f' && c >= 'a' ) {
+            d = c-87;        // c - 'a' + 10;
+        } else {
+            return false;
+        }
+
+        if (i%2) {
+            // low order nibble.
+            buf.back() |= d;
+        } else {
+            // high order nibble.
+            buf.push_back( d<<4 );
+        }
+        ++i;
+    }
+
+    // the number of bytes in the buf.
+    return true;
+}
+
+bool ASN1_Codec::bytes_to_hex_(buffer_structure_t* buf_struct, std::string& hex_vector ) {
+    char c = 0;
+
+    hex_vector.clear();
+    for ( std::size_t i = 0; i < buf_struct->buffer_size; ++i ) {
+
+        uint8_t bh = (buf_struct->buffer[i] & 0xF0) >> 4;
+
+        if ( bh <= 9 && bh >= 0 ) {
+            c = (bh+48); // b + '0'
+        } else if ( bh <= 15 && bh >= 10 ) {
+            c = (bh+55); // b + 'A' - 10;
+        } else {
+            return false;
+        }
+
+        hex_vector.push_back(c);
+
+        uint8_t bl = (buf_struct->buffer[i] & 0x0F);
+
+        if ( bl <= 9 && bl >= 0 ) {
+            c = (bl+48);
+        } else if ( bl <= 15 && bl >= 10 ) {
+            c = (bl+55);
+        } else {
+            return false;
+        }
+
+        hex_vector.push_back(c);
+    }
+
     return true;
 }
 
@@ -496,37 +560,37 @@ enum asn_transfer_syntax ASN1_Codec::get_ats_transfer_syntax( const char* ats ) 
         ilogger->trace("resolved ATS Code: UPER");
         r = ATS_UNALIGNED_BASIC_PER;
 
-    } if ( std::strcmp( ats, "COER" ) == 0 ) {
+    } else if ( std::strcmp( ats, "COER" ) == 0 ) {
 
         ilogger->trace("resolved ATS Code: COER");
         r = ATS_CANONICAL_OER;
 
-    } if ( std::strcmp( ats, "XER" ) == 0 ) {
+    } else if ( std::strcmp( ats, "XER" ) == 0 ) {
 
         ilogger->trace("resolved ATS Code: XER");
         r = ATS_BASIC_XER;
 
-    } if ( std::strcmp( ats, "CPER" ) == 0 ) {
+    } else if ( std::strcmp( ats, "CPER" ) == 0 ) {
 
         ilogger->trace("resolved ATS Code: CPER");
         r = ATS_UNALIGNED_CANONICAL_PER;
 
-    } if ( std::strcmp( ats, "CXER" ) == 0 ) {
+    } else if ( std::strcmp( ats, "CXER" ) == 0 ) {
         
         ilogger->trace("resolved ATS Code: CXER");
         r = ATS_CANONICAL_XER;
 
-    } if ( std::strcmp( ats, "BER" ) == 0 ) {
+    } else if ( std::strcmp( ats, "BER" ) == 0 ) {
 
         ilogger->trace("resolved ATS Code: BER");
         r = ATS_BER;
 
-    } if ( std::strcmp( ats, "DER" ) == 0 ) {
+    } else if ( std::strcmp( ats, "DER" ) == 0 ) {
 
         ilogger->trace("resolved ATS Code: DER");
         r = ATS_DER;
 
-    } if ( std::strcmp( ats, "CER" ) == 0 ) {
+    } else if ( std::strcmp( ats, "CER" ) == 0 ) {
 
         ilogger->trace("resolved ATS Code: CER");
         r = ATS_CER;
@@ -539,23 +603,26 @@ enum asn_transfer_syntax ASN1_Codec::get_ats_transfer_syntax( const char* ats ) 
     return r;
 }
 
-bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss ) {
+bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& output_message_stream ) {
 
+    static const char* fnname = "process_message()";
     static std::string tsname;
     static RdKafka::MessageTimestamp ts;
     
     // flags for type of decoding required.
-    bool decode_1609dot2 = false;
-    bool decode_messageframe = false;
-    enum asn_transfer_syntax decode_1609dot2_type = ATS_CANONICAL_OER;
-    enum asn_transfer_syntax decode_messageframe_type = ATS_UNALIGNED_BASIC_PER;
+    decode_1609dot2 = false;
+    decode_messageframe = false;
+    decode_1609dot2_type = ATS_CANONICAL_OER;
+    decode_messageframe_type = ATS_UNALIGNED_BASIC_PER;
+    pugi::xml_parse_result parse_result;
+    pugi::xml_node payload_node;
 
     size_t bytes_processed = 0;
 
     switch (message->err()) {
 
         case RdKafka::ERR__TIMED_OUT:
-            ilogger->info("Waiting for more BSMs from the ODE producer.");
+            ilogger->info("{}: Waiting for more BSMs from the ODE producer.", fnname );
             break;
 
         case RdKafka::ERR_NO_ERROR:
@@ -563,7 +630,7 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
             msg_recv_count++;
             msg_recv_bytes += message->len();
 
-            ilogger->trace("Read message at byte offset: {} with length {}", message->offset(), message->len() );
+            ilogger->trace("{}: Read message at byte offset: {} with length {}", fnname , message->offset(), message->len() );
 
             ts = message->timestamp();
 
@@ -576,151 +643,40 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
                     tsname = "unknown";
                 }
 
-                ilogger->trace("Message timestamp: {}, type: {}", tsname, ts.timestamp);
+                ilogger->trace("{}: Message timestamp: {}, type: {}", fnname , tsname, ts.timestamp);
             }
 
             if ( message->key() ) {
-                ilogger->trace("Message key: {}", *message->key() );
+                ilogger->trace("{}: Message key: {}", fnname , *message->key() );
             }
 
             if ( message->len() > 0 ) {
 
-                xer_buffer_t xb = {0, 0, 0};
+                parse_result = input_doc.load_buffer((const void*) message->payload(), message->len(), xml_parse_options );
 
-                // Load BAH XML Input Document.
-                pugi::xml_document input_doc{};
-                pugi::xml_parse_result result = input_doc.load_buffer((const void*) message->payload(), message->len(), xml_parse_options );
-
-                if (!result) {
-                    ilogger->trace("Error parsing consumed XML file: {} (offset = {})!", result.description(), result.offset);
+                if (!parse_result) {
+                    ilogger->trace("{}: Failure to parse input XML file: {} (offset = {})!", fnname , parse_result.description(), parse_result.offset);
                     return false; 
                 } 
 
-                // Determine which decodings are needed.
-                pugi::xpath_node encodings_xpath_node = ode_encodings_query.evaluate_node( input_doc );
+                // examine the input xml encodings information and set the flags and requirements needed to properly parse
+                // the byte strings.
+                set_codec_requirements( input_doc );
 
-                enum asn_transfer_syntax atstype = ATS_INVALID;
+                payload_node = ode_payload_query.evaluate_node( input_doc ).node();
 
-                for ( pugi::xml_node n = encodings_xpath_node.node().first_child(); n; n = n.next_sibling()) {
-    
-                    pugi::xml_text ats_node = n.child("encodingRule").text();
-                    if ( ats_node ) {
-                        atstype = get_ats_transfer_syntax( ats_node.get() );
-                    }
-
-                    ilogger->trace("Inside the loop.");
-                    std::cout << n.child("elementType").text().get() << '\n';
-                    if ( std::strcmp(n.child("elementType").text().get(), "Ieee1609Dot2Data") == 0 ) {
-                        decode_1609dot2 = true;
-                        if ( atstype != ATS_INVALID ) {
-                            // only change the default values if a new type is provided in the XML.
-                            decode_1609dot2_type = atstype;
-                        }
-                        ilogger->trace("Setting the decode 1609.2 flag.");
-                    } else if ( std::strcmp(n.child("elementType").text().get(), "MessageFrame") == 0 ) {
-                        decode_messageframe = true;
-                        if ( atstype != ATS_INVALID ) {
-                            // only change the default values if a new type is provided in the XML.
-                            decode_messageframe_type = atstype;
-                        }
-                        ilogger->trace("Setting the decode message frame flag.");
-                    }
-                }
-
-                pugi::xpath_node payload_xpath_node = ode_payload_query.evaluate_node( input_doc );
-
-                // This node is where the resultant data is written; save for future reference.
-                pugi::xml_node payload_node = payload_xpath_node.node();
-
-                // access this directly because we remove the bytes branch.
-                pugi::xml_text text = payload_node.child("bytes").text();
-
-                if ( !text ) {
-                    elogger->warn("No text node (data source) in the consumed XML file.");
+                if ( !payload_node ) {
+                    elogger->warn("{}: XPath search to payload node (data source) failure.", fnname );
                     return false;
                 }
 
-                std::string hstr{ text.get() };
-
-                // declare outside of the below scopes and reuse.
-                pugi::xml_document internal_doc{};
-
-                // first must be 1609dot2
-                if ( decode_1609dot2 ) {
-
-                    if ( decode_1609dot2_data(hstr, &xb, decode_1609dot2_type ) == false ) {
-                        elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
-                        return false;
-                    }
-
-                    //pugi::xml_document ieee_doc{};
-                    result = internal_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
-
-                    std::free( static_cast<void *>(xb.buffer) );
-
-                    if (!result) {
-                        ilogger->trace("Error parsing IEEE 1609.2 XML data: {} (offset = {})!", result.description(), result.offset);
-                        return false; 
-                    } 
-
-                    // reset the buffer.
-                    xb = { 0,0,0 };
-
-                    // XPath search the IEEE structure for the unsecured data.
-                    pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( internal_doc );
-                    text = unsecuredDataNode.node().text();
-
-                    if ( !text ) {
-                        elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
-                        return false;
-                    }
-
-                    hstr = std::string( text.get() );
-                    // done with the 1609.2 DOM.
+                if ( decode_functionality ) {
+                    return decode_message( payload_node, output_message_stream );
+                } else {
+                    return encode_message( payload_node, output_message_stream );
                 }
-
-                internal_doc.reset();
-
-                if ( decode_messageframe ) {
-                    if ( decode_messageframe_data( hstr, &xb, decode_messageframe_type ) == false ) {
-                        elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
-                        return false;
-                    }
-
-                    ilogger->info( "IEEE 1609.2 Unsecured Data Field Payload decode/encode operation complete (usually a J2735 MessageFrame)." );
-
-                    // zero out hex string.
-                    payload_node.text().set("");
-
-                    // build an XML document from the ascii data.
-                    // pugi::xml_document messageframexml{};
-                    result = internal_doc.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
-                    std::free( static_cast<void *>(xb.buffer) );
-
-                    if (!result) {
-                        ilogger->trace("Error parsing J2735 XML data: {} (offset = {})!", result.description(), result.offset);
-                        return false; 
-                    } 
-
-                }
-
-                // replace the hex data with XML data.
-                payload_node.remove_child("bytes");
-
-                if ( internal_doc ) {
-                    // TODO: make sure this is checking for empty document cases.
-                    payload_node.append_copy( internal_doc.document_element() );
-                } else {  // else doc the remaining document should be empty now!
-                    ilogger->warn("Internal doc is empty.");
-                    elogger->info("Internal doc is empty.");
-                }
-
-                // convert DOM to a RAW string representation: no spaces, no tabs.
-                xmlss.clear();
-                input_doc.save(xmlss,"",pugi::format_raw);
-                return true;
-            } 
-
+            }
+                
             break;
 
         case RdKafka::ERR__PARTITION_EOF:
@@ -749,6 +705,145 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
     }
 
     return false;
+}
+
+bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream ) {
+
+    static const char* fnname = "decode_message()";
+    pugi::xml_parse_result parse_result;
+
+    buffer_structure_t xb = {0, 0, 0};
+
+    // access this directly because we remove the bytes branch.
+    pugi::xml_text text = payload_node.child("bytes").text();
+
+    if ( !text ) {
+        elogger->warn("{}: XPath search to bytes node (data source) failed.", fnname );
+        return false;
+    }
+
+    std::string hstr{ text.get() };
+
+    // first must be 1609dot2
+    if ( decode_1609dot2 ) {
+
+        // TODO Refactor: input = hstr, decode type; output = hstr (or false)
+        if ( decode_1609dot2_data(hstr, &xb ) == false ) {
+            elogger->warn("{}: Failure to convert ASN.1 encoding of 1609.2 in hexstring to XML in a byte buffer.", fnname );
+            return false;
+        }
+
+        // pugi resets the document as part of load_buffer
+        parse_result = internal_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
+        std::free( static_cast<void *>(xb.buffer) );
+
+        if (!parse_result) {
+            ilogger->trace("{}: Failure to parse IEEE 1609.2 XML data: {} (offset = {})!", fnname , parse_result.description(), parse_result.offset);
+            return false; 
+        } 
+
+        // reset the buffer.
+        xb = { 0,0,0 };
+
+        // XPath search the IEEE structure for the unsecured data.
+        pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( internal_doc );
+        text = unsecuredDataNode.node().text();
+
+        if ( !text ) {
+            elogger->warn("{}: XPath search to text node in IEEE 1609.2 file (data source) failed.", fnname );
+            return false;
+        }
+
+        // replacing the original hex string, so the next processing step works.
+        hstr = std::string( text.get() );
+    }
+
+    internal_doc.reset();
+
+    if ( decode_messageframe ) {
+        if ( decode_messageframe_data( hstr, &xb ) == false ) {
+            elogger->warn("{}: Failure to convert ASN.1 encoding of j2735 MessageFrame in hexstring to XML into a byte buffer", fnname );
+            return false;
+        }
+
+        // eliminate the original hex string, so the new XML can be inserted.
+        payload_node.text().set("");
+
+        // build an XML document from the ascii data.
+        //pugi::xml_document ieee_doc{};
+        parse_result = internal_doc.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
+        std::free( static_cast<void *>(xb.buffer) );
+
+        if (!parse_result) {
+            ilogger->trace("{}: Failure to parse j2735 XML data: {} (offset = {})!", fnname , parse_result.description(), parse_result.offset);
+            return false; 
+        } 
+    }
+
+    // replace the hex data with XML data.
+    payload_node.remove_child("bytes");
+
+    if ( internal_doc ) {
+        // TODO: make sure this is checking for empty document cases.
+        payload_node.append_copy( internal_doc.document_element() );
+    } else {  // else doc the remaining document should be empty now!
+        ilogger->warn("{}: Internal doc is empty.", fnname );
+    }
+
+    if ( !payload_node.parent().child("dataType").text().set( ODEXMLDATATYPE ) ) {
+        elogger->warn("{}: Failure to update the dataType tag in the final XML output document.", fnname );
+        return false;
+    }
+
+    // convert DOM to a RAW string representation: no spaces, no tabs.
+    output_message_stream.str("");
+    input_doc.save(output_message_stream,"",pugi::format_raw);
+    return true;
+} 
+
+bool ASN1_Codec::encode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream ) {
+
+    static const char* fnname = "encode_message()";
+    pugi::xml_parse_result parse_result;
+    std::stringstream xml_stream;
+    std::string hex_str;
+
+    buffer_structure_t xb = {0, 0, 0};
+
+    if ( decode_messageframe ) {
+
+        // empty the stringstream we will write the MessageFrame XML to and then write it.
+        payload_node.child("MessageFrame").print(xml_stream,"",pugi::format_raw);
+
+        if ( encode_messageframe_data( xml_stream.str(), hex_str ) == false ) {
+            elogger->warn("{}: Failed to encode the MessageFrame XML into ASN.1 as a hex string.", fnname );
+            return false;
+        }
+
+        ilogger->info( "{}: Successful encoding of XML into a hex string: {}", fnname , hex_str );
+
+        // eliminate the original hex string, so the new XML can be inserted.
+        if ( !payload_node.remove_child("MessageFrame") ) {
+            elogger->warn("{}: Failure to remove the MessageFrame XML from the ODE XML document.", fnname );
+            return false;
+        }
+
+        if ( !payload_node.append_child("bytes").text().set(hex_str.c_str()) ) {
+            elogger->warn("{}: Failure to add the hex string to the document after appending the bytes tag.", fnname );
+            return false;
+        }
+
+        if ( !payload_node.parent().child("dataType").text().set( ODEHEXDATATYPE ) ) {
+            elogger->warn("{}: Failure to update the dataType tag in the final XML output document.", fnname );
+            return false;
+        }
+    }
+
+    // convert DOM to a RAW string representation: no spaces, no tabs.
+    // for testing.
+    output_message_stream.str("");
+    input_doc.save(output_message_stream,"",pugi::format_raw);
+    return true;
 }
 
 /**
@@ -896,141 +991,58 @@ bool ASN1_Codec::make_loggers( bool remove_files )
     return true;
 }
 
-bool ASN1_Codec::decode_travelerinformation_data( std::string& data_as_hex, xer_buffer_t* xml_buffer ) {
+bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structure_t* xml_buffer ) {
+    static const char* fnname = "decode_1609dot2_data()";
 
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
 
-    char errbuf[128];
-    std::size_t errlen = sizeof(errbuf);
-
-    std::vector<char> byte_buffer;
-
-    TravelerInformation_t *travelerinformation = 0;        // must initialize to 0 according to asn.1 instructions.
-
-    ilogger->trace("Start encode/decode operation on the input hex encoding.");
-
-    // remove all spaces.
-    data_as_hex.erase( remove_if ( data_as_hex.begin(), data_as_hex.end(), isspace), data_as_hex.end());
-
-    if (data_as_hex.empty()) {
-        elogger->warn("Input XML file payload missing payload data hex bytes!");
-        return false;
-    }
-
-    ilogger->trace("Successfully extracted {} hex string: {}", asn_DEF_TravelerInformation.name, data_as_hex );
-
-    if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
-        elogger->warn("Could not decode XML payload data hex bytes!");
-        return false;
-    }
-
-    ilogger->trace("Successful conversion to raw byte buffer.");
-
-    // Decode BAH Bytes (A 1609.2 Frame) into the appropriate structure.
-    decode_rval = uper_decode_complete( 
-            0, 
-            &asn_DEF_TravelerInformation, 
-            (void **)&travelerinformation, 
-            byte_buffer.data(), 
-            byte_buffer.size() 
-            );
-
-    if ( decode_rval.code != RC_OK ) {
-        elogger->error("Decode error for {} bytes.", asn_DEF_TravelerInformation.name );
-        return false;
-    }
-
-    ilogger->trace("Successful ASN.1 Decode from bytes to C structure.");
-
-    if (asn_check_constraints( &asn_DEF_TravelerInformation, travelerinformation, errbuf, &errlen )) {
-        ASN_STRUCT_FREE(asn_DEF_TravelerInformation, travelerinformation);
-        std::string m{ errbuf, errlen };
-        elogger->error("{} constraint checks failed: {} this message will be dropped.", asn_DEF_TravelerInformation.name, m );
-        return false;
-    }
-
-    // Encode the Ieee1609Dot2Data ASN.1 C struct into XML, so we can extract out the BSM.
-    encode_rval = xer_encode( 
-            &asn_DEF_TravelerInformation, 
-            travelerinformation, 
-            XER_F_CANONICAL, 
-            xer_buffer_append, 
-            static_cast<void *>(xml_buffer) 
-            );
-
-    ASN_STRUCT_FREE(asn_DEF_TravelerInformation, travelerinformation);
-
-    if ( encode_rval.encoded == -1 ) {
-        elogger->error("Cannot convert the block into XML.");
-        return false;
-    }
-
-    ilogger->trace("Completed encode/decode operation on the input hex encoding; now have XML of 1609.2 frame.");
-    return true;
-}
-
-bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* xml_buffer, enum asn_transfer_syntax asntype ) {
-
-    asn_dec_rval_t decode_rval;
-    asn_enc_rval_t encode_rval;
-
-    char errbuf[128];
-    std::size_t errlen = sizeof(errbuf);
-
-    std::vector<char> byte_buffer;
+    std::size_t errlen = max_errbuf_size;
 
     Ieee1609Dot2Data_t *ieee1609data = 0;        // must initialize to 0 according to asn.1 instructions.
 
-    ilogger->trace("Start encode/decode operation on the input hex encoding.");
+    ilogger->trace("{}: starting...", fnname);
 
     // remove all spaces.
     data_as_hex.erase( remove_if ( data_as_hex.begin(), data_as_hex.end(), isspace), data_as_hex.end());
 
     if (data_as_hex.empty()) {
-        elogger->warn("Input XML file payload missing payload data hex bytes!");
+        elogger->warn("{}: hex string data is empty.", fnname );
         return false;
     }
 
-    ilogger->trace("Successfully extracted {} hex string: {}", asn_DEF_Ieee1609Dot2Data.name, data_as_hex );
+    ilogger->trace("{}: success extracting {} hex string: {}", fnname , asn_DEF_Ieee1609Dot2Data.name, data_as_hex );
 
+    byte_buffer.clear();
     if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
-        elogger->warn("Could not decode XML payload data hex bytes!");
+        elogger->warn("{}: failure to decode hex into a binary buffer.", fnname );
         return false;
     }
 
-    ilogger->trace("Successful conversion to raw byte buffer.");
+    ilogger->trace("{}: successful conversion to raw byte buffer.", fnname );
 
     // Decode BAH Bytes (A 1609.2 Frame) into the appropriate structure.
-    // asntype is specifiedin input xml from ODE.
     decode_rval = asn_decode( 
             0, 
-            asntype, 
+            decode_1609dot2_type, 
             &asn_DEF_Ieee1609Dot2Data, 
             (void **)&ieee1609data, 
             byte_buffer.data(), 
             byte_buffer.size() 
             );
 
-    // decode_rval = uper_decode_complete( 
-    //         0, 
-    //         &asn_DEF_Ieee1609Dot2Data, 
-    //         (void **)&ieee1609data, 
-    //         byte_buffer.data(), 
-    //         byte_buffer.size() 
-    //         );
-
     if ( decode_rval.code != RC_OK ) {
-        elogger->error("Decode error for {} bytes.", asn_DEF_Ieee1609Dot2Data.name );
+        elogger->error("{}: ASN.1 decoder call error for {}.", fnname , asn_DEF_Ieee1609Dot2Data.name );
         return false;
     }
 
-    ilogger->trace("Successful ASN.1 Decode from bytes to C structure.");
+    ilogger->trace("{}: ASN.1 decode success.", fnname );
 
+    // check the data in the returned structure against the ASN.1 specification constraints.
     if (asn_check_constraints( &asn_DEF_Ieee1609Dot2Data, ieee1609data, errbuf, &errlen )) {
         ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, ieee1609data);
         std::string m{ errbuf, errlen };
-        elogger->error("{} constraint checks failed: {} this message will be dropped.", asn_DEF_Ieee1609Dot2Data.name, m );
+        elogger->error("{}: {} constraint checks failed: {} this message will be dropped.", fnname , asn_DEF_Ieee1609Dot2Data.name, m );
         return false;
     }
 
@@ -1039,57 +1051,57 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* x
             &asn_DEF_Ieee1609Dot2Data, 
             ieee1609data, 
             XER_F_CANONICAL, 
-            xer_buffer_append, 
+            dynamic_buffer_append, 
             static_cast<void *>(xml_buffer) 
             );
 
     ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, ieee1609data);
 
     if ( encode_rval.encoded == -1 ) {
-        elogger->error("Cannot convert the block into XML.");
+        elogger->error("{}: ASN.1 encoder call error for Ieee1609Dot2Data.", fnname );
         return false;
     }
 
-    ilogger->trace("Completed encode/decode operation on the input hex encoding; now have XML of 1609.2 frame.");
+    ilogger->trace("{}: finished.", fnname );
     return true;
 }
 
 /**
  * TODO: This method should be generalizable to any type def and structure pointer -- tried but moved on.
  */
-// bool ASN1_Codec::test( std::string& data_as_hex, xer_buffer_t* xml_buffer, struct asn_TYPE_descriptor_s *type_desc, void **sptr ) {
-bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, xer_buffer_t* xml_buffer, enum asn_transfer_syntax atype ) {
+bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer ) {
+    static const char* fnname = "decode_messageframe_data()";
+
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
 
-    char errbuf[128];
-    std::size_t errlen = sizeof(errbuf);
-
-    std::vector<char> byte_buffer;
+    std::size_t errlen = max_errbuf_size;
 
     MessageFrame_t *messageframe = 0;           // must be initialized to 0.
 
-    ilogger->trace("Start encode/decode operation on the IEEE 1609.2 unsecuredData (J2735 MessageFrame).");
+    ilogger->trace("{}: starting...", fnname);
 
     // remove all spaces.
     data_as_hex.erase( remove_if ( data_as_hex.begin(), data_as_hex.end(), isspace), data_as_hex.end());
 
     if (data_as_hex.empty()) {
-        elogger->warn("IEEE {} in hex has no data.", asn_DEF_MessageFrame.name );
+        elogger->warn("{}: hex string data is empty.", fnname );
         return false;
     }
 
-    ilogger->trace("Successfully extracted {} hex string: {}", asn_DEF_MessageFrame.name, data_as_hex );
+    ilogger->trace("{}: success extracting {} hex string: {}", fnname , asn_DEF_MessageFrame.name, data_as_hex );
 
+    byte_buffer.clear();
     if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
-        elogger->warn("Could not decode XML payload data hex bytes!");
+        elogger->warn("{}: failure to decode hex into a binary buffer.", fnname );
         return false;
     }
 
-    ilogger->trace("Successful conversion to raw byte buffer.");
+    ilogger->trace("{}: successful conversion to raw byte buffer.", fnname );
 
-    decode_rval = uper_decode_complete( 
+    decode_rval = asn_decode( 
             0, 
+            decode_messageframe_type, 
             &asn_DEF_MessageFrame,
             (void **)&messageframe,
             byte_buffer.data(), 
@@ -1097,16 +1109,16 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, xer_buffer_
             );
 
     if ( decode_rval.code != RC_OK ) {
-        elogger->error("Decode error for {} bytes.", asn_DEF_MessageFrame.name );
+        elogger->error("{}: ASN.1 decoder call error for {}.", fnname , asn_DEF_MessageFrame.name );
         return false;
     }
 
-    ilogger->trace("Successful ASN.1 Decode from bytes to C structure.");
+    ilogger->trace("{}: ASN.1 decode success.", fnname );
 
     if (asn_check_constraints( &asn_DEF_MessageFrame, messageframe, errbuf, &errlen )) {
         ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
         std::string m{ errbuf, errlen };
-        elogger->error("{} constraint checks failed: {} this message will be dropped.", asn_DEF_MessageFrame.name, m );
+        elogger->error("{}: {} constraint checks failed: {} dropping message.", fnname , asn_DEF_MessageFrame.name, m );
         return false;
     }
 
@@ -1115,50 +1127,150 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, xer_buffer_
             &asn_DEF_MessageFrame, 
             messageframe, 
             XER_F_CANONICAL, 
-            xer_buffer_append, 
+            dynamic_buffer_append, 
             static_cast<void *>(xml_buffer) 
             );
 
     ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
 
     if ( encode_rval.encoded == -1 ) {
-        elogger->error("Cannot convert the block into XML.");
+        elogger->error("{}: ASN.1 encoder call error for MessageFrame.", fnname );
         return false;
     }
 
-    ilogger->trace("Completed ASN.1 encode/decode to final XML form.");
+    ilogger->trace("{}: finished.", fnname );
     return true;
 }
 
-/**
- * Used as a test stub to bypass Kafka and work through the parsing, encoding, decoding.
- *
- */
-bool ASN1_Codec::filetest() {
+bool ASN1_Codec::encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string ) {
+    static const char* fnname = "encode_messageframe_data()";
+
+    asn_dec_rval_t decode_rval;
+    asn_enc_rval_t encode_rval;
+
+    std::size_t errlen = max_errbuf_size;
+
+    ilogger->trace("{}: starting...", fnname );
+
+    MessageFrame_t *messageframe = 0;           // must be initialized to 0.
+
+    decode_rval = xer_decode( 
+            0, 
+            &asn_DEF_MessageFrame,
+            (void **)&messageframe,
+            data_as_xml.data(),
+            data_as_xml.size()
+            );
+
+    if ( decode_rval.code != RC_OK ) {
+        elogger->error("{}: ASN.1 decoder call error for {}.", fnname , asn_DEF_MessageFrame.name );
+        return false;
+    }
+
+    ilogger->trace("{}: ASN.1 decode success.", fnname );
+
+    if (asn_check_constraints( &asn_DEF_MessageFrame, messageframe, errbuf, &errlen )) {
+        ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
+        std::string m{ errbuf, errlen };
+        elogger->error("{}: {} constraint checks failed {}. dropping message.", fnname, asn_DEF_MessageFrame.name, m );
+        return false;
+    }
+
+    buffer_structure_t uper_buffer = {0,0,0};
+
+    encode_rval = uper_encode(
+            &asn_DEF_MessageFrame, 
+            messageframe, 
+            dynamic_buffer_append, 
+            static_cast<void *>(&uper_buffer) 
+            );
+
+    ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
+
+    if ( encode_rval.encoded == -1 ) {
+        elogger->error("{}: ASN.1 encoder call error for MessageFrame.", fnname);
+        return false;
+    }
+
+    if (!bytes_to_hex_(&uper_buffer, hex_string)) {
+        elogger->warn("{}: failure to decode XML payload data hex bytes!", fnname );
+        std::free( static_cast<void *>(uper_buffer.buffer) );
+        return false;
+    }
+
+    std::free( static_cast<void *>(uper_buffer.buffer) );
+    ilogger->trace("{}: finished.", fnname );
+    return true;
+
+}
+
+bool ASN1_Codec::set_codec_requirements( const pugi::xml_document& doc ) {
+
+    static const char* fnname = "set_codec_requirements()";
+
+    enum asn_transfer_syntax atstype = ATS_INVALID;
+
+    // Determine which decodings are needed.
+    pugi::xpath_node encodings_xpath_node = ode_encodings_query.evaluate_node( input_doc );
+
+    for ( pugi::xml_node n = encodings_xpath_node.node().first_child(); n; n = n.next_sibling()) {
+
+        pugi::xml_text ats_node = n.child("encodingRule").text();
+        if ( ats_node ) {
+            // the XML file contains the rule specification and we should use it.
+            atstype = get_ats_transfer_syntax( ats_node.get() );
+        }
+
+        if ( std::strcmp(n.child("elementType").text().get(), "Ieee1609Dot2Data") == 0 ) {
+            ilogger->trace("{}: activating the 1609.2 decoder.", fnname );
+            decode_1609dot2 = true;
+            if ( atstype != ATS_INVALID ) {
+                // only change the default values if a new type is provided in the XML.
+                ilogger->trace("{}: changing the ASN.1 translator type for 1609.2 to: {}", fnname , atstype);
+                decode_1609dot2_type = atstype;
+            }
+
+        } else if ( std::strcmp(n.child("elementType").text().get(), "MessageFrame") == 0 ) {
+            ilogger->trace("{}: activating the j2735 message frame decoder.", fnname );
+            decode_messageframe = true;
+            if ( atstype != ATS_INVALID ) {
+                // only change the default values if a new type is provided in the XML.
+                ilogger->trace("{}: changing the ASN.1 translator type for messageframe to: {}", fnname , atstype);
+                decode_messageframe_type = atstype;
+            }
+        }
+    }
+    return true;
+}
+
+bool ASN1_Codec::encodefiletest() {
+
+    static const char* fnname = "encodefiletest()";
 
     std::string error_string;
     RdKafka::ErrorCode status;
+    std::stringstream ss;	
 
-    // flags for type of decoding required.
-    bool decode_1609dot2 = false;
-    bool decode_messageframe = false;
-    enum asn_transfer_syntax decode_1609dot2_type = ATS_CANONICAL_OER;
-    enum asn_transfer_syntax decode_messageframe_type = ATS_UNALIGNED_BASIC_PER;
+    // state reset to defaults: decode nothing, if decode use COER for 1609.2 and UPER for j2735
+    decode_1609dot2 = false;
+    decode_messageframe = false;
+    decode_1609dot2_type = ATS_CANONICAL_OER;
+    decode_messageframe_type = ATS_UNALIGNED_BASIC_PER;
 
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);
-    
+
     try {
 
-        // throws for a couple of options.
         if ( !configure() ) return EXIT_FAILURE;
 
     } catch ( std::exception& e ) {
 
-        // don't use logger in case we cannot configure it correctly.
-        std::cerr << "Fatal Exception: " << e.what() << '\n';
+        std::cerr << "Fatal Exception: " << e.what() << '\n';       // logger may have failed to configure.
         return EXIT_FAILURE;
     }
+
+    ilogger->trace("{}: Starting...", fnname );
 
     // read in BAH test input file.
     std::FILE* ifile = std::fopen( operands[0].c_str(), "r" );
@@ -1179,87 +1291,177 @@ bool ASN1_Codec::filetest() {
 
     if ( consumed_xml_buffer.size() > 0 ) {
 
-        ilogger->trace("Read the test file having {} bytes.", consumed_xml_buffer.size() );
+        ilogger->trace("{}: Read the test file having {} bytes.", fnname, consumed_xml_buffer.size() );
 
         msg_recv_count++;
         msg_recv_bytes += consumed_xml_buffer.size();
 
-        xer_buffer_t xb = {0, 0, 0};
-
-        // Load BAH XML Input Document.
-        pugi::xml_document input_doc{};
+        // pugi resets the document as part of load_buffer
         pugi::xml_parse_result result = input_doc.load_buffer((const void*) consumed_xml_buffer.data(), consumed_xml_buffer.size(), xml_parse_options );
 
         if (!result) {
-            ilogger->trace("Error parsing consumed XML file: {} (offset = {})!", result.description(), result.offset);
+            elogger->trace("{}: Error parsing input XML file: {} (offset = {})!", fnname, result.description(), result.offset);
             return EXIT_FAILURE; 
         } 
 
-        // Determine which decodings are needed.
-        pugi::xpath_node encodings_xpath_node = ode_encodings_query.evaluate_node( input_doc );
+        // examine the input xml encodings information and set the flags and requirements needed to properly parse
+        // the xml data.
+        // TODO: WE ARE ONLY detecting MessageFrame type in the elementType data to turn on the decoder below.
+        set_codec_requirements( input_doc );
 
-        enum asn_transfer_syntax atstype = ATS_INVALID;
+        // Retain this node reference. It is where the decoded result will be inserted.
+        pugi::xml_node payload_node = ode_payload_query.evaluate_node( input_doc ).node();
 
-        for ( pugi::xml_node n = encodings_xpath_node.node().first_child(); n; n = n.next_sibling()) {
+        if ( !payload_node ) {
+            elogger->warn("{}: XPath search to payload node (data source) failure.", fnname );
+            return EXIT_FAILURE;
+        }
 
-            pugi::xml_text ats_node = n.child("encodingRule").text();
-            if ( ats_node ) {
-                atstype = get_ats_transfer_syntax( ats_node.get() );
+        if ( decode_messageframe ) {
+
+            // empty the stringstream we will write the MessageFrame XML to and then write it.
+            ss.str("");
+            payload_node.child("MessageFrame").print(ss,"",pugi::format_raw);
+
+            std::string hstr;
+            if ( encode_messageframe_data( ss.str(), hstr ) == false ) {
+                elogger->warn("{}: Failed to encode the MessageFrame XML into ASN.1 as a hex string.", fnname );
+                return EXIT_FAILURE;
             }
 
-            ilogger->trace("Inside the loop.");
-            if ( std::strcmp(n.child("elementType").text().get(), "Ieee1609Dot2Data") == 0 ) {
-                decode_1609dot2 = true;
-                if ( atstype != ATS_INVALID ) {
-                    // only change the default values if a new type is provided in the XML.
-                    decode_1609dot2_type = atstype;
-                }
-                ilogger->trace("Setting the decode 1609.2 flag.");
-            } else if ( std::strcmp(n.child("elementType").text().get(), "MessageFrame") == 0 ) {
-                decode_messageframe = true;
-                if ( atstype != ATS_INVALID ) {
-                    // only change the default values if a new type is provided in the XML.
-                    decode_messageframe_type = atstype;
-                }
-                ilogger->trace("Setting the decode message frame flag.");
+            ilogger->info( "{}: Successful encoding of XML into a hex string: {}", fnname , hstr );
+
+            // eliminate the original hex string, so the new XML can be inserted.
+            if ( !payload_node.remove_child("MessageFrame") ) {
+                elogger->warn("{}: Failure to remove the MessageFrame XML from the ODE XML document.", fnname );
+                return EXIT_FAILURE;
+            }
+
+            if ( !payload_node.append_child("bytes").text().set(hstr.c_str()) ) {
+                elogger->warn("{}: Failure to add the hex string to the document after appending the bytes tag.", fnname );
+                return EXIT_FAILURE;
+            }
+
+            if ( !payload_node.parent().child("dataType").text().set( ODEHEXDATATYPE ) ) {
+                elogger->warn("{}: Failure to update the dataType tag in the final XML output document.", fnname );
+                return EXIT_FAILURE;
             }
         }
 
-        pugi::xpath_node payload_xpath_node = ode_payload_query.evaluate_node( input_doc );
+        // convert DOM to a RAW string representation: no spaces, no tabs.
+        // for testing.
+        input_doc.save(std::cout,"",pugi::format_raw);
+        std::cout << std::endl;
+
+    } else {
+        ilogger->trace("{}: Read an empty file.", fnname );
+    }
+
+    // NOTE: good for troubleshooting, but bad for performance.
+    elogger->flush();
+    ilogger->flush();
+
+    ilogger->trace("{}: Finished.", fnname );
+    return EXIT_SUCCESS;
+}
+
+/**
+ * Used as a test stub to bypass Kafka and work through the parsing, encoding, decoding.
+ *
+ */
+
+bool ASN1_Codec::decodefiletest() {
+
+    static const char* fnname = "decodefiletest()";
+
+    std::string error_string;
+    RdKafka::ErrorCode status;
+
+    // state reset to defaults: decode nothing, if decode use COER for 1609.2 and UPER for j2735
+    decode_1609dot2 = false;
+    decode_messageframe = false;
+    decode_1609dot2_type = ATS_CANONICAL_OER;
+    decode_messageframe_type = ATS_UNALIGNED_BASIC_PER;
+
+    signal(SIGINT, sigterm);
+    signal(SIGTERM, sigterm);
+    
+    try {
+
+        if ( !configure() ) return EXIT_FAILURE;
+
+    } catch ( std::exception& e ) {
+
+        std::cerr << "Fatal Exception: " << e.what() << '\n';           // logger may have failed to configure.
+        return EXIT_FAILURE;
+    }
+
+    ilogger->trace("{}: Starting...", fnname);
+
+    std::FILE* ifile = std::fopen( operands[0].c_str(), "r" );
+    if (!ifile) {
+        std::cerr << "cannot open " << operands[0] << '\n';
+        return EXIT_FAILURE;
+    }
+
+    // compute file size in bytes.
+    std::fseek(ifile, 0, SEEK_END);
+    std::size_t ifile_size = std::ftell(ifile);
+    std::fseek(ifile, 0, SEEK_SET);
+
+    std::vector<unsigned char> consumed_xml_buffer( ifile_size );
+    std::size_t count = std::fread( consumed_xml_buffer.data(), sizeof( uint8_t ), consumed_xml_buffer.size(), ifile );
+    std::fclose( ifile );
+
+    if ( consumed_xml_buffer.size() > 0 ) {
+
+        ilogger->trace("{}: successful read of the test file having {} bytes.", fnname, consumed_xml_buffer.size() );
+
+        msg_recv_count++;
+        msg_recv_bytes += consumed_xml_buffer.size();
+
+        buffer_structure_t xb = {0, 0, 0};
+
+        // pugi resets the document as part of load_buffer
+        pugi::xml_parse_result result = input_doc.load_buffer((const void*) consumed_xml_buffer.data(), consumed_xml_buffer.size(), xml_parse_options );
+
+        if (!result) {
+            elogger->trace("{}: Failure to parse intput XML file: {} (offset = {})!", fnname , result.description(), result.offset);
+            return EXIT_FAILURE; 
+        } 
+
+        // examine the input xml encodings information and set the flags and requirements needed to properly parse
+        // the byte strings.
+        set_codec_requirements( input_doc );
 
         // Retain this node reference. It is where the decoded result will be inserted.
-        pugi::xml_node payload_node = payload_xpath_node.node();
+        pugi::xml_node payload_node = ode_payload_query.evaluate_node( input_doc ).node();
 
-        // access this directly because we remove the bytes branch.
+        // for decoding, the data is in the child bytes tag of the payload.
         pugi::xml_text text = payload_node.child("bytes").text();
 
         if ( !text ) {
-            elogger->warn("No text node (data source) in the consumed XML file.");
+            elogger->warn("{}: XPath search to bytes node (data source) failed.", fnname );
             return EXIT_FAILURE;
         }
 
         std::string hstr{ text.get() };
 
-        // Declaration needed outside of the scope of the below conditionals.
-        // Reuse since we do not need to retain the outer frame (if required).
-        pugi::xml_document internal_doc{};
-
         // first must be 1609dot2
         if ( decode_1609dot2 ) {
 
             // TODO Refactor: input = hstr, decode type; output = hstr (or EXIT_FAILURE)
-            if ( decode_1609dot2_data(hstr, &xb, decode_1609dot2_type ) == false ) {
-                elogger->warn("Failure to extract/convert consumed XML file payload into a byte buffer.");
+            if ( decode_1609dot2_data(hstr, &xb ) == false ) {
+                elogger->warn("{}: Failure to convert ASN.1 encoding of 1609.2 in hexstring to XML in a byte buffer.", fnname );
                 return EXIT_FAILURE;
             }
 
-            //pugi::xml_document ieee_doc{};
+            // pugi resets the document as part of load_buffer
             result = internal_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
-
             std::free( static_cast<void *>(xb.buffer) );
 
             if (!result) {
-                ilogger->trace("Error parsing IEEE 1609.2 XML data: {} (offset = {})!", result.description(), result.offset);
+                ilogger->trace("{}: Failure to parse IEEE 1609.2 XML data: {} (offset = {})!", fnname , result.description(), result.offset);
                 return EXIT_FAILURE; 
             } 
 
@@ -1271,7 +1473,7 @@ bool ASN1_Codec::filetest() {
             text = unsecuredDataNode.node().text();
 
             if ( !text ) {
-                elogger->warn("No text node (data source) found in the IEEE 1609.2 XML document.");
+                elogger->warn("{}: XPath search to text node in IEEE 1609.2 file (data source) failed.", fnname );
                 return EXIT_FAILURE;
             }
 
@@ -1279,27 +1481,23 @@ bool ASN1_Codec::filetest() {
             hstr = std::string( text.get() );
         }
 
-        internal_doc.reset();
-
         if ( decode_messageframe ) {
 
-            if ( decode_messageframe_data( hstr, &xb, decode_messageframe_type ) == false ) {
-                elogger->warn("Failure to extract/convert IEEE 1609.2 XML file payload into a byte buffer.");
+            if ( decode_messageframe_data( hstr, &xb ) == false ) {
+                elogger->warn("{}: Failure to convert ASN.1 encoding of j2735 MessageFrame in hexstring to XML into a byte buffer", fnname );
                 return EXIT_FAILURE;
             }
 
-            ilogger->info( "IEEE 1609.2 Unsecured Data Field Payload decode/encode operation complete (usually a J2735 MessageFrame)." );
-
-            // zero out hex string.
+            // eliminate the original hex string, so the new XML can be inserted.
             payload_node.text().set("");
 
             // build an XML document from the ascii data.
-            // pugi::xml_document messageframexml{};
+            //pugi::xml_document ieee_doc{};
             result = internal_doc.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
             std::free( static_cast<void *>(xb.buffer) );
 
             if (!result) {
-                ilogger->trace("Error parsing J2735 XML data: {} (offset = {})!", result.description(), result.offset);
+                ilogger->trace("{}: Failure to parse j2735 XML data: {} (offset = {})!", fnname , result.description(), result.offset);
                 return EXIT_FAILURE; 
             } 
 
@@ -1312,14 +1510,17 @@ bool ASN1_Codec::filetest() {
             // TODO: make sure this is checking for empty document cases.
             payload_node.append_copy( internal_doc.document_element() );
         } else {  // else doc the remaining document should be empty now!
-            ilogger->trace("Internal doc is empty.");
+            ilogger->trace("{}: Internal doc is empty.", fnname );
+        }
+
+        if ( !payload_node.parent().child("dataType").text().set( ODEXMLDATATYPE ) ) {
+            elogger->warn("{}: Failure to update the dataType tag in the final XML output document.", fnname );
+            return EXIT_FAILURE;
         }
 
         // convert DOM to a RAW string representation: no spaces, no tabs.
-        std::stringstream ss;
-        input_doc.save(ss,"",pugi::format_raw);
-        std::cout << ss.str() << "\n";
-        return true;
+        input_doc.save(std::cout,"",pugi::format_raw);
+        std::cout << std::endl;
 
     } else {
         ilogger->trace("Read an empty file.");
@@ -1329,15 +1530,18 @@ bool ASN1_Codec::filetest() {
     elogger->flush();
     ilogger->flush();
 
-    return true;
+    ilogger->trace("{}: Finished.", fnname);
+    return EXIT_SUCCESS;
 }
 
 int ASN1_Codec::operator()(void) {
 
-    std::string error_string;
-    std::stringstream xmlss;
+    static const char* fnname = "run()";
 
+    std::string error_string;
     RdKafka::ErrorCode status;
+
+    std::stringstream output_msg_stream;
 
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);
@@ -1362,28 +1566,27 @@ int ASN1_Codec::operator()(void) {
 
         std::unique_ptr<RdKafka::Message> msg{ consumer_ptr->consume( consumer_timeout ) };
 
-        if ( msg->len() > 0 && msg_consume(msg.get(), xmlss) ) {
-
+        if ( msg->len() > 0 && process_message(msg.get(), output_msg_stream) ) {
 
             std::cerr << msg->len() << " bytes consumed from topic: " << consumed_topics[0] << '\n';
 
-            std::string xml_output = xmlss.str();
-            status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)xml_output.c_str(), xml_output.size(), NULL, NULL);
+            std::string output_msg_string = output_msg_stream.str();
+            status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)output_msg_string.c_str(), output_msg_string.size(), NULL, NULL);
 
             if (status != RdKafka::ERR_NO_ERROR) {
-                elogger->error("Failure of XER encoding: {}", RdKafka::err2str( status ));
+                elogger->error("{}: Failure of XER encoding: {}", fnname , RdKafka::err2str( status ));
 
             } else {
                 // successfully sent; update counters.
                 msg_send_count++;
-                msg_send_bytes += xml_output.size();
-                ilogger->trace("Success of XER encoding.");
-                std::cerr << xml_output.size() << " bytes produced to topic: " << published_topic_ptr->name() << '\n';
+                msg_send_bytes += output_msg_string.size();
+                ilogger->trace("{}: successful encoding/decoding", fnname );
+                std::cerr << output_msg_string.size() << " bytes produced to topic: " << published_topic_ptr->name() << '\n';
             }
 
             // clear out the stream
-            xmlss.str("");
-            xmlss.clear();
+            output_msg_stream.str("");
+            output_msg_stream.clear();
         } 
 
         // NOTE: good for troubleshooting, but bad for performance.
@@ -1391,7 +1594,7 @@ int ASN1_Codec::operator()(void) {
         ilogger->flush();
     }
 
-    ilogger->info("ASN1_Codec operations complete; shutting down...");
+    ilogger->info("{}: shutting down...", fnname );
     ilogger->info("ASN1_Codec consumed  : {} blocks and {} bytes", msg_recv_count, msg_recv_bytes);
     ilogger->info("ASN1_Codec published : {} blocks and {} bytes", msg_send_count, msg_send_bytes);
 
@@ -1399,69 +1602,6 @@ int ASN1_Codec::operator()(void) {
     std::cerr << "ASN1_Codec consumed   : " << msg_recv_count << " blocks and " << msg_recv_bytes << " bytes\n";
     std::cerr << "ASN1_Codec published  : " << msg_send_count << " blocks and " << msg_send_bytes << " bytes\n";
     return EXIT_SUCCESS;
-}
-
-bool ASN1_Codec::hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer) {
-    uint8_t d = 0;
-    int i = 0;          // so we can return -1;
-
-    for (const char& c : payload_hex) {
-        if ( c <= '9' && c >= '0' ) {
-            d = c-'0';
-        } else if ( c <= 'F' && c >= 'A' ) {
-            d = c-55;       // c - 'A' + 10
-        } else if ( c <= 'f' && c >= 'a' ) {
-            d = c-87;        // c - 'a' + 10;
-        } else {
-            return false;
-        }
-
-        if (i%2) {
-            // low order nibble.
-            byte_buffer.back() |= d;
-        } else {
-            // high order nibble.
-            byte_buffer.push_back( d<<4 );
-        }
-        ++i;
-    }
-
-    // the number of bytes in the buf.
-    return true;
-}
-
-bool ASN1_Codec::bytes_to_hex_(std::vector<uint8_t>& byte_vector, const std::string& hex_vector) {
-    char c = 0;
-
-    hex_vector.clear();
-    for (const uint8_t& b : byte_vector) {
-
-        uint8_t bh = (b & 0xF0) >> 4;
-
-        if ( bh <= 9 && bh >= 0 ) {
-            c = (bh+48); // b + '0'
-        } else if ( bh <= 15 && bh >= 10 ) {
-            c = (bh+55); // b + 'A' - 10;
-        } else {
-            return false;
-        }
-
-        hex_vector.push_back(c);
-
-        uint8_t bl = (b & 0x0F);
-
-        if ( bl <= 9 && bl >= 0 ) {
-            c = (bl+48);
-        } else if ( bl <= 15 && bl >= 10 ) {
-            c = (bl+55);
-        } else {
-            return false;
-        }
-
-        hex_vector.push_back(c);
-    }
-
-    return true;
 }
 
 #ifndef _ASN1_CODEC_TESTS
@@ -1486,6 +1626,7 @@ int main( int argc, char* argv[] )
     asn1_codec.addOption( 'e', "elog", "Error log file name.", true );
     asn1_codec.addOption( 'h', "help", "print out some help" );
     asn1_codec.addOption( 'F', "infile", "accept a file and bypass kafka.", false );
+    asn1_codec.addOption( 'T', "codec-type", "The type of codec to use: decode or encode; defaults to decode", true );
 
 
     // debug for ASN.1
@@ -1525,8 +1666,20 @@ int main( int argc, char* argv[] )
     }
 
     if (asn1_codec.optIsSet('F')) {
-        // Use a file for testing and bypass Kafka; file is the first operand.
-        std::exit( asn1_codec.filetest() );
+        // use an input file: for testing.
+
+        if (asn1_codec.optIsSet('T')) {
+            // the type of codec has been specified: encode or decode; use it.
+
+            if ( "encode" == asn1_codec.optString('T') ) {
+                // use the encode file test.
+                std::exit( asn1_codec.encodefiletest() );
+            } 
+        } 
+
+        // the default in all cases is the decoder.
+        std::exit( asn1_codec.decodefiletest() );
+
     } else {
         // The module will run and when it terminates return an appropriate error code.
         std::exit( asn1_codec.run() );
