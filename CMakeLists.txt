@@ -40,36 +40,37 @@ link_directories("/usr/local/lib")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPDU=MessageFrame")
 
 # Use the include + target_sources pattern; this just sets up the container for the list of source files.
-add_executable(adm "")
-add_executable(aem "")
+add_executable(acm "")
+# add_executable(adm "")
+# add_executable(aem "")
 
 # add_executable(acm-blob-producer "")
 # add_executable(test_xml "")
 
 include( "src/CMakeLists.txt" )
 
-target_link_libraries(adm pthread rdkafka++ asncodec pugixml)
-target_link_libraries(aem pthread rdkafka++ asncodec pugixml)
+target_link_libraries(acm pthread rdkafka++ asncodec pugixml)
+# target_link_libraries(aem pthread rdkafka++ asncodec pugixml)
 # target_link_libraries(acm-blob-producer pthread rdkafka++)
 # target_link_libraries(test_xml j2735 pugixml)
 
 # Copy the data to the build. TODO make this part of the test or data target.
-set(DATA_DIR $<TARGET_FILE_DIR:adm>/data)
-set(CONFIG_DIR $<TARGET_FILE_DIR:adm>/config)
+set(DATA_DIR $<TARGET_FILE_DIR:acm>/data)
+set(CONFIG_DIR $<TARGET_FILE_DIR:acm>/config)
 
 # use cmake command mode (-E) commands to make and move files to build directory
 
 # Make the base data directory.
-add_custom_command(TARGET adm POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${DATA_DIR})
+add_custom_command(TARGET acm POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${DATA_DIR})
 
 # Copy the data files.
-add_custom_command(TARGET adm POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${DATA_DIR})
+add_custom_command(TARGET acm POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${DATA_DIR})
 
 # Make the base data directory.
-add_custom_command(TARGET adm POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CONFIG_DIR})
+add_custom_command(TARGET acm POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CONFIG_DIR})
 
 # Copy the data files.
-add_custom_command(TARGET adm POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/config ${CONFIG_DIR})
+add_custom_command(TARGET acm POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/config ${CONFIG_DIR})
 
 # option(BUILD_TESTS "Determines whether to build tests." ON)
 # if(BUILD_TESTS)

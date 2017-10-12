@@ -60,7 +60,6 @@
 #include <utility>
 #include <tuple>
 
-// TODO: integrate this with the class?
 typedef struct buffer_structure {
     char *buffer;
     size_t buffer_size;      // this is really where we will write next.
@@ -116,16 +115,16 @@ class ASN1_Codec : public tool::Tool {
         static constexpr std::size_t max_errbuf_size = 128;             ///> The length of error buffers for ASN.1 compiler.
 
         bool exit_eof;                                                  ///> flag to cause the application to exit on stream eof.
-        int32_t eof_cnt;                                                    ///> counts the number of eofs needed for exit_eof to work; each partition must end.
-        int32_t partition_cnt;                                              ///> TODO: the number of partitions being processed; currently 1.
+        int32_t eof_cnt;                                                ///> counts the number of eofs needed for exit_eof to work; each partition must end.
+        int32_t partition_cnt;                                          ///> TODO: the number of partitions being processed; currently 1.
 
         // bookkeeping.
-        uint64_t msg_recv_count;                                            ///> Counter for the number of BSMs received.
-        uint64_t msg_send_count;                                            ///> Counter for the number of BSMs published.
-        uint64_t msg_filt_count;                                            ///> Counter for hte number of BSMs filtered/suppressed.
-        uint64_t msg_recv_bytes;                                         ///> Counter for the number of BSM bytes received.
-        uint64_t msg_send_bytes;                                         ///> Counter for the nubmer of BSM bytes published.
-        uint64_t msg_filt_bytes;                                         ///> Counter for the nubmer of BSM bytes filtered/suppressed.
+        uint64_t msg_recv_count;                                        ///> Counter for the number of BSMs received.
+        uint64_t msg_send_count;                                        ///> Counter for the number of BSMs published.
+        uint64_t msg_filt_count;                                        ///> Counter for hte number of BSMs filtered/suppressed.
+        uint64_t msg_recv_bytes;                                        ///> Counter for the number of BSM bytes received.
+        uint64_t msg_send_bytes;                                        ///> Counter for the nubmer of BSM bytes published.
+        uint64_t msg_filt_bytes;                                        ///> Counter for the nubmer of BSM bytes filtered/suppressed.
 
         // Logging.
         spdlog::level::level_enum iloglevel;                            ///> Log level for the information log.
@@ -143,7 +142,7 @@ class ASN1_Codec : public tool::Tool {
         std::string brokers;
         int32_t partition;
         int64_t offset;
-        std::string published_topic_name;                                    ///> The topic we are publishing filtered BSM to.
+        std::string published_topic_name;                               ///> The topic we are publishing filtered BSM to.
         std::vector<std::string> consumed_topics;                       ///> consumer topics.
         std::shared_ptr<RdKafka::KafkaConsumer> consumer_ptr;
         std::shared_ptr<RdKafka::Producer> producer_ptr;
@@ -156,6 +155,7 @@ class ASN1_Codec : public tool::Tool {
         pugi::xpath_query ieee1609dot2_unsecuredData_query;
         pugi::xpath_query ode_payload_query;
         pugi::xpath_query ode_encodings_query;
+        pugi::xpath_query ode_metadata_query;
 
         // Hex to byte encoder and Byte to hex decoder
         std::vector<char> byte_buffer;
@@ -179,6 +179,5 @@ class ASN1_Codec : public tool::Tool {
 
         bool encode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string );
-
 };
 
