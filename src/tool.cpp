@@ -28,7 +28,6 @@ const std::string& Tool::Option::description() const
 }
 
 const std::string& Tool::Option::argument() const
-//std::string Tool::Option::argument() const
 {
     return arg_;
 }

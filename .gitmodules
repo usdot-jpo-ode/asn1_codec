@@ -1,3 +1,10 @@
 [submodule "asn1c"]
 	path = asn1c
 	url = https://github.com/vlm/asn1c.git
+[submodule "pugixml"]
+	path = pugixml
+	url = https://github.com/zeux/pugixml.git
+[submodule "scms-asn"]
+	path = scms-asn
+	url = https://stash.campllc.org/scm/scms/scms-asn.git
+	branch = release/1.2.1

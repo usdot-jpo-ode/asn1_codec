@@ -60,18 +60,18 @@
 #include <utility>
 #include <tuple>
 
-// TODO: integrate this with the class?
-typedef struct xer_buffer {
+typedef struct buffer_structure {
     char *buffer;
     size_t buffer_size;      // this is really where we will write next.
     size_t allocated_size;   // this is the total size of the buffer.
-} xer_buffer_t;
+} buffer_structure_t;
 
 class ASN1_Codec : public tool::Tool {
 
     public:
 
-        //std::FILE* dump_file;
+        static const char* ODEHEXDATATYPE;
+        static const char* ODEXMLDATATYPE;
 
         std::shared_ptr<spdlog::logger> ilogger;
         std::shared_ptr<spdlog::logger> elogger;
@@ -86,9 +86,9 @@ class ASN1_Codec : public tool::Tool {
         bool configure();
         bool launch_consumer();
         bool launch_producer();
-        bool msg_consume(RdKafka::Message* message, std::stringstream& xmlss);
-        //bool msg_consume(RdKafka::Message* message, xer_buffer_t* xb);
-        bool filetest();
+        bool process_message(RdKafka::Message* message, std::stringstream& output_message_stream);
+        bool decodefiletest();
+        bool encodefiletest();
         int operator()(void);
 
         /**
@@ -110,60 +110,74 @@ class ASN1_Codec : public tool::Tool {
 
         static constexpr long ilogsize = 1048576 * 5;                   ///> The size of a single information log; these rotate.
         static constexpr long elogsize = 1048576 * 2;                   ///> The size of a single error log; these rotate.
-        
-        // If this buffer size is too small then an entire record will not be processed and things will FAIL!
-        // buffer for the ASN1 stuff.
-        static constexpr std::size_t BUFSIZE = 1<<10;
-        uint8_t buf[BUFSIZE];
-
         static constexpr int ilognum = 5;                               ///> The number of information logs to rotate.
         static constexpr int elognum = 2;                               ///> The number of error logs to rotate.
-
+        static constexpr std::size_t max_errbuf_size = 128;             ///> The length of error buffers for ASN.1 compiler.
 
         bool exit_eof;                                                  ///> flag to cause the application to exit on stream eof.
-        int32_t eof_cnt;                                                    ///> counts the number of eofs needed for exit_eof to work; each partition must end.
-        int32_t partition_cnt;                                              ///> TODO: the number of partitions being processed; currently 1.
+        int32_t eof_cnt;                                                ///> counts the number of eofs needed for exit_eof to work; each partition must end.
+        int32_t partition_cnt;                                          ///> TODO: the number of partitions being processed; currently 1.
 
-        // counters.
-        uint64_t msg_recv_count;                                            ///> Counter for the number of BSMs received.
-        uint64_t msg_send_count;                                            ///> Counter for the number of BSMs published.
-        uint64_t msg_filt_count;                                            ///> Counter for hte number of BSMs filtered/suppressed.
-        uint64_t msg_recv_bytes;                                         ///> Counter for the number of BSM bytes received.
-        uint64_t msg_send_bytes;                                         ///> Counter for the nubmer of BSM bytes published.
-        uint64_t msg_filt_bytes;                                         ///> Counter for the nubmer of BSM bytes filtered/suppressed.
+        // bookkeeping.
+        uint64_t msg_recv_count;                                        ///> Counter for the number of BSMs received.
+        uint64_t msg_send_count;                                        ///> Counter for the number of BSMs published.
+        uint64_t msg_filt_count;                                        ///> Counter for hte number of BSMs filtered/suppressed.
+        uint64_t msg_recv_bytes;                                        ///> Counter for the number of BSM bytes received.
+        uint64_t msg_send_bytes;                                        ///> Counter for the nubmer of BSM bytes published.
+        uint64_t msg_filt_bytes;                                        ///> Counter for the nubmer of BSM bytes filtered/suppressed.
 
+        // Logging.
         spdlog::level::level_enum iloglevel;                            ///> Log level for the information log.
         spdlog::level::level_enum eloglevel;                            ///> Log level for the error log.
         std::string mode;
         std::string debug;
-
-        std::string brokers;
-        int32_t partition;
-        int64_t offset;
-        std::string published_topic_name;                                    ///> The topic we are publishing filtered BSM to.
 
         // configurations; global and topic (the names in these are fixed)
         std::unordered_map<std::string, std::string> pconf;
         RdKafka::Conf *conf;
         RdKafka::Conf *tconf;
 
+        // Kafka component pointers and variables.
+        int consumer_timeout;
+        std::string brokers;
+        int32_t partition;
+        int64_t offset;
+        std::string published_topic_name;                               ///> The topic we are publishing filtered BSM to.
         std::vector<std::string> consumed_topics;                       ///> consumer topics.
         std::shared_ptr<RdKafka::KafkaConsumer> consumer_ptr;
-        int consumer_timeout;
         std::shared_ptr<RdKafka::Producer> producer_ptr;
         std::shared_ptr<RdKafka::Topic> published_topic_ptr;
 
-        pugi::xpath_query ieee1609dot2_unsecuredData_query;
+        // ODE XML input XPath queries and parse options.
+        pugi::xml_document input_doc;
+        pugi::xml_document internal_doc;
         unsigned int xml_parse_options;
-        std::deque<std::tuple<std::string,std::string,std::string>> element_type_stack;
-        std::deque<pugi::xml_document*> doc_stack;
+        pugi::xpath_query ieee1609dot2_unsecuredData_query;
+        pugi::xpath_query ode_payload_query;
+        pugi::xpath_query ode_encodings_query;
+        pugi::xpath_query ode_metadata_query;
 
-        bool decode_hex_(const std::string& payload_hex, std::vector<char>& byte_buffer);
+        // Hex to byte encoder and Byte to hex decoder
+        std::vector<char> byte_buffer;
+        bool hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer);
+        bool bytes_to_hex_(buffer_structure_t* buf_struct, std::string& payload_hex );
 
-        bool decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* xml_buffer );
-        // bool test( std::string& data_as_hex, xer_buffer_t* xml_buffer, struct asn_TYPE_descriptor_s *type_desc, void **sptr );
-        bool decode_messageframe_data( std::string& data_as_hex, xer_buffer_t* xml_buffer );
-        bool decode_travelerinformation_data( std::string& data_as_hex, xer_buffer_t* xml_buffer );
+        // ASN.1 Compiler
+        char errbuf[max_errbuf_size];
+        bool decode_1609dot2;
+        bool decode_messageframe;
+        bool decode_functionality;
+        enum asn_transfer_syntax decode_1609dot2_type;
+        enum asn_transfer_syntax decode_messageframe_type;
 
+        enum asn_transfer_syntax get_ats_transfer_syntax( const char* ats_type );
+        bool set_codec_requirements( const pugi::xml_document& doc );
+
+        bool decode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
+        bool decode_1609dot2_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
+        bool decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
+
+        bool encode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
+        bool encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string );
 };
 
