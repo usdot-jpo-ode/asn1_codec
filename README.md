@@ -8,22 +8,37 @@
      - One one conditional was added to make the above work, so it isn't a significant performance penalty; also the
        code was refactored to reuse several important parts.
 
+- The decoder will using the following XPath string to search for the unsecuredData hex bytes to decode into XML:
+
+     - `Ieee1609Dot2Data/content//unsecuredData`
+     - The double slash allow this search to find the right payload in `signedData` messages and `unsecuredData`
+       messages (the latter is essentially unsigned).
+
 - The encoder will use UPER to ASN.1 encode the XML in the payload section of the metadata.
 
      - Right now we are just dealing with TIM MessageFrames so this should be sufficient.
      - Should be fairly easy to modify if we need to add other encodings.
 
-- The XML path: OdeAsn1Data/payload/dataType text information is adjusted as it moves through the ACM.
+- The XML path: `OdeAsn1Data/payload/dataType` text information is adjusted as it moves through the ACM.
 
-     - After ENCODING this text is changed to: us.dot.its.jpo.ode.model.OdeHexByteArray
-     - After DECODING this text is changed to: us.dot.its.jpo.ode.model.OdeXml (Note: not sure what is the write type string to use here).
+     - After ENCODING this text is changed to: `us.dot.its.jpo.ode.model.OdeHexByteArray`
+     - After DECODING this text is changed to: `us.dot.its.jpo.ode.model.OdeXml` (Note: not sure what is the write type string to use here).
 
-- The DECODER does use the elementType and encoderRule tags to determine which types of decoding to perform.
+- The DECODER does use the `elementType` and `encoderRule` tags to determine which types of decoding to perform.
+
+- Both the ENCODER and DECODER will check the ASN.1 constraints for the C structures that are built as data passes
+  through the module.
+
+- I really recommend using the `-R` flag when testing.  This will start with fresh log files every time and makes it
+  easier to figure out what is happening without trying to find your place in a huge log file.
+
+     - I've attempted to annotate the logs with the function names that are performing the actions for traceability.
 
 # Required Encoding / Decoding Rules
 
+- IEEE 1609.2 ASN.1 is encoded as COER (canonical octet encoding rules): compiler api commands - asn_decode is used with
+  the appropriate `ats_transfer_syntax` specified.
 - SAE j2735 ASN.1 is encoded into UPER (unaligned packed encoding rules): compiler api commands - uper_decoder and uper_encoder.
-- IEEE 1609.2 ASN.1 is encoded as COER (canonical octet encoding rules): compiler api commands - oer_decoder and oer_encoder.
 
 # Branch ODE-581 Instructions
 
@@ -34,12 +49,19 @@
 1. Clone the 1609dot2-asn repository on github (can be done inside of the asn1_codec library.
 1. Copy \*.asn from the 1609dot2-asn directory into the asn1c_combined subdirectory in the asn1_codec repository (you
    will not need all of these, but a couple will be needed).
-1. Find your J2735 asn file and copy that into the asn1_codec repository.
+    1. The files that are open source have been added to the `asn1_codec\asn1c_combined` subdirectory.
+1. [j2735 Specification must be purchased from SAE] Find your J2735 asn file and copy that into the asn1_codec repository.
 1. The doIt.sh can perform the needed operations to compile the ASN specifications and fixup the Makefile so the CLI tool compiles. The individual commands are:
-    1. Compile the ASN specifictions: `asn1c -fcompound-names -gen-PER -pdu=all 1609dot2-base-types.asn 1609dot2-schema.asn J2735_201603DA.ASN`
+    1. Compile the ASN specifictions: `asn1c -fcompound-names -gen-PER -pdu=all 1609dot2-base-types.asn 1609dot2-schema.asn J2735_201603DA.ASN SEMI_v2.3.0_070616.asn`
 	1. You will need to edit the `Makefile.am.example` file and add `-DPDU=MessageFrame` prior to the `-DASN_PDU_COLLECTION` flag in the definition of the `CFLAGS` variable.
 1. Check: you should have the `libasncodec.a` static library and the `converter-example` executable in the asn1c_combined subdirectory 
 1. Change directory to the asn1_codec root directory.
+1. The module uses the [`pugixml` library](https://pugixml.org).  This must be cloned and installed on your system.
+    1. The ACM will look for the library in `/usr/local/lib` If you put it somewhere else, you must modify the
+       `CMakeLists.txt` files in both the root and `src` subdirectories.
+    1. The ACM will look for the headers in `/usr/local/include` Same directions about modifications apply if you put
+       these somewhere else.
+1. The module also uses Catch and librdkafka.  Those instructions are the same as in the PPM.
 1. Execute: `$ mkdir build`
 1. Execute: `$ cd build`
 1. Execute: `$ cmake ..`
