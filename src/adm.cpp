@@ -169,8 +169,6 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     ieee1609dot2_unsecuredData_query{"Ieee1609Dot2Data/content//unsecuredData"},  // this will work on both signed and unsigned.
     ode_payload_query{"OdeAsn1Data/payload/data"},
     ode_encodings_query{"OdeAsn1Data/metadata/encodings"},
-    element_type_stack{},
-    doc_stack{},
     xml_parse_options{ pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata },
     ilogger{},
     elogger{}
@@ -922,7 +920,7 @@ bool ASN1_Codec::decode_travelerinformation_data( std::string& data_as_hex, xer_
 
     ilogger->trace("Successfully extracted {} hex string: {}", asn_DEF_TravelerInformation.name, data_as_hex );
 
-    if (!decode_hex_(data_as_hex, byte_buffer)) {
+    if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
         elogger->warn("Could not decode XML payload data hex bytes!");
         return false;
     }
@@ -996,7 +994,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* x
 
     ilogger->trace("Successfully extracted {} hex string: {}", asn_DEF_Ieee1609Dot2Data.name, data_as_hex );
 
-    if (!decode_hex_(data_as_hex, byte_buffer)) {
+    if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
         elogger->warn("Could not decode XML payload data hex bytes!");
         return false;
     }
@@ -1083,7 +1081,7 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, xer_buffer_
 
     ilogger->trace("Successfully extracted {} hex string: {}", asn_DEF_MessageFrame.name, data_as_hex );
 
-    if (!decode_hex_(data_as_hex, byte_buffer)) {
+    if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
         elogger->warn("Could not decode XML payload data hex bytes!");
         return false;
     }
@@ -1403,7 +1401,7 @@ int ASN1_Codec::operator()(void) {
     return EXIT_SUCCESS;
 }
 
-bool ASN1_Codec::decode_hex_(const std::string& payload_hex, std::vector<char>& byte_buffer) {
+bool ASN1_Codec::hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer) {
     uint8_t d = 0;
     int i = 0;          // so we can return -1;
 
@@ -1429,6 +1427,40 @@ bool ASN1_Codec::decode_hex_(const std::string& payload_hex, std::vector<char>& 
     }
 
     // the number of bytes in the buf.
+    return true;
+}
+
+bool ASN1_Codec::bytes_to_hex_(std::vector<uint8_t>& byte_vector, const std::string& hex_vector) {
+    char c = 0;
+
+    hex_vector.clear();
+    for (const uint8_t& b : byte_vector) {
+
+        uint8_t bh = (b & 0xF0) >> 4;
+
+        if ( bh <= 9 && bh >= 0 ) {
+            c = (bh+48); // b + '0'
+        } else if ( bh <= 15 && bh >= 10 ) {
+            c = (bh+55); // b + 'A' - 10;
+        } else {
+            return false;
+        }
+
+        hex_vector.push_back(c);
+
+        uint8_t bl = (b & 0x0F);
+
+        if ( bl <= 9 && bl >= 0 ) {
+            c = (bl+48);
+        } else if ( bl <= 15 && bl >= 10 ) {
+            c = (bl+55);
+        } else {
+            return false;
+        }
+
+        hex_vector.push_back(c);
+    }
+
     return true;
 }
 

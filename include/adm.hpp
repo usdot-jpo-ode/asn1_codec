@@ -113,18 +113,17 @@ class ASN1_Codec : public tool::Tool {
         
         // If this buffer size is too small then an entire record will not be processed and things will FAIL!
         // buffer for the ASN1 stuff.
-        static constexpr std::size_t BUFSIZE = 1<<10;
-        uint8_t buf[BUFSIZE];
+//        static constexpr std::size_t BUFSIZE = 1<<10;
+//        uint8_t buf[BUFSIZE];
 
         static constexpr int ilognum = 5;                               ///> The number of information logs to rotate.
         static constexpr int elognum = 2;                               ///> The number of error logs to rotate.
-
 
         bool exit_eof;                                                  ///> flag to cause the application to exit on stream eof.
         int32_t eof_cnt;                                                    ///> counts the number of eofs needed for exit_eof to work; each partition must end.
         int32_t partition_cnt;                                              ///> TODO: the number of partitions being processed; currently 1.
 
-        // counters.
+        // bookkeeping.
         uint64_t msg_recv_count;                                            ///> Counter for the number of BSMs received.
         uint64_t msg_send_count;                                            ///> Counter for the number of BSMs published.
         uint64_t msg_filt_count;                                            ///> Counter for hte number of BSMs filtered/suppressed.
@@ -132,42 +131,42 @@ class ASN1_Codec : public tool::Tool {
         uint64_t msg_send_bytes;                                         ///> Counter for the nubmer of BSM bytes published.
         uint64_t msg_filt_bytes;                                         ///> Counter for the nubmer of BSM bytes filtered/suppressed.
 
+        // Logging.
         spdlog::level::level_enum iloglevel;                            ///> Log level for the information log.
         spdlog::level::level_enum eloglevel;                            ///> Log level for the error log.
         std::string mode;
         std::string debug;
-
-        std::string brokers;
-        int32_t partition;
-        int64_t offset;
-        std::string published_topic_name;                                    ///> The topic we are publishing filtered BSM to.
 
         // configurations; global and topic (the names in these are fixed)
         std::unordered_map<std::string, std::string> pconf;
         RdKafka::Conf *conf;
         RdKafka::Conf *tconf;
 
+        // Kafka component pointers and variables.
+        int consumer_timeout;
+        std::string brokers;
+        int32_t partition;
+        int64_t offset;
+        std::string published_topic_name;                                    ///> The topic we are publishing filtered BSM to.
         std::vector<std::string> consumed_topics;                       ///> consumer topics.
         std::shared_ptr<RdKafka::KafkaConsumer> consumer_ptr;
-        int consumer_timeout;
         std::shared_ptr<RdKafka::Producer> producer_ptr;
         std::shared_ptr<RdKafka::Topic> published_topic_ptr;
 
+        // ODE XML input XPath queries and parse options.
+        unsigned int xml_parse_options;
         pugi::xpath_query ieee1609dot2_unsecuredData_query;
         pugi::xpath_query ode_payload_query;
         pugi::xpath_query ode_encodings_query;
 
-        unsigned int xml_parse_options;
-        std::deque<std::tuple<std::string,std::string,std::string>> element_type_stack;
-        std::deque<pugi::xml_document*> doc_stack;
+        // Hex to byte encoder and Byte to hex decoder
+        bool hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer);
+        bool bytes_to_hex_(std::vector<char>& byte_buffer, const std::string& payload_hex );
 
         enum asn_transfer_syntax get_ats_transfer_syntax( const char* ats_type );
-        bool decode_hex_(const std::string& payload_hex, std::vector<char>& byte_buffer);
 
         bool decode_1609dot2_data( std::string& data_as_hex, xer_buffer_t* xml_buffer, enum asn_transfer_syntax atype );
-        // bool test( std::string& data_as_hex, xer_buffer_t* xml_buffer, struct asn_TYPE_descriptor_s *type_desc, void **sptr );
         bool decode_messageframe_data( std::string& data_as_hex, xer_buffer_t* xml_buffer, enum asn_transfer_syntax atype );
         bool decode_travelerinformation_data( std::string& data_as_hex, xer_buffer_t* xml_buffer );
-
 };
 
