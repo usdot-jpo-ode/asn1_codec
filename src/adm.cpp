@@ -169,6 +169,7 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     ieee1609dot2_unsecuredData_query{"Ieee1609Dot2Data/content//unsecuredData"},  // this will work on both signed and unsigned.
     ode_payload_query{"OdeAsn1Data/payload/data"},
     ode_encodings_query{"OdeAsn1Data/metadata/encodings"},
+    ode_metadata_query{"OdeAsn1Data/metadata"},
     element_type_stack{},
     doc_stack{},
     xml_parse_options{ pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata },
@@ -706,6 +707,11 @@ bool ASN1_Codec::msg_consume(RdKafka::Message* message, std::stringstream& xmlss
 
                 }
 
+				// Remove encodings node from metadata since the XML parser on the receive end cannot correctly and easily deserialize an "xml array"
+                pugi::xpath_node metadata_xpath_node = ode_metadata_query.evaluate_node( input_doc );
+                pugi::xml_node metadata_node = metadata_xpath_node.node();
+				metadata_node.remove_child("encodings");
+				
                 // replace the hex data with XML data.
                 payload_node.remove_child("bytes");
 

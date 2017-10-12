@@ -156,6 +156,7 @@ class ASN1_Codec : public tool::Tool {
         pugi::xpath_query ieee1609dot2_unsecuredData_query;
         pugi::xpath_query ode_payload_query;
         pugi::xpath_query ode_encodings_query;
+        pugi::xpath_query ode_metadata_query;
 
         unsigned int xml_parse_options;
         std::deque<std::tuple<std::string,std::string,std::string>> element_type_stack;
