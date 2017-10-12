@@ -1,3 +1,24 @@
+# Changes, etc.
+
+- IMPORTANT: There is one executable (`acm`) that performs both encoding and decoding depending on options used when starting.
+- The `-T` options is used with either `-T encode` or `-T decode` to specify the behavior of the module during
+  execution.
+
+     - One one conditional was added to make the above work, so it isn't a significant performance penalty; also the
+       code was refactored to reuse several important parts.
+
+- The encoder will use UPER to ASN.1 encode the XML in the payload section of the metadata.
+
+     - Right now we are just dealing with TIM MessageFrames so this should be sufficient.
+     - Should be fairly easy to modify if we need to add other encodings.
+
+- The XML path: OdeAsn1Data/payload/dataType text information is adjusted as it moves through the ACM.
+
+     - After ENCODING this text is changed to: us.dot.its.jpo.ode.model.OdeHexByteArray
+     - After DECODING this text is changed to: us.dot.its.jpo.ode.model.OdeXml (Note: not sure what is the write type string to use here).
+
+- The DECODER does use the elementType and encoderRule tags to determine which types of decoding to perform.
+
 # Required Encoding / Decoding Rules
 
 - SAE j2735 ASN.1 is encoded into UPER (unaligned packed encoding rules): compiler api commands - uper_decoder and uper_encoder.
@@ -22,30 +43,30 @@
 1. Execute: `$ cd build`
 1. Execute: `$ cmake ..`
 1. Execute: `$ make`
-1. This should create (in the build directory you are in) the following executables: `adm` and `aem`.  ONLY `adm` is working now.
+1. This should create (in the build directory you are in) the following executables: `acm` and `aem`.  ONLY `acm` is working now.
 1. Edit the configuration file `build/config/example.properties`
     1. Change the topics in this file for the consumer and producer (for example): `asn1.j2735.topic.consumer=j2735asn1per` and `asn1.j2735.topic.producer=j2735asn1xer`
     1. Change the broker IP address (for example): `metadata.broker.list=172.17.0.1:9092`
 
-## Running the adm standalone and just processing an input XML file (with hex byte strings).
+## Running the acm standalone and just processing an input XML file (with hex byte strings).
 
-1. You can run the adm WITHOUT kafka to test it.
+1. You can run the acm WITHOUT kafka to test it.
 1. The test file I have been using is: `asn1_codec/data/InputData.Ieee1609Dot2Data.packed.xml`
     - If the file has newlines/pretty printed parsing fails.
 	- I think this reflects most of the recent metadata file format.
 1. Test from the `build` directory using the following command:
-    - `$ ./adm -F -c config/example.properties ../data/InputData.Ieee1609Dot2Data.packed.xml`
+    - `$ ./acm -F -c config/example.properties ../data/InputData.Ieee1609Dot2Data.packed.xml`
         - `-F` is for file input.  The file is the operand.
         - `-c` is the configuration file (probably useless in this case, but consumed none the less).
 
-## Running the adm with kafka
+## Running the acm with kafka
 
-1. You can run the adm WITH kafka to test it.
+1. You can run the acm WITH kafka to test it.
 1. The test file I have been using is: `asn1_codec/data/InputData.Ieee1609Dot2Data.Bsm.packed.xml`
     - If the file has newlines/pretty printed parsing fails.
 	- I think this reflects most of the recent metadata file format.
 1. Test from the `build` directory using the following command:
-    - `$ ./adm -c config/example.properties`
+    - `$ ./acm -c config/example.properties`
 
 # Notes, etc.
 
