@@ -79,7 +79,6 @@ namespace tool {
             Tool& set( char short_name, const char* argument );
             const Option& getOption( char short_name ) const;
 
-            //const std::string& optString ( char short_name );
             const std::string& optString ( char short_name ) const;
             int optInt ( char short_name );
             int optDouble ( char short_name );

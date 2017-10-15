@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<OdeAsn1Data>
+  <metadata>
+      <payloadType>us.dot.its.jpo.ode.model.OdeTimPayload</payloadType>
+    <serialId>
+      <streamId>cfaa63fb-e3f8-4c01-9516-648a95bd1cbe</streamId>
+      <bundleSize>1</bundleSize>
+      <bundleId>2</bundleId>
+      <recordId>2</recordId>
+      <serialNumber>0</serialNumber>
+    </serialId>
+    <receivedAt>2017-10-04T13:41:47.862Z[UTC]</receivedAt>
+    <schemaVersion>2</schemaVersion>
+    <generatedAt>2017-08-10T21:02:14.799Z[UTC]</generatedAt>
+    <logFileName>TimLogDuringEvent_1504882236_2001_3A470_3A41af_3A1_3A0_3A63ff_3Afead_3A525.csv</logFileName>
+    <validSignature>true</validSignature>
+    <sanitized>false</sanitized>
+    <encodings>
+      <encodings>
+        <elementName>root</elementName>
+        <elementType>MessageFrame</elementType>
+        <encodingRule>UPER</encodingRule>
+      </encodings>
+    </encodings>
+  </metadata>
+  <payload>
+    <dataType>us.dot.its.jpo.ode.model.OdeHexByteArray</dataType>
+    <data>
+        <bytes>
+001f6a7014b9010000000000000000000f775d9b0301ea73e452d1539716
+c99e9aaaa280003f0a59b080010307f8aa9979f4d3bb3a0a9266c0000008
+54e3b2c47291f21e85eee057980050420c57155f2602b8e8f8fe15c6ffc8
+38ae38fe410571c5f20c2180002013ddd766c0
+        </bytes>
+    </data>
+  </payload>
+</OdeAsn1Data>

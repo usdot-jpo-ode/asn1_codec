@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<OdeAsn1Data>
+  <metadata>
+    <payloadType>us.dot.its.jpo.ode.model.OdeAsn1Payload</payloadType>
+    <serialId>
+      <streamId>cfaa63fb-e3f8-4c01-9516-648a95bd1cbe</streamId>
+      <bundleSize>1</bundleSize>
+      <bundleId>2</bundleId>
+      <recordId>2</recordId>
+      <serialNumber>0</serialNumber>
+    </serialId>
+    <receivedAt>2017-10-04T13:41:47.862Z[UTC]</receivedAt>
+    <schemaVersion>2</schemaVersion>
+    <generatedAt>2017-08-10T21:02:14.799Z[UTC]</generatedAt>
+    <logFileName>bsmLogDuringEvent.bin</logFileName>
+    <validSignature>true</validSignature>
+    <sanitized>false</sanitized>
+    <encodings>
+      <encodings>
+        <elementName>unsecuredData</elementName>
+        <elementType>MessageFrame</elementType>
+        <encodingRule>UPER</encodingRule>
+      </encodings>
+      <encodings>
+        <elementName>bytes</elementName>
+        <elementType>Ieee1609Dot2Data</elementType>
+        <encodingRule>COER</encodingRule>
+      </encodings>
+    </encodings>
+  </metadata>
+  <payload>
+    <dataType>us.dot.its.jpo.ode.model.OdeHexByteArray</dataType>
+    <data>
+        <bytes>
+101620029015aac5f50800073d1ce2e121f2ccbfc375986ffffffffe0007
+775fbf43f4200ffff000000000004042983820082fffffffd049c20147ff
+fffffd128420408fffffffd2454204d480287ffd2bac2084680bafffd4ea
+c2064580b33ffd5bf42072380d6bffd6fcc2079681407ffda42420677811
+5bffdb34c205d0811cbffdbc5c2057b8110bffdbe142001780337ffefe64
+3ffff800bbfff8ab43ffffffffffffba3420080ffffffffc345fffc00000
+        </bytes>
+    </data>
+  </payload>
+</OdeAsn1Data>
