@@ -1,0 +1,1 @@
+docker build -t asn1_codec_dev:latest -f Dockerfile.dev .
