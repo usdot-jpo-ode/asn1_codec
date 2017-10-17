@@ -8,3 +8,6 @@
 	path = scms-asn
 	url = https://stash.campllc.org/scm/scms/scms-asn.git
 	branch = release/1.2.1
+[submodule "librdkafka"]
+	path = librdkafka
+	url = https://github.com/edenhill/librdkafka.git
