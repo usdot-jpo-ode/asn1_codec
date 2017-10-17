@@ -15,7 +15,7 @@ the connected vehicle environment. Specifically, the ACM extracts
 human-readable data from ODE Metadata and decodes it into a structure that
 is subsequently *encoded into ASN.1 binary data*.
 
-![ASN.1 Codec Operations](../graphics/asn1codec-operations.png)
+![ASN.1 Codec Operations](https://github.com/usdot-jpo-ode/asn1_codec/blob/master/docs/graphics/asn1codec-operations.png)
 
 ## ACM Command Line Options
 
