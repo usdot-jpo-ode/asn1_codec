@@ -1,9 +1,12 @@
-FROM ubuntu
+FROM ubuntu:latest
 USER root
 
 WORKDIR /home
 
 VOLUME ["/asn1_codec"]
+
+RUN export LD_LIBRARY_PATH=/usr/local/lib
+RUN export CC=gcc
 
 # Add build tools.
 RUN apt-get update && apt-get install -y software-properties-common wget git make gcc-4.9 g++-4.9 gcc-4.9-base && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 100 && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 100
@@ -35,15 +38,21 @@ RUN apt-mark hold bison
 # Install librdkafka.
 RUN git clone https://github.com/edenhill/librdkafka.git && cd librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
 
-# Install pugixml library
-#RUN wget https://github.com/zeux/pugixml/releases/download/v1.8/pugixml-1.8.tar.gz && tar -xvf pugixml-1.8.tar.gz
-#cd pugixml-1.8 && mkdir -p build && cd build
-#cmake ..
-#make
-#make install
-
 # add the source and build files
-ADD ./build_codec.sh /home
+RUN git clone --recurse-submodules https://github.com/usdot-jpo-ode/asn1_codec.git
+
+# Build and install asn1c submodule
+RUN cd /home/asn1_codec/asn1c && test -f configure || autoreconf -iv && ./configure && make && make check && make install
+
+# Install pugixml
+RUN cd /home/asn1_codec/pugixml && mkdir -p build && cd build && cmake .. && make && make install
+
+# echo Generating ASN.1 API ...
+RUN cd /home/asn1_codec/asn1c_combined && chmod +x ./doIt.sh && ./doIt.sh
+
+# build asn1_codec
+RUN cd /home/asn1_codec && mkdir -p build && cd build && cmake .. && make
+
 RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.profile
 RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.bashrc
 RUN echo "export CC=gcc" >> ~/.profile
