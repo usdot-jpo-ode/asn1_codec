@@ -1,11 +1,21 @@
 # ACM Operation
 
-The ACM suppresses BSMs and redacts BSM fields based on several conditions. These conditions are determined by a set of configuration parameters. The following conditions will result in a BSM being suppressed, or deleted, from the stream.
+The ASN.1 Codec Module (ACM) processes Kafka data streams that preset [ODE
+Metadata](http://github.com/usdot-jpo-ode/jpo-ode/blob/develop/docs/Metadata_v3.md) wrapped ASN.1 data.  It can perform
+one of two functions depending on how it is started:
 
-1. BSM JSON record cannot be parsed.
-2. BSM speed is outside of prescribed limits.
-3. BSM location is outside of a prescribed geofence.
-4. BSM TemporaryID can be redacted (rendered indistinct).
+1. **Decode**: This function is used to process messages *from* the connected
+vehicle environment *to* ODE subscribers. Specifically, the ACM extacts binary
+data from consumed messages (ODE Metatdata Messages) and decodes the binary
+ASN.1 data into a structure that is subsequently encoded into an alternative
+format more suitable for ODE subscribers (currently XML using XER).
+
+1. **Encode**: This function is used to process messages *from* the ODE *to*
+the connected vehicle environment. Specifically, the ACM extracts
+human-readable data from ODE Metadata and decodes it into a structure that
+is subsequently *encoded into ASN.1 binary data*.
+
+![ASN.1 Codec Operations](docs/graphics/asn1codec-operations.png)
 
 ## ACM Command Line Options
 
@@ -34,9 +44,9 @@ line options override parameters specified in the configuration file.** The foll
 
 ## ACM Standalone Operation / Testing
 
-If the `-F` option is used, the ACM will use its first operand as a filename, attempt to open that file and decode or
-encode it depending on the `-T` option. The ACM's output is written to stdout. The input XML files must not contain
-whitespace between tags. As an example:
+If the `-F` option is used, the ACM will assume its first operand is a filename, attempt to open that file, and decode or
+encode it depending on the `-T` option. The ACM's output is written to stdout. The input XML file must not include any
+newlines. The following is an example command:
 
 ```bash
 $ ./acm -F -c config/example.properties -T decode ../data/InputData.Ieee1609Dot2Data.packed.xml
@@ -52,27 +62,27 @@ to connect.  The following command will start the ACM as a decoder based on a co
 $ ./acm -c <configuration file> -T decode
 ```
 
-Nothing prevents a users from launching multiple ACM instances each with its own configuration file.  If you want to
-deploy a decoder and an encoder, start two separate ACM services with different `-T` options. You will likely want to
-use different topics for each of these instances, so *ensure the configuration files are updated accordingly.*
+Multiple ACM processes can be started. Each ACM will use its own configuration file.  If you want to
+deploy a decoder and an encoder, start two separate ACM services with different `-T` options. In this case different
+topics should be specified in the configuration files.
 
-# ACM Metadata Payload Extraction
+# ACM ASN.1 Data Sources
 
 The ACM receives XML data from the ODE; the schema for this XML message is described in
 [Metadata.md](https://github.com/usdot-jpo-ode/jpo-ode/blob/develop/docs/Metadata_v3.md) on the ODE. Currently, the ACM
-extracts either a hex encoded string or XML child document in the <payload><data> branch and decodes or encodes that
-data into the form needed. The converted data is re-inserted into this branch of the XML document and that document is
-produced on the output topic. The ACM uses encoder metadata fields to determine which type of encoding/decoding is
-needed and how to search for the correct data within the decoded documents.
+extracts either a hex encoded string or an XML child document in the `\\payload\data` branch and decodes or encodes that
+data into the desired output form. The converted data is re-inserted into the XML document and that document is produced
+to the output topic. Metadata fields determine which type of encoding/decoding is needed and how to search for the
+correct data within the decoded documents.
 
 When decoding data from the CV environment, the ACM processes either IEEE 1609.2 wrapped J2735 MessageFrames (any type)
 or MessageFrames by themselves. If 1609.2 wrapped, the ACM finds and extracts the `unsecuredData` to further decode the
 J2735 MessageFrame. The decoder uses the `elementType` and `encoderRule` tags to determine which types of decoding to
 perform.
 
-Currently, the encoder expects only one type of message, a Traveler Information Message (TIM). The TIM will be contained
-in a MessageFrame. The encoder uses UPER to ASN.1 encode these TIM messages.  The XML field
-`OdeAsn1Data/payload/dataType` is adjusted as it moves through the ACM.
+Currently, the encoder expects Traveler Information Messages (TIM) only. The TIM will be contained in a J2735 MessageFrame.
+The encoder uses UPER to ASN.1 encode these TIM messages.  The XML field `OdeAsn1Data/payload/dataType` is adjusted as
+it moves through the ACM.
 
 - After ENCODING this text is changed to: `us.dot.its.jpo.ode.model.OdeHexByteArray`
 - After DECODING this text is changed to: `us.dot.its.jpo.ode.model.OdeXml`
@@ -111,13 +121,13 @@ The information log will write the configuration it will use as `info` messages 
 preceeded with a date and time stamp and the level of the log message.
 
 ```
-[171011 18:25:55.221276] [trace] starting configure()                                                                                                                                                                                                                                                                                       
+[171011 18:25:55.221276] [trace] starting configure()
 [171011 18:25:55.221341] [info] using configuration file: config/example.properties
-[171011 18:25:55.221407] [info] kafka configuration: group.id = 0 
-[171011 18:25:55.221413] [info] ASN1_Codec configuration: asn1.j2735.topic.consumer = j2735asn1per
+[171011 18:25:55.221407] [info] kafka configuration: group.id = 0
+[171011 18:25:55.221413] [info] ASN1_Codec configuration: asn1.j2735.topic.consumer = j2735asn1per 
 [171011 18:25:55.221417] [info] ASN1_Codec configuration: asn1.j2735.topic.producer = j2735asn1xer
 [171011 18:25:55.221420] [info] ASN1_Codec configuration: asn1.j2735.consumer.timeout.ms = 5000
-[171011 18:25:55.221423] [info] ASN1_Codec configuration: asn1.j2735.kafka.partition = 0 
+[171011 18:25:55.221423] [info] ASN1_Codec configuration: asn1.j2735.kafka.partition = 0
 [171011 18:25:55.221425] [info] kafka configuration: metadata.broker.list = 172.17.0.1:9092
 [171011 18:25:55.221428] [info] ASN1_Codec configuration: compression.type = none
 [171011 18:25:55.221434] [info] kafka partition: 0

@@ -3,16 +3,15 @@
 The ACM can be executed after following these high-level steps:
 
 1. Obtain the necessary build tools.
-1. Obtain the necessary libraries and headers needed by the ACM, and build the needed libraries. These are all open source.
-1. Obtain the latest ASN.1 Compiler, and build it. It is also open source.
+1. Obtain the ACM code, submodules, and documentation. 
+1. Build and install the submodules. This includes the ASN.1 compiler.
 1. Location or purchase the necessary ASN.1 specifications.
 1. Use the ASN.1 Compiler to compile the needed ASN.1 specifications into C source code.
 1. Use the ASN.1 Compiler generated `Makefile.am.sample` to generate an ASN.1-specific library for the ACM.
-1. Obtain the latest ACM code.
 1. Build the ACM.
 1. Run the ACM.
 
-Docker may also be used to run the ACM. The [Docker Container](#using-the-docker-container) instructure have more information. 
+Docker may also be used to run the ACM. The [Docker Container](#docker-installation) instructions have more information. 
 
 ## 1. Install [Git](https://git-scm.com/)
 
@@ -30,7 +29,7 @@ The ACM uses CMake to build.  When asked if you wish to continue after running t
 $ sudo apt install cmake
 ```
 
-## 3. Install Autotools Requirements
+## 3. Install Requirements for Autotools
 
 The ASN.1 Compiler (asn1c) uses autotools to build.  When asked if you wish to continue after running the command below, type 'Y'.
 
@@ -52,7 +51,7 @@ $ cd $GIT_REPOS
 $ git clone --recurse-submodules https://github.com/usdot-jpo-ode/asn1_codec.git
 ```
 
-The ACM uses code from several other open source projects, `namely`, `asn1c`, `pugixml`, `scms-asn`, `spdlog`, and
+The ACM uses code from several other open source projects, namely, `asn1c`, `pugixml`, `scms-asn`, `spdlog`, and
 `catch`.  `spdlog` and `catch` are header only. The versions of these headers that were tested with the project are
 included in the ACM project. The other repositories are submodules that must be built; the `--recurse-submodules` option
 retrieves these submodules. The following instructions will help you build these libraries (`asn1c` and `pugixml`).
@@ -74,7 +73,7 @@ refreshed.
 
 The [ASN.1 Compiler installation instructions](https://github.com/vlm/asn1c/blob/master/INSTALL.md) can be found in the
 `INSTALL.md` file.  **IMPORTANT**: On a fresh install of Ubuntu 16.04 there is one step missing from the installation
-instructions in the asn1c repository. *If you skip executing `aclocal` step you may also receive this error.*
+instructions in the asn1c repository. *If you skip executing the `aclocal` step you may also receive this error.*
 
 ```bash
 config.status: error: cannot find input file: `tests/tests-c-compiler/check-src/Makefile.in'
@@ -92,9 +91,8 @@ $ make
 $ sudo make install
 ```
 
-Note: If you are having additional problems check the [requirements
-page](https://github.com/vlm/asn1c/blob/master/REQUIREMENTS.md), although I did not need `bison` or `flex` to get asn1c
-to build.
+Note: If you are having additional problems check the [requirements page](https://github.com/vlm/asn1c/blob/master/REQUIREMENTS.md), 
+although I did not need `bison` or `flex` to get asn1c to build.
 
 ### b. Build the pugixml library. 
 

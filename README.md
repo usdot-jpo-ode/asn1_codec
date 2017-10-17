@@ -13,27 +13,26 @@ format more suitable for ODE subscribers (currently XML using XER).
 1. **Encode**: This function is used to process messages *from* the ODE *to*
 the connected vehicle environment. Specifically, the ACM extracts
 human-readable data from ODE Metadata and decodes it into a structure that
-is subsequently **encoded into ASN.1 binary data**.
+is subsequently *encoded into ASN.1 binary data*.
 
 ![ASN.1 Codec Operations](docs/graphics/asn1codec-operations.png)
 
 ## Current ACM Data Types
 
 - The ACM handles inbound (from CV environment to ODE) Basic Safety Messages (BSMs)
-and Traveler Information Messages (TIMs) as SAE J2735 Message Frames. It will also
-handle the Message Frames if wrapped in a IEEE 1609.2 Data frame.
+and Traveler Information Messages (TIMs) as SAE J2735 MessageFrames. It will also
+handle the MessageFrames if wrapped in a IEEE 1609.2 Data frame.
 
-	 - The IEEE 1609.2 Data Frame is usually encoded using COER rules, but the
+	 - IEEE 1609.2 frames are usually encoded using COER rules, but the
        module will use metadata provided by the ODE to determine the decoder to use.
 
-	 - The SAE J2735 Message Frame is usually encoded using UPER rules, but the
+	 - SAE J2735 frames are usually encoded using UPER rules, but the
 	   module will use metadata provided by the ODE to determine the decoder to use.
      
-- The ACM handles outbound (from ODE to CV environment) TIMs as SAE J2735 Message Frames.
+- The ACM handles outbound (from ODE to CV environment) TIMs as SAE J2735 MessageFrames.
 
-	 - Currently, the SAE J2735 Message Frame is encoded by the ODE using XER
-       rules. The ACM encodes these using UPER rules to produce ASN.1 for transmission
-       to the CV environment.
+	 - Currently, the SAE J2735 MessageFrame is encoded by the ODE using XER
+       rules. UPER rules are used to encode these payload for transmission to the CV environment.
 
 ## Table of Contents
 
@@ -72,10 +71,8 @@ if you want to run the ACM. If you just want to examine the code and documentati
 
 ## Downloading the Source Code and Documentation
 
-Follow these instructions to download the source code and documentation onto your machine. This will not download the
-submodules the ACM requires to build (see the installation instructions).
-
-**Step 1.** Clone the source code from GitHub repositories using Git commands:
+Follow these instructions to download the source code and documentation onto your machine. *This will not download the
+submodules the ACM requires to build (see the installation instructions).*
 
 ```bash
 git clone https://github.com/usdot-jpo-ode/asn1_codec.git
