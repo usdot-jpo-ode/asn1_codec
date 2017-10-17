@@ -135,7 +135,7 @@ static int dynamic_buffer_append(const void *buffer, size_t size, void *app_key)
 
 bool ASN1_Codec::data_available = true;
 const char* ASN1_Codec::ODEHEXDATATYPE = "us.dot.its.jpo.ode.model.OdeHexByteArray";
-const char* ASN1_Codec::ODEXMLDATATYPE = "us.dot.its.jpo.ode.model.OdeXml";
+const char* ASN1_Codec::ODEXMLDATATYPE = "MessageFrame";
 
 void ASN1_Codec::sigterm (int sig) {
     data_available = false;
