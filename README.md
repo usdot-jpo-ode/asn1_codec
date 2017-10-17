@@ -59,7 +59,7 @@ handle the Message Frames if wrapped in a IEEE 1609.2 Data frame.
 
 This project is managed using the Jira tool.
 
-- [Jira Project Portal](https://usdotjpoode.atlassian.net/secure/Dashboard.jsp)
+- [Jira Project Portal](https://usdotjpoode.atlassian.net/projects/ODE/summary)
 
 ## Code Management and Deployment
 
