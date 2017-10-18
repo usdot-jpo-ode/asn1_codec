@@ -1,6 +1,6 @@
 #!/bin/sh
 # Build and install asn1c submodule
-cd /asn1_codec/asn1c
+cd /home/asn1_codec/asn1c
 echo configuring asn1c compiler ...
 test -f configure || autoreconf -iv && ./configure
 
@@ -18,20 +18,12 @@ make install
 # configure OS
 export LD_LIBRARY_PATH=/usr/local/lib CC=gcc
 
-# Install pugixml
-echo Installing pugixml
-cd /asn1_codec/pugixml && mkdir -p build && cd build
-cmake ..
-make
-make install
-
 echo Generating ASN.1 API ...
-cd /asn1_codec/asn1c_combined
-./doIt.sh
-
+cd /home/asn1_codec/asn1c_combined
+chmod +x ./doIt.sh && ./doIt.sh
 cd ..
 mkdir -p build && cd build
-cmake ..
-make
+cmake .. && make
 
-
+# build asn1_codec
+cd /home/asn1_codec && mkdir -p build && cd build && cmake .. && make

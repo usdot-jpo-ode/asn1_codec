@@ -51,7 +51,7 @@ $ cd $GIT_REPOS
 $ git clone --recurse-submodules https://github.com/usdot-jpo-ode/asn1_codec.git
 ```
 
-The ACM uses code from several other open source projects, namely, `asn1c`, `pugixml`, `scms-asn`, `spdlog`, and
+The ACM uses code from several other open source projects, namely `librdkafka`, `asn1c`, `pugixml`, `scms-asn`, `spdlog`, and
 `catch`.  `spdlog` and `catch` are header only. The versions of these headers that were tested with the project are
 included in the ACM project. The other repositories are submodules that must be built; the `--recurse-submodules` option
 retrieves these submodules. The following instructions will help you build these libraries (`asn1c` and `pugixml`).
