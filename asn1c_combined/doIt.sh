@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export LD_LIBRARY_PATH=/usr/local/lib
+export CC=gcc
+
 asn1c -fcompound-names -gen-PER -gen-OER -pdu=all \
     ../scms-asn/1609dot2-asn/1609dot2-base-types.asn \
     ../scms-asn/1609dot2-asn/1609dot2-schema.asn \

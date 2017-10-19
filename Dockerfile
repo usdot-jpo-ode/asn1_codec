@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu
 USER root
 
 WORKDIR /home
@@ -24,33 +24,41 @@ RUN apt-get update && apt-get install -y automake
 RUN apt-get update && apt-get install -y libtool
 
 # Install flex
-RUN apt-get update && apt-get install -y flex
-
+#RUN apt-get update && apt-get install -y flex
+#
 #install bison 2.7.1
-RUN wget http://launchpadlibrarian.net/140087283/libbison-dev_2.7.1.dfsg-1_amd64.deb
-RUN wget http://launchpadlibrarian.net/140087282/bison_2.7.1.dfsg-1_amd64.deb
-RUN dpkg -i libbison-dev_2.7.1.dfsg-1_amd64.deb
-RUN dpkg -i bison_2.7.1.dfsg-1_amd64.deb
+#RUN wget http://launchpadlibrarian.net/140087283/libbison-dev_2.7.1.dfsg-1_amd64.deb
+#RUN wget http://launchpadlibrarian.net/140087282/bison_2.7.1.dfsg-1_amd64.deb
+#RUN dpkg -i libbison-dev_2.7.1.dfsg-1_amd64.deb
+#RUN dpkg -i bison_2.7.1.dfsg-1_amd64.deb
 # To prevent update manager from overwriting this package
-RUN apt-mark hold libbison-dev
-RUN apt-mark hold bison
+#RUN apt-mark hold libbison-dev
+#RUN apt-mark hold bison
 
 # Install librdkafka.
-RUN git clone https://github.com/edenhill/librdkafka.git && cd librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
-
-# add the source and build files
-RUN git clone --recurse-submodules https://github.com/usdot-jpo-ode/asn1_codec.git
-
-# Build and install asn1c submodule
-RUN cd /home/asn1_codec/asn1c && test -f configure || autoreconf -iv && ./configure && make && make check && make install
+ADD ./librdkafka /home/asn1_codec/librdkafka
+RUN cd /home/asn1_codec/librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
 
 # Install pugixml
+ADD ./pugixml /home/asn1_codec/pugixml
 RUN cd /home/asn1_codec/pugixml && mkdir -p build && cd build && cmake .. && make && make install
 
+# Build and install asn1c submodule
+ADD ./asn1c /home/asn1_codec/asn1c
+RUN cd /home/asn1_codec/asn1c && test -f configure || autoreconf -iv && ./configure --disable-test-asan --disable-test-ubsan && make
+#RUN cd /home/asn1_codec/asn1c && make check
+RUN cd /home/asn1_codec/asn1c && make install
+
 # echo Generating ASN.1 API ...
+ADD ./asn1c_combined /home/asn1_codec/asn1c_combined
+ADD ./scms-asn /home/asn1_codec/scms-asn
 RUN cd /home/asn1_codec/asn1c_combined && chmod +x ./doIt.sh && ./doIt.sh
 
 # build asn1_codec
+ADD CMakeLists.txt /home/asn1_codec
+ADD ./config /home/asn1_codec/config
+ADD ./include /home/asn1_codec/include
+ADD ./src /home/asn1_codec/src
 RUN cd /home/asn1_codec && mkdir -p build && cd build && cmake .. && make
 
 RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.profile
@@ -58,4 +66,7 @@ RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.bashrc
 RUN echo "export CC=gcc" >> ~/.profile
 RUN echo "export CC=gcc" >> ~/.bashrc
 
-CMD ["/bin/bash"]
+# run ACM
+ADD ./run_acm.sh /home/asn1_codec
+RUN chmod 7777 /home/asn1_codec/run_acm.sh
+CMD bash -c '/home/asn1_codec/run_acm.sh'

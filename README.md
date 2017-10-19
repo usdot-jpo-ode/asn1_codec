@@ -72,7 +72,7 @@ if you want to run the ACM. If you just want to examine the code and documentati
 ## Downloading the Source Code and Documentation
 
 Follow these instructions to download the source code and documentation onto your machine. *This will not download the
-submodules the ACM requires to build (see the installation instructions).*
+submodules the ACM requires to build (see the [installation instructions](docs/installation.md)).*
 
 ```bash
 git clone https://github.com/usdot-jpo-ode/asn1_codec.git
