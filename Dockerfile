@@ -68,4 +68,5 @@ RUN echo "export CC=gcc" >> ~/.bashrc
 
 # run ACM
 ADD ./run_acm.sh /home/asn1_codec
+RUN chmod 7777 /home/asn1_codec/run_acm.sh
 CMD bash -c '/home/asn1_codec/run_acm.sh'
