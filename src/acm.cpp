@@ -314,46 +314,23 @@ bool ASN1_Codec::configure() {
 
     ilogger->trace("{}: starting...", fnname );
 
-    // decode is the default so this is set to true in the constructor.
-    if (optIsSet('T')) {
-        decode_functionality = ( "encode" == optString('T') ) ? false : true;
-    } 
-
-    if ( optIsSet('v') ) {
-        if ( "trace" == optString('v') ) {
-            ilogger->set_level( spdlog::level::trace );
-        } else if ( "debug" == optString('v') ) {
-            ilogger->set_level( spdlog::level::trace );
-        } else if ( "info" == optString('v') ) {
-            ilogger->set_level( spdlog::level::trace );
-        } else if ( "warning" == optString('v') ) {
-            ilogger->set_level( spdlog::level::warn );
-        } else if ( "error" == optString('v') ) {
-            ilogger->set_level( spdlog::level::err );
-        } else if ( "critical" == optString('v') ) {
-            ilogger->set_level( spdlog::level::critical );
-        } else if ( "off" == optString('v') ) {
-            ilogger->set_level( spdlog::level::off );
-        } else {
-            elogger->warn("information logger level was configured but unreadable; using default.");
-        }
-    } // else it is already set to default.
-
     // configurations; global and topic (the names in these are fixed)
     conf  = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
     tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
 
     // must use a configuration file.
     if ( !optIsSet('c') ) {
+        std::cout << fnname << ": asked to use a configuration file, but option not set.\n";
         elogger->error( "{}: asked to use a configuration file, but option not set.", fnname  );
         return false;
     }
 
     const std::string& cfile = optString('c');              // needed for error message.
-    ilogger->info("{}: using configuration file: {}", fnname , cfile );
+    ilogger->trace("{}: using configuration file: {}", fnname , cfile );
     std::ifstream ifs{ cfile };
 
     if (!ifs) {
+        std::cout << fnname << ": cannot open configuration file: " << cfile << '\n';
         elogger->error("{}: cannot open configuration file: {}", fnname , cfile);
         return false;
     }
@@ -392,7 +369,41 @@ bool ASN1_Codec::configure() {
         } // otherwise: empty or comment line.
     }
 
-    // All configuration file settings are overridden, if supplied, by CLI options.
+    // All configuration file settings are overridden, if supplied, by CLI options. Those occur here.
+    
+    // decoder or encoder needed? decoder is the default and decode_functionality is already true.
+    // only change from default if the user CORRECTLY specified what to use.
+    auto search = pconf.find("acm.type");
+    if ( search != pconf.end() ) {
+        if ( "encode" == search->second ) decode_functionality = false;
+        else if ( "decode" == search->second ) decode_functionality = true;
+    }  
+
+    if (optIsSet('T')) {
+        if ( "encode" == optString('T') ) decode_functionality = false;
+        else if ( "decode" == optString('T') ) decode_functionality = true;
+    } 
+    
+    if ( optIsSet('v') ) {
+        if ( "trace" == optString('v') ) {
+            ilogger->set_level( spdlog::level::trace );
+        } else if ( "debug" == optString('v') ) {
+            ilogger->set_level( spdlog::level::trace );
+        } else if ( "info" == optString('v') ) {
+            ilogger->set_level( spdlog::level::trace );
+        } else if ( "warning" == optString('v') ) {
+            ilogger->set_level( spdlog::level::warn );
+        } else if ( "error" == optString('v') ) {
+            ilogger->set_level( spdlog::level::err );
+        } else if ( "critical" == optString('v') ) {
+            ilogger->set_level( spdlog::level::critical );
+        } else if ( "off" == optString('v') ) {
+            ilogger->set_level( spdlog::level::off );
+        } else {
+            elogger->warn("information logger level was configured but unreadable; using default.");
+        }
+    } // else it is already set to default.
+
 
     if ( optIsSet('b') ) {
         // broker specified.
@@ -447,7 +458,7 @@ bool ASN1_Codec::configure() {
     // librdkafka defined configuration.
     conf->set("default_topic_conf", tconf, error_string);
 
-    auto search = pconf.find("asn1.j2735.topic.consumer");
+    search = pconf.find("asn1.j2735.topic.consumer");
     if ( search != pconf.end() ) {
         consumed_topics.push_back( search->second );
         ilogger->info("{}: consumed topic: {}", fnname , search->second);
@@ -1666,7 +1677,7 @@ int main( int argc, char* argv[] )
     }
 
     if (asn1_codec.optIsSet('F')) {
-        // use an input file: for testing.
+        // Only used when an input file is specified.
 
         if (asn1_codec.optIsSet('T')) {
             // the type of codec has been specified: encode or decode; use it.
