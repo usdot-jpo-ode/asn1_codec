@@ -66,4 +66,6 @@ RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.bashrc
 RUN echo "export CC=gcc" >> ~/.profile
 RUN echo "export CC=gcc" >> ~/.bashrc
 
-CMD ["/bin/bash"]
+# run ACM
+ADD ./run_acm.sh /home/asn1_codec
+CMD bash -c '/home/asn1_codec/run_acm.sh'
