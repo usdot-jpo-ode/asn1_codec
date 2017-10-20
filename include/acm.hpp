@@ -66,31 +66,25 @@ typedef struct buffer_structure {
     size_t allocated_size;   // this is the total size of the buffer.
 } buffer_structure_t;
 
-enum class Asn1ErrorType {
+enum class Asn1ErrorType : uint32_t {
     SUCCESS = 0,
     FAILURE,
-    INVALID_REQUEST_ERROR,
-    INVALID_DATA_ERROR,
+    REQUEST,
+    DATA,
     COUNT
-}
+};
 
-enum class Asn1DataType {
-    ODESTATUS = 0,
+enum class Asn1DataType : uint32_t {
+    ODE = 0,
     XML,
     HEX,
+    PAYLOAD,
     COUNT
-}
-
-// maybe move to cpp.
-std::ostream& operator<< ( std::stream& os, Asn1Error err );
+};
 
 class ASN1_Codec : public tool::Tool {
 
     public:
-
-        static const char* ODEHEXDATATYPE;
-        static const char* ODEXMLDATATYPE;
-        static const char* ODEERRDATATYPE;
 
         std::shared_ptr<spdlog::logger> ilogger;
         std::shared_ptr<spdlog::logger> elogger;
@@ -169,14 +163,19 @@ class ASN1_Codec : public tool::Tool {
         // ODE XML input XPath queries and parse options.
         pugi::xml_document input_doc;
         pugi::xml_document internal_doc;
+        pugi::xml_document error_doc;                                  ///> A base XML document to use in responding to input XML parse errors.
         unsigned int xml_parse_options;
         pugi::xpath_query ieee1609dot2_unsecuredData_query;
         pugi::xpath_query ode_payload_query;
         pugi::xpath_query ode_encodings_query;
         pugi::xpath_query ode_metadata_query;
 
+		bool add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1ErrorType et, const std::string& message );
+
         // Hex to byte encoder and Byte to hex decoder
         std::vector<char> byte_buffer;
+
+
         bool hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer);
         bool bytes_to_hex_(buffer_structure_t* buf_struct, std::string& payload_hex );
 
@@ -197,5 +196,7 @@ class ASN1_Codec : public tool::Tool {
 
         bool encode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string );
+
+        std::string get_current_time() const;
 };
 
