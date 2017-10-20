@@ -66,12 +66,31 @@ typedef struct buffer_structure {
     size_t allocated_size;   // this is the total size of the buffer.
 } buffer_structure_t;
 
+enum class Asn1ErrorType {
+    SUCCESS = 0,
+    FAILURE,
+    INVALID_REQUEST_ERROR,
+    INVALID_DATA_ERROR,
+    COUNT
+}
+
+enum class Asn1DataType {
+    ODESTATUS = 0,
+    XML,
+    HEX,
+    COUNT
+}
+
+// maybe move to cpp.
+std::ostream& operator<< ( std::stream& os, Asn1Error err );
+
 class ASN1_Codec : public tool::Tool {
 
     public:
 
         static const char* ODEHEXDATATYPE;
         static const char* ODEXMLDATATYPE;
+        static const char* ODEERRDATATYPE;
 
         std::shared_ptr<spdlog::logger> ilogger;
         std::shared_ptr<spdlog::logger> elogger;
@@ -87,8 +106,7 @@ class ASN1_Codec : public tool::Tool {
         bool launch_consumer();
         bool launch_producer();
         bool process_message(RdKafka::Message* message, std::stringstream& output_message_stream);
-        bool decodefiletest();
-        bool encodefiletest();
+        bool filetest();
         int operator()(void);
 
         /**
