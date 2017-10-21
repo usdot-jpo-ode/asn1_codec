@@ -437,7 +437,14 @@ bool ASN1_Codec::configure() {
         }
     } // else it is already set to default.
 
-    pugi::xml_parse_result result = error_doc.load_file("../data/Output.error.xml");
+    std::string errorfile{"./config/Output.error.xml"};
+
+    search = pconf.find("acm.error.template");
+    if ( search != pconf.end() ) {
+        errorfile = search->second;
+    }  
+
+    pugi::xml_parse_result result = error_doc.load_file( errorfile.c_str() );
     if (!result) {
         elogger->error("{}: Failure to find or parse the error template file: {} (offset = {})!", fnname , result.description(), result.offset);
         return false;
