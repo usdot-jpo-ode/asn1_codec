@@ -49,6 +49,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * TODO: All the xpath expressions should be input parameters.
+ * TODO: All the fixed XML element names should be input parameters, e.g., Ieee1609Dot2Data, encodingRule.
+ * TODO: Test the constraints checker; not sure how to build test data.
+ * TODO: Add to docs, if your encoding rules are WRONG, you will get a bad data error -- the data may be good under another set of encoding rules.
+ */
+
 #include "MessageFrame.h"
 #include "Ieee1609Dot2Data.h"
 #include "tool.hpp"
@@ -59,6 +66,7 @@
 #include <deque>
 #include <utility>
 #include <tuple>
+#include <sstream>
 
 typedef struct buffer_structure {
     char *buffer;
@@ -67,18 +75,18 @@ typedef struct buffer_structure {
 } buffer_structure_t;
 
 enum class Asn1ErrorType : uint32_t {
-    SUCCESS = 0,
-    FAILURE,
-    REQUEST,
-    DATA,
+    SUCCESS = 0,            // not used.
+    FAILURE,                // not used.
+    REQUEST,                // Any error relating to the input XML.
+    DATA,                   // Any error relating to the payload in the input XML.
     COUNT
 };
 
 enum class Asn1DataType : uint32_t {
-    ODE = 0,
-    XML,
-    HEX,
-    PAYLOAD,
+    ODE = 0,                // return data type for all error messages.
+    XML,                    // return data type for XML/MessageFrame data.
+    HEX,                    // hex byte array data type.
+    PAYLOAD,                // payload type.
     COUNT
 };
 
@@ -164,23 +172,25 @@ class ASN1_Codec : public tool::Tool {
         pugi::xml_document input_doc;
         pugi::xml_document internal_doc;
         pugi::xml_document error_doc;                                  ///> A base XML document to use in responding to input XML parse errors.
+
         unsigned int xml_parse_options;
         pugi::xpath_query ieee1609dot2_unsecuredData_query;
         pugi::xpath_query ode_payload_query;
         pugi::xpath_query ode_encodings_query;
-        pugi::xpath_query ode_metadata_query;
 
-		bool add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1ErrorType et, const std::string& message );
+        std::ostringstream erroross;
+		bool add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1ErrorType et, std::string message, bool update_time = false );
 
-        // Hex to byte encoder and Byte to hex decoder
-        std::vector<char> byte_buffer;
+        std::vector<char> byte_buffer;                                 ///> storage for hex to byte and byte to hex encoder/decoder.
 
 
         bool hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer);
         bool bytes_to_hex_(buffer_structure_t* buf_struct, std::string& payload_hex );
 
         // ASN.1 Compiler
+        std::size_t errlen;
         char errbuf[max_errbuf_size];
+
         bool decode_1609dot2;
         bool decode_messageframe;
         bool decode_functionality;
@@ -188,9 +198,10 @@ class ASN1_Codec : public tool::Tool {
         enum asn_transfer_syntax decode_messageframe_type;
 
         enum asn_transfer_syntax get_ats_transfer_syntax( const char* ats_type );
-        bool set_codec_requirements( const pugi::xml_document& doc );
+        bool set_codec_requirements( pugi::xml_document& doc );
 
         bool decode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
+        bool decode_message_legacy( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool decode_1609dot2_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
         bool decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
 
