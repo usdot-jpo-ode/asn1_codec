@@ -90,6 +90,104 @@ enum class Asn1DataType : uint32_t {
     COUNT
 };
 
+class UnparseableInputError : public std::runtime_error {
+
+    Asn1DataType dt_;
+    Asn1ErrorType et_;
+
+    public:
+
+        explicit UnparseableInputError( const char* message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::REQUEST ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        explicit UnparseableInputError( const std::string& message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::REQUEST  ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        virtual ~UnparseableInputError() throw () 
+        { }
+
+        Asn1DataType data_type() const 
+        {
+            return dt_;
+        }
+
+        Asn1ErrorType error_type() const 
+        {
+            return et_;
+        }
+};
+
+class MissingInputElementError : public std::runtime_error {
+
+    Asn1DataType dt_;
+    Asn1ErrorType et_;
+
+    public:
+
+        explicit MissingInputElementError( const char* message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::REQUEST ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        explicit MissingInputElementError( const std::string& message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::REQUEST  ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        virtual ~MissingInputElementError() throw () 
+        { }
+
+        Asn1DataType data_type() const 
+        {
+            return dt_;
+        }
+
+        Asn1ErrorType error_type() const 
+        {
+            return et_;
+        }
+};
+
+class Asn1CodecError : public std::runtime_error {
+    Asn1DataType dt_;
+    Asn1ErrorType et_;
+
+    public:
+
+        explicit Asn1CodecError( const char* message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::DATA ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        explicit Asn1CodecError( const std::string& message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::DATA  ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        virtual ~Asn1CodecError() throw () 
+        { }
+
+        Asn1DataType data_type() const 
+        {
+            return dt_;
+        }
+
+        Asn1ErrorType error_type() const 
+        {
+            return et_;
+        }
+};
+
 class ASN1_Codec : public tool::Tool {
 
     public:
