@@ -1431,6 +1431,7 @@ bool ASN1_Codec::encode_messageframe_data( const std::string& data_as_xml, std::
 
     encode_rval = uper_encode(
             &asn_DEF_MessageFrame, 
+            0,
             messageframe, 
             dynamic_buffer_append, 
             static_cast<void *>(&uper_buffer) 
@@ -1508,6 +1509,7 @@ bool ASN1_Codec::encode_sdwtim_data( const std::string& data_as_xml, std::string
     encode_rval = uper_encode(
             // TODO: Change
             &asn_DEF_MessageFrame, 
+            0,
             dframe, 
             dynamic_buffer_append, 
             static_cast<void *>(&uper_buffer) 
