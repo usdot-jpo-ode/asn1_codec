@@ -90,6 +90,113 @@ enum class Asn1DataType : uint32_t {
     COUNT
 };
 
+// an enumeration that specifies which bit in a flag word is used to turn on and off certain operations.
+enum class Asn1OpsType : uint32_t {
+	IEEE1609DOT2 = 1,			// 1<<0
+	J2735MESSAGEFRAME = 2,		// 1<<1
+	SDWTIM = 4,					// 1<<2
+	COUNT
+};
+
+
+class UnparseableInputError : public std::runtime_error {
+
+    Asn1DataType dt_;
+    Asn1ErrorType et_;
+
+    public:
+
+        explicit UnparseableInputError( const char* message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::REQUEST ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        explicit UnparseableInputError( const std::string& message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::REQUEST  ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        virtual ~UnparseableInputError() throw () 
+        { }
+
+        Asn1DataType data_type() const 
+        {
+            return dt_;
+        }
+
+        Asn1ErrorType error_type() const 
+        {
+            return et_;
+        }
+};
+
+class MissingInputElementError : public std::runtime_error {
+
+    Asn1DataType dt_;
+    Asn1ErrorType et_;
+
+    public:
+
+        explicit MissingInputElementError( const char* message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::REQUEST ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        explicit MissingInputElementError( const std::string& message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::REQUEST  ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        virtual ~MissingInputElementError() throw () 
+        { }
+
+        Asn1DataType data_type() const 
+        {
+            return dt_;
+        }
+
+        Asn1ErrorType error_type() const 
+        {
+            return et_;
+        }
+};
+
+class Asn1CodecError : public std::runtime_error {
+    Asn1DataType dt_;
+    Asn1ErrorType et_;
+
+    public:
+
+        explicit Asn1CodecError( const char* message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::DATA ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        explicit Asn1CodecError( const std::string& message, Asn1DataType dt = Asn1DataType::ODE, Asn1ErrorType et = Asn1ErrorType::DATA  ) :
+            std::runtime_error{ message }
+            , dt_{ dt }
+            , et_{ et }
+        {}
+
+        virtual ~Asn1CodecError() throw () 
+        { }
+
+        Asn1DataType data_type() const 
+        {
+            return dt_;
+        }
+
+        Asn1ErrorType error_type() const 
+        {
+            return et_;
+        }
+};
+
 class ASN1_Codec : public tool::Tool {
 
     public:
@@ -171,7 +278,7 @@ class ASN1_Codec : public tool::Tool {
         // ODE XML input XPath queries and parse options.
         pugi::xml_document input_doc;
         pugi::xml_document internal_doc;
-        pugi::xml_document error_doc;                                  ///> A base XML document to use in responding to input XML parse errors.
+        pugi::xml_document error_doc;                                   ///> A base XML document to use in responding to input XML parse errors.
 
         unsigned int xml_parse_options;
         pugi::xpath_query ieee1609dot2_unsecuredData_query;
@@ -191,11 +298,17 @@ class ASN1_Codec : public tool::Tool {
         std::size_t errlen;
         char errbuf[max_errbuf_size];
 
+		// TODO: A byte flag word is needed here since we will set multiple decode / encoders.
+		uint32_t opsflag;
         bool decode_1609dot2;
         bool decode_messageframe;
+		bool decode_sdwtim;
         bool decode_functionality;
+
+		// TODO: flagword is more challenging here...
         enum asn_transfer_syntax decode_1609dot2_type;
         enum asn_transfer_syntax decode_messageframe_type;
+        enum asn_transfer_syntax decode_sdwtim_type;
 
         enum asn_transfer_syntax get_ats_transfer_syntax( const char* ats_type );
         bool set_codec_requirements( pugi::xml_document& doc );
@@ -207,6 +320,7 @@ class ASN1_Codec : public tool::Tool {
 
         bool encode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string );
+        bool encode_sdwtim_data( const std::string& data_as_xml, std::string& hex_string );
 
         std::string get_current_time() const;
 };

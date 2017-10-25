@@ -160,48 +160,51 @@ std::ostream& operator<<( std::ostream& os, Asn1DataType dt ) {
 }
 
 ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description ) :
-    Tool{ name, description },
-    exit_eof{true},
-    eof_cnt{0},
-    partition_cnt{1},
-    msg_recv_count{0},
-    msg_send_count{0},
-    msg_filt_count{0},
-    msg_recv_bytes{0},
-    msg_send_bytes{0},
-    msg_filt_bytes{0},
-    iloglevel{ spdlog::level::trace },
-    eloglevel{ spdlog::level::err },
-    pconf{},
-    brokers{"localhost"},
-    partition{RdKafka::Topic::PARTITION_UA},
-    mode{""},
-    debug{""},
-    consumed_topics{},
-    offset{RdKafka::Topic::OFFSET_BEGINNING},
-    published_topic_name{},
-    conf{nullptr},
-    tconf{nullptr},
-    consumer_ptr{},
-    consumer_timeout{500},
-    producer_ptr{},
-    published_topic_ptr{},
-    input_doc{},
-    internal_doc{},
-    error_doc{},
-    xml_parse_options{ pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata },
-    ieee1609dot2_unsecuredData_query{"Ieee1609Dot2Data/content//unsecuredData"},  // this will work on both signed and unsigned.
-    ode_payload_query{"OdeAsn1Data/payload/data"},
-    ode_encodings_query{"OdeAsn1Data/metadata/encodings"},
-    erroross{},
-    byte_buffer{},
-    decode_1609dot2{ false },
-    decode_messageframe{ false },
-    decode_functionality{ true },
-    decode_1609dot2_type{ATS_CANONICAL_OER},
-    decode_messageframe_type{ATS_UNALIGNED_BASIC_PER},
-    ilogger{},
-    elogger{}
+    Tool{ name, description }
+    , exit_eof{true}
+    , eof_cnt{0}
+    , partition_cnt{1}
+    , msg_recv_count{0}
+    , msg_send_count{0}
+    , msg_filt_count{0}
+    , msg_recv_bytes{0}
+    , msg_send_bytes{0}
+    , msg_filt_bytes{0}
+    , iloglevel{ spdlog::level::trace }
+    , eloglevel{ spdlog::level::err }
+    , pconf{}
+    , brokers{"localhost"}
+    , partition{RdKafka::Topic::PARTITION_UA}
+    , mode{""}
+    , debug{""}
+    , consumed_topics{}
+    , offset{RdKafka::Topic::OFFSET_BEGINNING}
+    , published_topic_name{}
+    , conf{nullptr}
+    , tconf{nullptr}
+    , consumer_ptr{}
+    , consumer_timeout{500}
+    , producer_ptr{}
+    , published_topic_ptr{}
+    , input_doc{}
+    , internal_doc{}
+    , error_doc{}
+    , xml_parse_options{ pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata }
+    , ieee1609dot2_unsecuredData_query{"Ieee1609Dot2Data/content//unsecuredData"}  // this will work on both signed and unsigned
+    , ode_payload_query{"OdeAsn1Data/payload/data"}
+    , ode_encodings_query{"OdeAsn1Data/metadata/encodings"}
+    , erroross{}
+    , byte_buffer{}
+	, opsflag{0}
+    , decode_1609dot2{ false }
+    , decode_messageframe{ false }
+	, decode_sdwtim{true}
+	, decode_functionality{ true }
+	, decode_1609dot2_type{ATS_CANONICAL_OER}
+	, decode_messageframe_type{ATS_UNALIGNED_BASIC_PER}
+	, decode_sdwtim_type{ATS_UNALIGNED_BASIC_PER}
+    , ilogger{}
+    , elogger{}
 {
 }
 
@@ -730,70 +733,73 @@ bool ASN1_Codec::make_loggers( bool remove_files )
 
 bool ASN1_Codec::add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1ErrorType et, std::string message, bool update_time ) {
 
-    static const char* fnname = "add_error_xml()";
+	static const char* fnname = "add_error_xml()";
 	bool r = true;
 
-    // Attempt to set all these fields; log the errors; return false if any fail.
-   
-    // access this directly because we remove the bytes branch.
-    pugi::xml_node metadata_node = doc.child("OdeAsn1Data").child("metadata");
-    if ( !metadata_node ) {
-        elogger->error("{}: Cannot find OdeAsn1Data/metadata nodes in function input document.", fnname );
-        return false;
-    }
+	ilogger->trace("{}: starting...", fnname);
 
-    pugi::xml_node payload_node  = doc.child("OdeAsn1Data").child("payload");
-    if ( !payload_node ) {
-        elogger->error("{}: Cannot find OdeAsn1Data/payload nodes in function input document.", fnname );
-        return false;
-    }
+	// Attempt to set all these fields; log the errors; return false if any fail.
+
+	// access this directly because we remove the bytes branch.
+	pugi::xml_node metadata_node = doc.child("OdeAsn1Data").child("metadata");
+	if ( !metadata_node ) {
+		elogger->error("{}: Cannot find OdeAsn1Data/metadata nodes in function input document.", fnname );
+		return false;
+	}
+
+	pugi::xml_node payload_node  = doc.child("OdeAsn1Data").child("payload");
+	if ( !payload_node ) {
+		elogger->error("{}: Cannot find OdeAsn1Data/payload nodes in function input document.", fnname );
+		return false;
+	}
 
 
-    if ( !metadata_node.child("payloadType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::PAYLOAD)]  ) ) {
-        elogger->error("{}: Failure to update the payloadType field of the error xml", fnname );
+	if ( !metadata_node.child("payloadType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::PAYLOAD)]  ) ) {
+		elogger->error("{}: Failure to update the payloadType field of the error xml", fnname );
 		r = false;
-    }
+	}
 
-    // receivedAt is only updatable if update_time is true.
-    if ( update_time && !metadata_node.child("receivedAt").text().set( get_current_time().c_str() ) ) {
-            elogger->error("{}: Failure to update the receivedAt field of the error xml", fnname );
-            r = false;
-    }
-
-    // generateAt time is always updated; it is the time of generating this message.
-    if ( !metadata_node.child("generatedAt").text().set( get_current_time().c_str() ) ) {
-        elogger->error("{}: Failure to update the generatedAt field of the error xml", fnname );
-        r = false;
-    }
-
-    if ( !payload_node.child("dataType").text().set( asn1datatypes[static_cast<int>(dt)]  ) ) {
-        elogger->error("{}: Failure to update the dataType field of the error xml", fnname );
+	// receivedAt is only updatable if update_time is true.
+	if ( update_time && !metadata_node.child("receivedAt").text().set( get_current_time().c_str() ) ) {
+		elogger->error("{}: Failure to update the receivedAt field of the error xml", fnname );
 		r = false;
-    }
+	}
 
-    pugi::xml_node data_node = payload_node.child("data");
-
-    // when bytes doesn't exist this is effectively a noop.
-    bool result = data_node.remove_child("bytes");
-
-    if ( !data_node.child("code") ) {
-        data_node.append_child("code");
-    }
-
-    if ( !data_node.child("message") ) {
-        data_node.append_child("message");
-    }
-
-    if ( !data_node.child("code").text().set( asn1errortypes[static_cast<int>(et)]  ) ) {
-        elogger->error("{}: Failure to update the data/code field of the error xml", fnname );
+	// generateAt time is always updated; it is the time of generating this message.
+	if ( !metadata_node.child("generatedAt").text().set( get_current_time().c_str() ) ) {
+		elogger->error("{}: Failure to update the generatedAt field of the error xml", fnname );
 		r = false;
-    }
+	}
 
-    if ( !data_node.child("message").text().set( message.c_str() ) ) {
-        elogger->error("{}: Failure to update the data/message field of the error xml", fnname );
+	if ( !payload_node.child("dataType").text().set( asn1datatypes[static_cast<int>(dt)]  ) ) {
+		elogger->error("{}: Failure to update the dataType field of the error xml", fnname );
 		r = false;
-    }
+	}
 
+	pugi::xml_node data_node = payload_node.child("data");
+
+	// when bytes doesn't exist this is effectively a noop.
+	bool result = data_node.remove_child("bytes");
+
+	if ( !data_node.child("code") ) {
+		data_node.append_child("code");
+	}
+
+	if ( !data_node.child("message") ) {
+		data_node.append_child("message");
+	}
+
+	if ( !data_node.child("code").text().set( asn1errortypes[static_cast<int>(et)]  ) ) {
+		elogger->error("{}: Failure to update the data/code field of the error xml", fnname );
+		r = false;
+	}
+
+	if ( !data_node.child("message").text().set( message.c_str() ) ) {
+		elogger->error("{}: Failure to update the data/message field of the error xml", fnname );
+		r = false;
+	}
+
+	ilogger->trace("{}: finished...", fnname);
 	return r;
 }
 
@@ -924,6 +930,8 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
 
     size_t bytes_processed = 0;
 
+	ilogger->trace("{}: starting...", fnname);
+
     switch (message->err()) {
 
         case RdKafka::ERR__TIMED_OUT:
@@ -956,40 +964,32 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
             }
 
             // already verified non-zero message length.
+
             parse_result = input_doc.load_buffer((const void*) message->payload(), message->len(), xml_parse_options );
 
             if (!parse_result) {
-                // TODO: Need a way to indicate which document to OUTPUT!!!!
-                erroross.str("");
-                erroross << "Input file parse error: " << parse_result.description() << " at offset " << parse_result.offset;
-                add_error_xml( error_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str(), true );
-                ilogger->trace("{}: {}", fnname , erroross.str() );
-                return false; 
+                erroross.str("Input file parse error: ");
+                erroross << parse_result.description() << " at offset " << parse_result.offset;
+                throw UnparseableInputError{ erroross.str() };
             } 
 
             // examine the input xml encodings information and set the flags and requirements needed to properly parse
             // the byte strings.
-            if ( set_codec_requirements( input_doc ) == false ) {
-                return false;
-            }
+            set_codec_requirements( input_doc );        // throws UnparseableInputErrors
 
             payload_node = ode_payload_query.evaluate_node( input_doc ).node();
 
             if ( !payload_node ) {
-                // TODO: Need a way to indicate which document to OUTPUT!!!!
-                erroross.str("");
-                erroross << "Input file XPath search error.";
-                add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-                elogger->warn("{}: {}", fnname, erroross.str() );
-                return false;
+                throw UnparseableInputError{ "Failed to find the OdeAsn1Data/payload/data field in the input file." };
             }
 
             if ( decode_functionality ) {
-                return decode_message( payload_node, output_message_stream );
+                decode_message( payload_node, output_message_stream );          // throws
             } else {
-                return encode_message( payload_node, output_message_stream );
+                encode_message( payload_node, output_message_stream );          // throws
             }
                 
+            return true;
             break;
 
         case RdKafka::ERR__PARTITION_EOF:
@@ -1017,6 +1017,7 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
             data_available = false;
     }
 
+	ilogger->trace("{}: finished...", fnname);
     return false;
 }
 
@@ -1027,7 +1028,14 @@ bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream
     pugi::xml_parse_result parse_result;
 
     buffer_structure_t xb = {0, 0, 0};
-    output_message_stream.str("");
+
+    ilogger->trace("{}: starting...", fnname);
+
+    if ( !decode_1609dot2 && !decode_messageframe ) {
+        // if neither of these is set, this function becomes a noop and nothing will be returned, so this is an
+        // exception.
+        throw MissingInputElementError{"An decoder was not specified in the encodingType tag that this module understands."};
+    }
 
     // access this directly because we remove the bytes branch.
     pugi::xml_text text = payload_node.child("bytes").text();
@@ -1038,204 +1046,70 @@ bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream
         payload_node.remove_child("bytes");
 
         // Ieee 1609.2 is the outer frame.
-        if ( decode_1609dot2 ) {
+		if ( decode_1609dot2 ) {
 
-            success =  decode_1609dot2_data(hstr, &xb);
+			decode_1609dot2_data(hstr, &xb);            // throws.
 
-            if (success) {
-                // pugi resets the document as part of load_buffer
-                parse_result = internal_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
+			// asssert success == true;
 
-                if ( parse_result ) {
-                    // XPath search the IEEE structure for the unsecured data.
-                    pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( internal_doc );
-                    text = unsecuredDataNode.node().text();
+			// pugi resets the document as part of load_buffer
+			parse_result = internal_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
 
-                    if ( text ) {
-                        // replacing the original hex string, so the next processing step works.
-                        hstr = std::string( text.get() );
+			if ( !parse_result ) {
+				erroross.str("IEEE 1609.2 decoded XER cannot be parsed/loaded as a valid document: ");
+				erroross << parse_result.description() << " at offset " << parse_result.offset;
+				throw Asn1CodecError{ erroross.str() };
+			}
 
-                    } else {
-                        success = false;
-                        erroross.str("IEEE 1609.2 XPath search error.");
-                        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-                        elogger->warn("{}: {}", fnname, erroross.str() );
-                    }
+			// XPath search the IEEE structure for the unsecured data.
+			pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( internal_doc );
+			text = unsecuredDataNode.node().text();
 
-                } else {
-                    success = false;
-                    erroross.str("IEEE 1609.2 decoded XML parse error: ");
-                    erroross << parse_result.description() << " at offset " << parse_result.offset;
-                    add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-                    elogger->trace("{}: {}", fnname , erroross.str() );
-                }
+			if ( !text ) throw Asn1CodecError{"IEEE 1609.2 internal XER unsecuredData element could not be found."};
 
-                internal_doc.reset();
+			// replacing the original hex string, so the next processing step works.
+			hstr = std::string( text.get() );
+			internal_doc.reset();
+			std::free( static_cast<void *>(xb.buffer) );
+			xb = { 0,0,0 };                     // reset buffer;
+		}
 
-            } // else the document will have been fixed up already.
+		if ( success && decode_messageframe ) {
 
-            std::free( static_cast<void *>(xb.buffer) );
-            xb = { 0,0,0 };                     // reset buffer;
-        }
+			decode_messageframe_data( hstr, &xb );          // throws.
 
-        if ( success && decode_messageframe ) {
+			// asssert success == true;
 
-            success = decode_messageframe_data( hstr, &xb );
+			// eliminate the original hex string, so the new XML can be inserted.
+			payload_node.text().set("");
+			parse_result = internal_doc.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
 
-            if ( success ) {
-                // eliminate the original hex string, so the new XML can be inserted.
-                payload_node.text().set("");
-                parse_result = internal_doc.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
+			if ( !parse_result ) {
+				erroross.str("J2735 decoded XER cannot be parsed/loaded as a valid document: ");
+				erroross << parse_result.description() << " at offset " << parse_result.offset;
+				throw Asn1CodecError{ erroross.str() };
+			}
 
-                if ( parse_result ) {
-                    payload_node.append_copy( internal_doc.document_element() );
+			payload_node.append_copy( internal_doc.document_element() );
 
-                    if ( !payload_node.parent().child("dataType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::XML)] ) ) {
-                        success = false;
-                        erroross.str("Could not update the dataType field of the payload section.");
-                        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str(), true );
-                        elogger->trace("{}: {}", fnname , erroross.str() );
-                    }
+			if ( !payload_node.parent().child("dataType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::XML)] ) ) {
+				throw MissingInputElementError{"Could not update the dataType field of the payload section."};
+			}
 
-                } else {
-                    success = false;
-                    erroross.str("J2735 decoded XML parse error: ");
-                    erroross << parse_result.description() << " at offset " << parse_result.offset;
-                    add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-                    elogger->trace("{}: {}", fnname , erroross.str() );
-                }
-
-            } // the document will already have been fixed up.
-
-            std::free( static_cast<void *>(xb.buffer) );
-        }
+			std::free( static_cast<void *>(xb.buffer) );
+		}
 
     } else {
-        success = false;
-        erroross.str("failure accessing input XML bytes node.");
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-        elogger->warn("{}: {}", fnname, erroross.str() );
+        throw MissingInputElementError{"failure accessing input XML bytes node."};
     }
 
     // convert DOM to a RAW string representation: no spaces, no tabs.
-    output_message_stream.str("");
     input_doc.save(output_message_stream,"",pugi::format_raw);
+    ilogger->trace("{}: finished...", fnname);
     return success;
 } 
 
-bool ASN1_Codec::decode_message_legacy( pugi::xml_node& payload_node, std::stringstream& output_message_stream ) {
-
-    static const char* fnname = "decode_message()";
-    pugi::xml_parse_result parse_result;
-
-    buffer_structure_t xb = {0, 0, 0};
-    output_message_stream.str("");
-
-    // access this directly because we remove the bytes branch.
-    pugi::xml_text text = payload_node.child("bytes").text();
-
-    if ( !text ) {
-        erroross.str("failure accessing input XML bytes node.");
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-        elogger->warn("{}: {}", fnname, erroross.str() );
-        input_doc.save(output_message_stream,"",pugi::format_raw);
-        return false;
-    }
-
-    // store the bytes and remove the bytes node since we replace it.
-    std::string hstr{ text.get() };
-    payload_node.remove_child("bytes");
-
-    // Ieee 1609.2 is the outer frame.
-    if ( decode_1609dot2 ) {
-
-        if ( decode_1609dot2_data(hstr, &xb ) == false ) {
-            std::free( static_cast<void *>(xb.buffer) );
-            input_doc.save(output_message_stream,"",pugi::format_raw);
-            return false;
-        }
-
-        // pugi resets the document as part of load_buffer
-        parse_result = internal_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
-        std::free( static_cast<void *>(xb.buffer) );
-
-        if (!parse_result) {
-            erroross.str("IEEE 1609.2 decoded XML parse error: ");
-            erroross << parse_result.description() << " at offset " << parse_result.offset;
-            add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-            elogger->trace("{}: {}", fnname , erroross.str() );
-            input_doc.save(output_message_stream,"",pugi::format_raw);
-            return false; 
-        } 
-
-        // reset the buffer.
-        xb = { 0,0,0 };
-
-        // XPath search the IEEE structure for the unsecured data.
-        pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( internal_doc );
-        text = unsecuredDataNode.node().text();
-
-        if ( !text ) {
-            erroross.str("IEEE 1609.2 XPath search error.");
-            add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-            elogger->warn("{}: {}", fnname, erroross.str() );
-            input_doc.save(output_message_stream,"",pugi::format_raw);
-            return false;
-        }
-
-        // replacing the original hex string, so the next processing step works.
-        hstr = std::string( text.get() );
-    }
-
-    internal_doc.reset();
-
-    if ( decode_messageframe ) {
-        if ( decode_messageframe_data( hstr, &xb ) == false ) {
-            std::free( static_cast<void *>(xb.buffer) );
-            input_doc.save(output_message_stream,"",pugi::format_raw);
-            return false;
-        }
-
-        // eliminate the original hex string, so the new XML can be inserted.
-        payload_node.text().set("");
-
-        parse_result = internal_doc.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
-        std::free( static_cast<void *>(xb.buffer) );
-
-        if (!parse_result) {
-            erroross.str("J2735 decoded XML parse error: ");
-            erroross << parse_result.description() << " at offset " << parse_result.offset;
-            add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-            elogger->trace("{}: {}", fnname , erroross.str() );
-            input_doc.save(output_message_stream,"",pugi::format_raw);
-            return false; 
-        } 
-    }
-
-    if ( !internal_doc ) {
-        erroross.str("Encapsulated XML document is empty");
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname , erroross.str() );
-        input_doc.save(output_message_stream,"",pugi::format_raw);
-        return false; 
-    } 
-
-    payload_node.append_copy( internal_doc.document_element() );
-
-    if ( !payload_node.parent().child("dataType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::XML)] ) ) {
-        erroross.str("Could not update the dataType field of the payload section.");
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str(), true );
-        elogger->trace("{}: {}", fnname , erroross.str() );
-        input_doc.save(output_message_stream,"",pugi::format_raw);
-        return false;
-    }
-
-    // convert DOM to a RAW string representation: no spaces, no tabs.
-    output_message_stream.str("");
-    input_doc.save(output_message_stream,"",pugi::format_raw);
-    return true;
-} 
-
+// throws MissingInputElementError or Asn1CodecError (from encode_messageframe_data call) ONLY!
 bool ASN1_Codec::encode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream ) {
 
     static const char* fnname = "encode_message()";
@@ -1244,14 +1118,13 @@ bool ASN1_Codec::encode_message( pugi::xml_node& payload_node, std::stringstream
 
     buffer_structure_t xb = {0, 0, 0};
 
+    ilogger->trace("{}: starting...");
+
     if ( decode_messageframe ) {
 
         pugi::xml_node mfnode = payload_node.child("MessageFrame");
         if ( !mfnode ) {
-            erroross.str("Cannot find the MessageFrame child to encode.");
-            add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-            elogger->error("{}: {}", fnname, erroross.str() );
-            return false;
+            throw MissingInputElementError{"Failed to find path: OdeAsn1Data/payload/data/MessageFrame in the input document."};
         }
         
         // Writes the XML document from OdeAsn1Data/payload/data/ to a string stream.
@@ -1259,40 +1132,62 @@ bool ASN1_Codec::encode_message( pugi::xml_node& payload_node, std::stringstream
 
         // remove the OdeAsn1Data/payload/data/MessageFrame node: original hex string, so the new XML can be inserted.
         if ( !payload_node.remove_child("MessageFrame") ) {
-            erroross.str("Failure to remove MessageFrame node from ODE XML document.");
-            add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-            elogger->error("{}: {}", fnname, erroross.str() );
-            return false;
+            throw MissingInputElementError{"Failed to remove path: OdeAsn1Data/payload/data/MessageFrame in the input document."};
         }
 
-        if ( encode_messageframe_data( xml_stream.str(), hex_str ) == false ) {
-            // warnings and document fixups completed by encode_messageframe_data.
-            return false;
-        }
+		encode_messageframe_data( xml_stream.str(), hex_str );          // throws
 
         ilogger->info( "{}: Successful encoding of XML into a ASN.1 hex string: {}", fnname , hex_str );
 
         // add the OdeAsn1Data/payload/data/bytes node, then the hex encoded message as the text node.
         if ( !payload_node.append_child("bytes").text().set(hex_str.c_str()) ) {
-            erroross.str("Failure to append bytes tag or hex string.");
-            add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-            elogger->error("{}: {}", fnname, erroross.str() );
-            return false;
+            throw MissingInputElementError{"Failure to append path: OdeAsn1Data/payload/data/bytes to the output document."};
         }
 
         // set the OdeAsn1Data/payload/dataType node text node to the type string.
         if ( !payload_node.parent().child("dataType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::HEX)] ) ) {
-            erroross.str("Could not update the dataType field of the payload section.");
-            add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-            elogger->trace("{}: {}", fnname , erroross.str() );
-            return false;
+            throw MissingInputElementError{"Failure to update path: OdeAsn1Data/payload/dataType in the output document."};
         }
+
+    } else if ( decode_sdwtim ) {
+
+        pugi::xml_node mfnode = payload_node.child("SDWTIM");
+        if ( !mfnode ) {
+            throw MissingInputElementError{"Failed to find path: OdeAsn1Data/payload/data/SDWTIM in the input document."};
+        }
+        
+        // Writes the XML document from OdeAsn1Data/payload/data/ to a string stream.
+        mfnode.print(xml_stream,"",pugi::format_raw);
+
+        // remove the OdeAsn1Data/payload/data/MessageFrame node: original hex string, so the new XML can be inserted.
+        if ( !payload_node.remove_child("SDWTIM") ) {
+            throw MissingInputElementError{"Failed to remove path: OdeAsn1Data/payload/data/SDWTIM in the input document."};
+        }
+
+		encode_sdwtim_data( xml_stream.str(), hex_str );          // throws
+
+        ilogger->info( "{}: Successful encoding of XML into a ASN.1 hex string: {}", fnname , hex_str );
+
+        // add the OdeAsn1Data/payload/data/bytes node, then the hex encoded message as the text node.
+        if ( !payload_node.append_child("bytes").text().set(hex_str.c_str()) ) {
+            throw MissingInputElementError{"Failure to append path: OdeAsn1Data/payload/data/bytes to the output document."};
+        }
+
+        // set the OdeAsn1Data/payload/dataType node text node to the type string.
+        if ( !payload_node.parent().child("dataType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::HEX)] ) ) {
+            throw MissingInputElementError{"Failure to update path: OdeAsn1Data/payload/dataType in the output document."};
+        }
+
+	} else {
+
+        throw MissingInputElementError{"An encoder was not specified in the encodingType tag that this module understands."};
+
     }
 
     // convert DOM to a RAW string representation: no spaces, no tabs.
     // for testing.
-    output_message_stream.str("");
     input_doc.save(output_message_stream,"",pugi::format_raw);
+    ilogger->trace("{}: finished...");
     return true;
 }
 
@@ -1307,6 +1202,7 @@ bool ASN1_Codec::encode_message( pugi::xml_node& payload_node, std::stringstream
  * Return false on failure: immediately use the input_doc to return what happened during decoding of 1609.2
  */
 
+// throws Asn1CodecError ONLY!
 bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structure_t* xml_buffer ) {
     static const char* fnname = "decode_1609dot2_data()";
 
@@ -1340,23 +1236,14 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
     data_as_hex.erase( remove_if ( data_as_hex.begin(), data_as_hex.end(), isspace), data_as_hex.end());
 
     if (data_as_hex.empty()) {
-        // TODO: Return an internally constructed XML file with and OdeStatus of INVALID_REQUEST_TYPE_ERROR.
-        erroross.str("");
-        erroross << "failed attempt to decode IEEE 1609.2 hex string: string empty.";
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->warn("{}: {}", fnname, erroross.str() );
-        return false;
+        throw Asn1CodecError{"failed attempt to decode IEEE 1609.2 hex string: string empty."};
     }
 
     ilogger->trace("{}: success extracting {} hex string: {}", fnname , asn_DEF_Ieee1609Dot2Data.name, data_as_hex );
 
     byte_buffer.clear();
     if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
-        erroross.str("");
-        erroross << "failed attempt to decode IEEE 1609.2 hex string: cannot convert to bytes."; 
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->warn("{}: {}", fnname, erroross.str() );
-        return false;
+        throw Asn1CodecError{"failed attempt to decode IEEE 1609.2 hex string: cannot convert to bytes."};
     }
 
     ilogger->trace("{}: successful conversion to raw byte buffer.", fnname );
@@ -1372,30 +1259,26 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
             );
 
     if ( decode_rval.code != RC_OK ) {
-        erroross.str("");
-        erroross << "failed ASN.1 binary decoding of element " << asn_DEF_Ieee1609Dot2Data.name << ": ";
+        erroross.str("failed ASN.1 binary decoding of element ");
+        erroross << asn_DEF_Ieee1609Dot2Data.name << ": ";
         if ( decode_rval.code == RC_FAIL ) {
-            erroross << "bad data";
+            erroross << "bad data.";
         } else {
-            erroross << "more data expected";
+            erroross << "more data expected.";
         }
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname, erroross.str() );
-        return false;
+        erroross << " Successfully decoded " << decode_rval.consumed << " bytes.";
+        throw Asn1CodecError{ erroross.str() };
     }
 
     ilogger->trace("{}: ASN.1 binary decode success.", fnname );
 
     // check the data in the returned structure against the ASN.1 specification constraints.
     if (asn_check_constraints( &asn_DEF_Ieee1609Dot2Data, ieee1609data, errbuf, &errlen )) {
-        // TODO: errbuf / errlen will contain the message.
-        erroross.str("");
-        erroross << "failed ASN.1 constraints check of element " << asn_DEF_Ieee1609Dot2Data.name << ": ";
+        erroross.str("failed ASN.1 constraints check of element ");
+        erroross << asn_DEF_Ieee1609Dot2Data.name << ": ";
         erroross.write( errbuf, errlen );
         ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, ieee1609data);
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname, erroross.str() );
-        return false;
+        throw Asn1CodecError{ erroross.str() };
     }
 
     // target form is always XML (for now).
@@ -1410,11 +1293,9 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
     ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, ieee1609data);
 
     if ( encode_rval.encoded == -1 ) {
-        erroross.str("");
-        erroross << "failed ASN.1 XML encoding of Ieee1609Dot2Data element " << encode_rval.failed_type->name;
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname, erroross.str() );
-        return false;
+        erroross.str("failed ASN.1 XML encoding of Ieee1609Dot2Data element ");
+        erroross << encode_rval.failed_type->name;
+        throw Asn1CodecError{ erroross.str() };
     }
 
     ilogger->trace("{}: finished.", fnname );
@@ -1440,22 +1321,14 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
     data_as_hex.erase( remove_if ( data_as_hex.begin(), data_as_hex.end(), isspace), data_as_hex.end());
 
     if (data_as_hex.empty()) {
-        erroross.str("");
-        erroross << "failed attempt to decode MessageFrame hex string: string empty.";
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->warn("{}: {}", fnname, erroross.str() );
-        return false;
+        throw Asn1CodecError{"failed attempt to decode MessageFrame hex string: string empty."};
     }
 
     ilogger->trace("{}: success extracting {} hex string: {}", fnname , asn_DEF_MessageFrame.name, data_as_hex );
 
     byte_buffer.clear();
     if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
-        erroross.str("");
-        erroross << "failed attempt to decode MessageFrame hex string: cannot convert to bytes."; 
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->warn("{}: {}", fnname, erroross.str() );
-        return false;
+        throw Asn1CodecError{"failed attempt to decode MessageFrame hex string: cannot convert to bytes."};
     }
 
     ilogger->trace("{}: successful conversion to raw byte buffer.", fnname );
@@ -1470,28 +1343,25 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
             );
 
     if ( decode_rval.code != RC_OK ) {
-        erroross.str("");
-        erroross << "failed ASN.1 binary decoding of element " << asn_DEF_MessageFrame.name << ": ";
+        erroross.str("failed ASN.1 binary decoding of element ");
+        erroross << asn_DEF_MessageFrame.name << ": ";
         if ( decode_rval.code == RC_FAIL ) {
-            erroross << "bad data";
+            erroross << "bad data.";
         } else {
-            erroross << "more data expected";
+            erroross << "more data expected.";
         }
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname, erroross.str() );
-        return false;
+        erroross << " Successfully decoded " << decode_rval.consumed << " bytes.";
+        throw Asn1CodecError{ erroross.str() };
     }
 
     ilogger->trace("{}: ASN.1 binary decode successful.", fnname );
 
     if (asn_check_constraints( &asn_DEF_MessageFrame, messageframe, errbuf, &errlen )) {
-        erroross.str("");
-        erroross << "failed ASN.1 constraints check of element " << asn_DEF_MessageFrame.name << ": ";
+        erroross.str("failed ASN.1 constraints check of element ");
+        erroross << asn_DEF_MessageFrame.name << ": ";
         erroross.write( errbuf, errlen );
         ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname, erroross.str() );
-        return false;
+        throw Asn1CodecError{ erroross.str() };
     }
 
     // Encode the Ieee1609Dot2Data ASN.1 C struct into XML, so we can extract out the BSM.
@@ -1506,11 +1376,9 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
     ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
 
     if ( encode_rval.encoded == -1 ) {
-        erroross.str("");
-        erroross << "failed ASN.1 XML encoding of MessageFrame element " << encode_rval.failed_type->name;
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname, erroross.str() );
-        return false;
+        erroross.str("failed ASN.1 XML encoding of MessageFrame element ");
+        erroross << encode_rval.failed_type->name;
+        throw Asn1CodecError{ erroross.str() };
     }
 
     ilogger->trace("{}: finished.", fnname );
@@ -1538,28 +1406,25 @@ bool ASN1_Codec::encode_messageframe_data( const std::string& data_as_xml, std::
             );
 
     if ( decode_rval.code != RC_OK ) {
-        erroross.str("");
-        erroross << "failed ASN.1 decoding of XML element " << asn_DEF_MessageFrame.name << ": ";
+        erroross.str("failed ASN.1 decoding of XML element ");
+        erroross << asn_DEF_MessageFrame.name << ": ";
         if ( decode_rval.code == RC_FAIL ) {
-            erroross << "bad data";
+            erroross << "bad data.";
         } else {
-            erroross << "more data expected";
+            erroross << "more data expected.";
         }
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname, erroross.str() );
-        return false;
+        erroross << " Successfully decoded " << decode_rval.consumed << " bytes.";
+        throw Asn1CodecError{ erroross.str() };
     }
 
     ilogger->trace("{}: ASN.1 decode XML success.", fnname );
 
     if (asn_check_constraints( &asn_DEF_MessageFrame, messageframe, errbuf, &errlen )) {
-        erroross.str("");
-        erroross << "failed ASN.1 constraints check of element " << asn_DEF_MessageFrame.name << ": ";
+        erroross.str("failed ASN.1 constraints check of element ");
+        erroross << asn_DEF_MessageFrame.name << ": ";
         erroross.write( errbuf, errlen );
         ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname, erroross.str() );
-        return false;
+        throw Asn1CodecError{ erroross.str() };
     }
 
     buffer_structure_t uper_buffer = {0,0,0};
@@ -1574,20 +1439,92 @@ bool ASN1_Codec::encode_messageframe_data( const std::string& data_as_xml, std::
     ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
 
     if ( encode_rval.encoded == -1 ) {
-        erroross.str("");
-        erroross << "failed ASN.1 UPER encoding of MessageFrame element " << encode_rval.failed_type->name;
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->error("{}: {}", fnname, erroross.str() );
-        return false;
+        erroross.str("failed ASN.1 UPER encoding of MessageFrame element ");
+        erroross << encode_rval.failed_type->name;
+        throw Asn1CodecError{ erroross.str() };
     }
 
     if (!bytes_to_hex_(&uper_buffer, hex_string)) {
         std::free( static_cast<void *>(uper_buffer.buffer) );
-        erroross.str("");
-        erroross << "failed attempt to encode MessageFrame byte buffer into hex string."; 
-        add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::DATA, erroross.str() );
-        elogger->warn("{}: {}", fnname, erroross.str() );
-        return false;
+        throw Asn1CodecError{ "failed attempt to encode MessageFrame byte buffer into hex string." };
+    }
+
+    std::free( static_cast<void *>(uper_buffer.buffer) );
+    ilogger->trace("{}: finished.", fnname );
+    return true;
+}
+
+bool ASN1_Codec::encode_sdwtim_data( const std::string& data_as_xml, std::string& hex_string ) {
+    static const char* fnname = "encode_sdwtim_data()";
+
+    asn_dec_rval_t decode_rval;
+    asn_enc_rval_t encode_rval;
+
+    errlen = max_errbuf_size;
+
+    ilogger->trace("{}: starting...", fnname );
+
+    MessageFrame_t *dframe = 0;           // must be initialized to 0.
+    // TODO: NEED THE REAL NAME OF THIS!!!
+    // SDWTIM_T *dframe = 0;                       // must be initialized to 0.
+
+    decode_rval = xer_decode( 
+            0, 
+            // TODO: change
+            &asn_DEF_MessageFrame,
+            (void **)&dframe,
+            data_as_xml.data(),
+            data_as_xml.size()
+            );
+
+    if ( decode_rval.code != RC_OK ) {
+        erroross.str("failed ASN.1 decoding of XML element ");
+        erroross << asn_DEF_MessageFrame.name << ": ";
+        if ( decode_rval.code == RC_FAIL ) {
+            erroross << "bad data.";
+        } else {
+            erroross << "more data expected.";
+        }
+        erroross << " Successfully decoded " << decode_rval.consumed << " bytes.";
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    ilogger->trace("{}: ASN.1 decode XML success.", fnname );
+
+    // TODO: Change
+    if (asn_check_constraints( &asn_DEF_MessageFrame, dframe, errbuf, &errlen )) {
+        erroross.str("failed ASN.1 constraints check of element ");
+        // TODO: Change
+        erroross << asn_DEF_MessageFrame.name << ": ";
+        erroross.write( errbuf, errlen );
+        // TODO: Change
+        ASN_STRUCT_FREE(asn_DEF_MessageFrame, dframe);
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    buffer_structure_t uper_buffer = {0,0,0};
+
+    // TODO: Encoding should be based on <encodings> tag information.
+    encode_rval = uper_encode(
+            // TODO: Change
+            &asn_DEF_MessageFrame, 
+            dframe, 
+            dynamic_buffer_append, 
+            static_cast<void *>(&uper_buffer) 
+            );
+
+    // TODO: Change
+    ASN_STRUCT_FREE(asn_DEF_MessageFrame, dframe);
+
+    if ( encode_rval.encoded == -1 ) {
+        erroross.str("failed ASN.1 encoding of SDWTIM element ");
+        erroross << encode_rval.failed_type->name;
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    if (!bytes_to_hex_(&uper_buffer, hex_string)) {
+        std::free( static_cast<void *>(uper_buffer.buffer) );
+        throw Asn1CodecError{ "failed attempt to encode SDWTIM byte buffer into hex string." };
     }
 
     std::free( static_cast<void *>(uper_buffer.buffer) );
@@ -1600,6 +1537,7 @@ bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
     static const char* fnname = "set_codec_requirements()";
 
     enum asn_transfer_syntax atstype = ATS_INVALID;
+	opsflag = 0;
 
     // re-establish defaults.
     decode_1609dot2 = false;
@@ -1607,14 +1545,13 @@ bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
     decode_1609dot2_type = ATS_CANONICAL_OER;
     decode_messageframe_type = ATS_UNALIGNED_BASIC_PER;
 
+	ilogger->trace("{}: starting...", fnname );
+
     // Determine which decodings are needed.
     pugi::xpath_node encodings_xpath_node = ode_encodings_query.evaluate_node( input_doc );
 
     if (!encodings_xpath_node) {
-        erroross.str("Input file XPath error searching for encodings metadata.");
-        add_error_xml( doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-        elogger->error( "{}: {}", fnname, erroross.str() );
-        return false;
+        throw UnparseableInputError{"Failed to find path: OdeAsn1Data/metadata/encodings in the input file."};
     }
 
     for ( pugi::xml_node n = encodings_xpath_node.node().first_child(); n; n = n.next_sibling()) {
@@ -1625,33 +1562,35 @@ bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
             atstype = get_ats_transfer_syntax( ats_node.get() );
         }
 
-        if ( atstype == ATS_INVALID ) {
-                erroross.str("Invalid input files encoding rule.");
-                add_error_xml( doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-                elogger->error( "{}: {}", fnname, erroross.str() );
-                return false;
-        }
+		if ( atstype == ATS_INVALID ) {
+			throw UnparseableInputError{"Invalid encoding rule in input file."};
+		}
 
         if ( std::strcmp(n.child("elementType").text().get(), "Ieee1609Dot2Data") == 0 ) {
+			opsflag &= static_cast<uint32_t>(Asn1OpsType::IEEE1609DOT2);
             decode_1609dot2 = true;
             decode_1609dot2_type = atstype;
-            ilogger->trace("{}: activating 1609.2 decoder and changing the translator type to: {}", fnname , atstype);
+            ilogger->trace("{}: activating 1609.2 encoder/decoder and changing the translator type to: {}", fnname , atstype);
 
         } else if ( std::strcmp(n.child("elementType").text().get(), "MessageFrame") == 0 ) {
+			opsflag &= static_cast<uint32_t>(Asn1OpsType::J2735MESSAGEFRAME);
             decode_messageframe = true;
             decode_messageframe_type = atstype;
-            ilogger->trace("{}: activating j2735 decoder and changing the translator type to: {}", fnname , atstype);
+            ilogger->trace("{}: activating j2735 encoder/decoder and changing the translator type to: {}", fnname , atstype);
+
+        } else if ( std::strcmp(n.child("elementType").text().get(), "SDWTIM") == 0 ) {
+			opsflag &= static_cast<uint32_t>(Asn1OpsType::SDWTIM);
+            decode_sdwtim = true;
+            decode_sdwtim_type = atstype;
+            ilogger->trace("{}: activating SDW encoder/decoder and changing the translator type to: {}", fnname , atstype);
         }
     }
 
-    if (!decode_1609dot2 && !decode_messageframe ) {
-        // both remain false.
-        erroross.str("Input file did not specify any decoding.");
-        add_error_xml( doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-        elogger->error( "{}: {}", fnname, erroross.str() );
-        return false;
+    if (!decode_1609dot2 && !decode_messageframe && !decode_sdwtim ) {
+        throw UnparseableInputError{"Input file did not specify any encoding/decoding operations."};
     }
 
+	ilogger->trace("{}: finished... with flagword: {}", fnname, opsflag );
     return true;
 }
 
@@ -1659,7 +1598,6 @@ bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
  * Used as a test stub to bypass Kafka and work through the parsing, encoding, decoding.
  *
  */
-
 bool ASN1_Codec::filetest() {
 
     static const char* fnname = "filetest()";
@@ -1671,7 +1609,7 @@ bool ASN1_Codec::filetest() {
 
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);
-    
+
     try {
 
         if ( !configure() ) return EXIT_FAILURE;
@@ -1706,61 +1644,67 @@ bool ASN1_Codec::filetest() {
         msg_recv_count++;
         msg_recv_bytes += consumed_xml_buffer.size();
 
-        // pugi resets the document as part of load_buffer
-        pugi::xml_parse_result result = input_doc.load_buffer((const void*) consumed_xml_buffer.data(), consumed_xml_buffer.size(), xml_parse_options );
+        try {
 
-        if (!result) {
-            // TODO: Return an internally constructed XML file with and OdeStatus of INVALID_REQUEST_TYPE_ERROR.
-            erroross.str("");
-            erroross << "Input file parse error: " << result.description() << " at offset " << result.offset;
-            add_error_xml( error_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str(), true );
-            elogger->trace("{}: {}", fnname , erroross.str() );
-            error_doc.save( std::cerr );
-            return EXIT_FAILURE; 
-        } 
+            // pugi resets the document as part of load_buffer
+            pugi::xml_parse_result result = input_doc.load_buffer((const void*) consumed_xml_buffer.data(), consumed_xml_buffer.size(), xml_parse_options );
 
-        // examine the input xml encodings information and set the flags and requirements needed to properly parse
-        // the byte strings.
-        r = set_codec_requirements( input_doc );
-        if ( r ) {
+            if (!result) {
+                erroross.str("Input file parse error: ");
+                erroross << result.description() << " at offset " << result.offset;
+                throw UnparseableInputError{ erroross.str() };
+            } 
+
+            // examine the input xml encodings information and set the flags and requirements needed to properly parse the byte strings.
+            set_codec_requirements( input_doc );            // throws.
 
             // Retain this node reference. It is where the decoded result will be inserted.
             pugi::xml_node payload_node = ode_payload_query.evaluate_node( input_doc ).node();
 
             if ( !payload_node ) {
-                erroross.str("");
-                erroross << "Input file XPath search error";
-                add_error_xml( input_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, erroross.str() );
-                elogger->warn("{}: {}", fnname, erroross.str() );
-                r = false;
+                throw UnparseableInputError{ "Failed to find path: OdeAsn1Data/payload/data in the input document." };
+            } 
 
+            if ( decode_functionality ) {
+                decode_message( payload_node, output_msg_stream );
             } else {
-
-                if ( decode_functionality ) {
-                    ilogger->trace("{}: decoding...", fnname );
-                    r = decode_message( payload_node, output_msg_stream );
-                } else {
-                    ilogger->trace("{}: encoding...", fnname );
-                    r = encode_message( payload_node, output_msg_stream );
-                }
+                encode_message( payload_node, output_msg_stream );
             }
-        } 
 
-        if (r) {        // success
-            std::cout << output_msg_stream.str() << '\n';
-        } else {        // failure; description in input document.
-            input_doc.save( std::cout );
+        } catch (const UnparseableInputError& e) {
+
+            r = false;
+            elogger->trace("{}: UnparseableInputError {}", fnname , e.what() );
+            add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
+            error_doc.save(output_msg_stream,"",pugi::format_raw);
+
+        } catch (const MissingInputElementError& e) {
+
+            r = false;
+            elogger->trace("{}: MissingInputElementError {}", fnname , e.what() );
+            add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
+            error_doc.save(output_msg_stream,"",pugi::format_raw);
+
+        } catch (const Asn1CodecError& e) {
+
+            r = false;
+            elogger->trace("{}: Asn1CodecError {}", fnname , e.what() );
+            add_error_xml( input_doc, e.data_type(), e.error_type(), e.what(), false );
+            input_doc.save(output_msg_stream,"",pugi::format_raw);
+
         }
+
+        std::cout << output_msg_stream.str() << '\n';
 
     } else {
         ilogger->trace("Read an empty file.");
     }
 
     // NOTE: good for troubleshooting, but bad for performance.
+    ilogger->trace("{}: Finished.", fnname);
     elogger->flush();
     ilogger->flush();
 
-    ilogger->trace("{}: Finished.", fnname);
     return r ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
@@ -1768,8 +1712,9 @@ int ASN1_Codec::operator()(void) {
 
     static const char* fnname = "run()";
 
-    std::string error_string;
     RdKafka::ErrorCode status;
+    std::string error_string;
+    bool success = false;
 
     std::stringstream output_msg_stream;
 
@@ -1796,7 +1741,31 @@ int ASN1_Codec::operator()(void) {
 
         std::unique_ptr<RdKafka::Message> msg{ consumer_ptr->consume( consumer_timeout ) };
 
-        if ( msg->len() > 0 && process_message(msg.get(), output_msg_stream) ) {
+        try {
+
+            success = process_message( msg.get(), output_msg_stream );          // throws.
+
+        } catch (const UnparseableInputError& e) {
+
+            elogger->trace("{}: UnparseableInputError {}", fnname , e.what() );
+            add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
+            error_doc.save(output_msg_stream,"",pugi::format_raw);
+
+        } catch (const MissingInputElementError& e) {
+
+            elogger->trace("{}: MissingInputElementError {}", fnname , e.what() );
+            add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
+            error_doc.save(output_msg_stream,"",pugi::format_raw);
+
+        } catch (const Asn1CodecError& e) {
+
+            elogger->trace("{}: Asn1CodecError {}", fnname , e.what() );
+            add_error_xml( input_doc, e.data_type(), e.error_type(), e.what(), false );
+            input_doc.save(output_msg_stream,"",pugi::format_raw);
+
+        }
+
+        if ( msg->len() > 0 ) {
 
             std::cerr << msg->len() << " bytes consumed from topic: " << consumed_topics[0] << '\n';
 
