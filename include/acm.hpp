@@ -58,6 +58,7 @@
 
 #include "MessageFrame.h"
 #include "Ieee1609Dot2Data.h"
+#include "AdvisorySituationData.h"
 #include "tool.hpp"
 #include "spdlog/spdlog.h"
 #include "rdkafkacpp.h"
@@ -94,7 +95,7 @@ enum class Asn1DataType : uint32_t {
 enum class Asn1OpsType : uint32_t {
 	IEEE1609DOT2 = 1,			// 1<<0
 	J2735MESSAGEFRAME = 2,		// 1<<1
-	SDWTIM = 4,					// 1<<2
+	ASDFRAME = 4,					// 1<<2
 	COUNT
 };
 
@@ -302,13 +303,13 @@ class ASN1_Codec : public tool::Tool {
 		uint32_t opsflag;
         bool decode_1609dot2;
         bool decode_messageframe;
-		bool decode_sdwtim;
+		bool decode_asdframe;
         bool decode_functionality;
 
 		// TODO: flagword is more challenging here...
         enum asn_transfer_syntax decode_1609dot2_type;
         enum asn_transfer_syntax decode_messageframe_type;
-        enum asn_transfer_syntax decode_sdwtim_type;
+        enum asn_transfer_syntax decode_asdframe_type;
 
         enum asn_transfer_syntax get_ats_transfer_syntax( const char* ats_type );
         bool set_codec_requirements( pugi::xml_document& doc );
@@ -320,7 +321,7 @@ class ASN1_Codec : public tool::Tool {
 
         bool encode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string );
-        bool encode_sdwtim_data( const std::string& data_as_xml, std::string& hex_string );
+        bool encode_asdframe_data( const std::string& data_as_xml, std::string& hex_string );
 
         std::string get_current_time() const;
 };
