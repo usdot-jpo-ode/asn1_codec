@@ -198,7 +198,7 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
 	, opsflag{0}
     , decode_1609dot2{ false }
     , decode_messageframe{ false }
-	, decode_asdframe{true}
+	, decode_asdframe{ false }
 	, decode_functionality{ true }
 	, decode_1609dot2_type{ATS_CANONICAL_OER}
 	, decode_messageframe_type{ATS_UNALIGNED_BASIC_PER}
@@ -1587,6 +1587,7 @@ bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
     // re-establish defaults.
     decode_1609dot2 = false;
     decode_messageframe = false;
+    decode_asdframe = false;
     decode_1609dot2_type = ATS_CANONICAL_OER;
     decode_messageframe_type = ATS_UNALIGNED_BASIC_PER;
 
