@@ -89,6 +89,7 @@ bool fileExists( const std::string& s ) {
     return false;
 }
 
+
 /**
  * @brief predicate indicating whether a path/directory exists on the filesystem.
  *
