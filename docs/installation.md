@@ -85,7 +85,7 @@ The following steps worked on a fresh intall of Ubuntu 16.04:
 $ cd $GIT_REPOS/asn1_codec/asn1c
 $ git pull origin master
 $ aclocal
-$ test ./configure || autoreconf -iv
+$ test -f ./configure || autoreconf -iv
 $ ./configure
 $ make
 $ sudo make install
