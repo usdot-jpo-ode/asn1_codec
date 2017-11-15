@@ -20,6 +20,24 @@ target_include_directories(acm PUBLIC
     "/usr/local/include/librdkafka"
     )
 
+target_sources(acm_tests PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/tests.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/acm.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/tool.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/utilities.cpp"
+    )
+
+target_include_directories(acm_tests PUBLIC
+    "${ACM_SOURCE_DIR}/include"
+    "${ACM_SOURCE_DIR}/include/catch"
+    "${ACM_SOURCE_DIR}/include/rapidjson"
+    "${ACM_SOURCE_DIR}/include/spdlog"
+    "${ACM_SOURCE_DIR}/asn1c/skeletons"
+    "${ACM_SOURCE_DIR}/asn1c_combined"
+    "/usr/local/include"
+    "/usr/local/include/librdkafka"
+    )
+
 # # The sources in this directory that are needed for compilation.
 # target_sources(acm-blob-producer PUBLIC
 #     "${CMAKE_CURRENT_LIST_DIR}/acm_blob_producer.cpp"
