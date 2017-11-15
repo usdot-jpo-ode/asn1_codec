@@ -924,7 +924,6 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
     
     // flags for type of decoding required.
     pugi::xml_parse_result parse_result;
-    pugi::xml_node payload_node;
 
     size_t bytes_processed = 0;
 
@@ -975,16 +974,16 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
             // the byte strings.
             set_codec_requirements( input_doc );        // throws UnparseableInputErrors
 
-            payload_node = ode_payload_query.evaluate_node( input_doc ).node();
+            payload_node_ = ode_payload_query.evaluate_node( input_doc ).node();
 
-            if ( !payload_node ) {
+            if ( !payload_node_ ) {
                 throw UnparseableInputError{ "Failed to find the OdeAsn1Data/payload/data field in the input file." };
             }
 
             if ( decode_functionality ) {
-                decode_message( payload_node, output_message_stream );          // throws
+                decode_message( payload_node_, output_message_stream );          // throws
             } else {
-                encode_message( payload_node, output_message_stream );          // throws
+                encode_message( output_message_stream );          // throws
             }
                 
             return true;
@@ -1107,128 +1106,145 @@ bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream
     return success;
 } 
 
-// throws MissingInputElementError or Asn1CodecError (from encode_messageframe_data call) ONLY!
-bool ASN1_Codec::encode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream ) {
-
-    static const char* fnname = "encode_message()";
+void ASN1_Codec::encode_node_as_hex_string(bool replace) {
     std::stringstream xml_stream;
     std::string hex_str;
-    std::string hex_str2;
 
-    buffer_structure_t xb = {0, 0, 0};
+    pugi::xml_node node = payload_node_.first_element_by_path(curr_node_path_.c_str());
+
+    if (!node) {
+        throw MissingInputElementError{"Failed to find path: " + curr_node_path_ + "in the input document."};
+    }
+
+    pugi::xml_node parent_node = node.parent();
+
+    if (!parent_node) {
+        throw MissingInputElementError{"Failed to find parent node for: " + curr_node_path_ + "in the input document."};
+    }
+
+    // convert the child to string stream 
+    node.print(xml_stream, "", pugi::format_raw);
+
+    // remove the child node from parent
+    if ( !parent_node.remove_child(node) ) {
+        throw MissingInputElementError{"Failed to find child node in the input document."};
+    }
+
+    // do the encoding
+    switch (curr_op_) {
+        case IEEE1609DOT2:
+	        encode_1609dot2_frame_data(xml_stream.str(), hex_str); 
+
+            break;
+        case J2735MESSAGEFRAME:
+	        encode_messageframe_data(xml_stream.str(), hex_str); 
+
+            break;
+        case ASDFRAME:
+	        encode_asdframe_data(xml_stream.str(), hex_str); 
+
+            break;
+        default:
+            // TODO internal error
+            break;
+    }
+
+    std::string node_name(node.name());
+
+    hex_data_.push_back(std::make_tuple(node_name, hex_str));
+
+    if (!replace) {
+        return;
+    }
+
+    // append the hex bytes as a new node
+    if ( !parent_node.text().set(hex_str.c_str()) ) {
+        throw MissingInputElementError{"Failure to append hex bytes to the output document."};
+    }
+}
+
+void ASN1_Codec::encode_for_protocol() {
+    for (auto& part : protocol_) {
+        curr_op_ = std::get<0>(part);
+        curr_decode_type_ = std::get<1>(part);
+        curr_node_path_ = std::get<2>(part);
+
+        encode_node_as_hex_string(std::get<3>(part));
+    }
+
+    for (auto& data : hex_data_) {
+        std::string node_name = std::get<0>(data);
+        std::string hex_str = std::get<1>(data);
+
+        if ( !payload_node_.append_child(node_name.c_str()).append_child("bytes").text().set(hex_str.c_str()) ) {
+            throw MissingInputElementError{"Failure to append path: OdeAsn1Data/payload/data/" + node_name + "/bytes to the output document."};
+        }
+
+        ilogger->info( "{}: Successful encoding of XML into a ASN.1 hex string: {}", "encode_for_protocol", hex_str );
+    }
+
+    if (!payload_node_.parent().child("dataType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::HEX)] ) ) {
+            throw MissingInputElementError{"Failure to update path: OdeAsn1Data/payload/dataType in the output document."};
+    }
+}
+
+// throws MissingInputElementError or Asn1CodecError (from encode_messageframe_data call) ONLY!
+bool ASN1_Codec::encode_message( std::stringstream& output_message_stream ) {
+
+    static const char* fnname = "encode_message()";
 
     ilogger->trace("{}: starting...", fnname);
 
-    if ( decode_asdframe ) {
+    protocol_.clear();
+    hex_data_.clear();
 
-        pugi::xml_node asdnode = payload_node.child("AdvisorySituationData");
-        if ( !asdnode ) {
-            throw MissingInputElementError{"Failed to find path: OdeAsn1Data/payload/data/AdvisorySituationData in the input document."};
-        }
+    switch (opsflag) {
+        case IEEE1609DOT2:
+            protocol_.push_back(std::make_tuple(IEEE1609DOT2, decode_1609dot2_type, "Ieee1609Dot2Data", false));
 
-        pugi::xml_node amnode = asdnode.child("asdmDetails").child("advisoryMessage");
-        if ( !amnode ) {
-            throw MissingInputElementError{"Failed to find path: OdeAsn1Data/payload/data/AdvisorySituationData/asdmDetails/advisoryMessage in the input document."};
-        }
+            break;
+        case J2735MESSAGEFRAME:
+            protocol_.push_back(std::make_tuple(J2735MESSAGEFRAME, decode_messageframe_type, "MessageFrame", false));
 
-        pugi::xml_node mfnode = amnode.child("MessageFrame"); 
-        if ( !mfnode ) {
-            throw MissingInputElementError{"Failed to find path: OdeAsn1Data/payload/data/AdvisorySituationData/asdmDetails/advisoryMessage/MessageFrame in the input document."};
-        }
-        
-        // Writes the XML document from MessageFrame XML to a string stream.
-        mfnode.print(xml_stream,"",pugi::format_raw);
-		encode_messageframe_data( xml_stream.str(), hex_str );          // throws
+            break;
+        case IEEE1609DOT2_J2735MESSAGEFRAME:
+            protocol_.push_back(std::make_tuple(J2735MESSAGEFRAME, decode_messageframe_type, "Ieee1609Dot2Data/content/unsecuredData/MessageFrame", true));
+            protocol_.push_back(std::make_tuple(IEEE1609DOT2, decode_1609dot2_type, "Ieee1609Dot2Data", false));
 
-        // remove the OdeAsn1Data/payload/data/MessageFrame node: original hex string, so the new XML can be inserted.
-        if ( !amnode.remove_child("MessageFrame") ) {
-            throw MissingInputElementError{"Failed to remove path: MessageFrame XML in the input document."};
-        }
-        
-        // insert the encoded hex into the xml dom.
-        // encode the asd with hex mf into UPER
-        // add the OdeAsn1Data/payload/data/bytes node, then the hex encoded message as the text node.
-        if ( !amnode.text().set(hex_str.c_str()) ) {
-            throw MissingInputElementError{"Failure to append path: MessageFrame hexstring to advisoryMessage tag during encoding."};
-        }
+            break;
+        case ASDFRAME:
+            protocol_.push_back(std::make_tuple(ASDFRAME, decode_asdframe_type, "AdvisorySituationData", false));
 
-        xml_stream.str("");
-        xml_stream.clear();
-        asdnode.print( xml_stream, "", pugi::format_raw);
+            break;
+        case ASDFRAME_IEEE1609DOT2:
+            protocol_.push_back(std::make_tuple(IEEE1609DOT2, decode_1609dot2_type, "AdvisorySituationData/asdmDetails/advisoryMessage/Ieee1609Dot2Data", true));
+            protocol_.push_back(std::make_tuple(IEEE1609DOT2, decode_messageframe_type, "AdvisorySituationData", false));
 
-        encode_asdframe_data( xml_stream.str(), hex_str2 );
+            break;
+        case ASDFRAME_J2735MESSAGEFRAME:
+            protocol_.push_back(std::make_tuple(J2735MESSAGEFRAME, decode_messageframe_type, "AdvisorySituationData/asdmDetails/advisoryMessage/MessageFrame", true));
+            protocol_.push_back(std::make_tuple(ASDFRAME, decode_asdframe_type, "AdvisorySituationData", false));
 
-        // insert the encoded hex into the xml dom for return.
-
-        // set the OdeAsn1Data/payload/dataType node text node to the type string.
-        if ( !payload_node.parent().child("dataType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::HEX)] ) ) {
-            throw MissingInputElementError{"Failure to update path: OdeAsn1Data/payload/dataType in the output document."};
-        }
-
-        // remove the OdeAsn1Data/payload/data/AdvisorySituationData node: original hex string, so the new XML can be inserted.
-        // this will remove both ASD and internal MessageFrame if that is the case.
-        if ( !payload_node.remove_child("AdvisorySituationData") ) {
-            throw MissingInputElementError{"Failed to remove path: //payload/data/AdvisorySituationData in the input document."};
-        }
-
-        // add the OdeAsn1Data/payload/data/bytes node, then the hex encoded message as the text node.
-        // if ( !payload_node.append_child("bytes").text().set(hex_str.c_str()) ) {
-		// NOTE: 10/26/2017 changed to deposit bytes in <bytes> tag UNDER <MessageFrame> tag.
-        if ( !payload_node.append_child("MessageFrame").append_child("bytes").text().set(hex_str.c_str()) ) {
-            throw MissingInputElementError{"Failure to append path: OdeAsn1Data/payload/data/MessageFrame/bytes to the output document."};
-        }
-
-        // add the OdeAsn1Data/payload/data/bytes node, then the hex encoded message as the text node.
-        // if ( !payload_node.append_child("bytes").text().set(hex_str.c_str()) ) {
-		// NOTE: 10/26/2017 changed to deposit bytes in <bytes> tag UNDER <MessageFrame> tag.
-        if ( !payload_node.append_child("AdvisorySituationData").append_child("bytes").text().set(hex_str2.c_str()) ) {
-            throw MissingInputElementError{"Failure to append path: OdeAsn1Data/payload/data/AdvisorySituationData/bytes to the output document."};
-        }
-
-        ilogger->info( "{}: Successful encoding of XML into a ASN.1 hex string: {}", fnname , hex_str );
-
-    } else if ( decode_messageframe ) {   // assert !decode_asdframe
-
-        pugi::xml_node mfnode = payload_node.child("MessageFrame");
-        if ( !mfnode ) {
-            throw MissingInputElementError{"Failed to find path: OdeAsn1Data/payload/data/MessageFrame in the input document."};
-        }
-        
-        // Writes the XML document from OdeAsn1Data/payload/data/ to a string stream.
-        mfnode.print(xml_stream,"",pugi::format_raw);
-
-        // remove the OdeAsn1Data/payload/data/MessageFrame node: original hex string, so the new XML can be inserted.
-        if ( !payload_node.remove_child("MessageFrame") ) {
-            throw MissingInputElementError{"Failed to remove path: OdeAsn1Data/payload/data/MessageFrame in the input document."};
-        }
-
-		encode_messageframe_data( xml_stream.str(), hex_str );          // throws
-
-        ilogger->info( "{}: Successful encoding of XML into a ASN.1 hex string: {}", fnname , hex_str );
-
-        // add the OdeAsn1Data/payload/data/bytes node, then the hex encoded message as the text node.
-        // if ( !payload_node.append_child("bytes").text().set(hex_str.c_str()) ) {
-		// NOTE: 10/26/2017 changed to deposit bytes in <bytes> tag UNDER <MessageFrame> tag.
-        if ( !payload_node.append_child("MessageFrame").append_child("bytes").text().set(hex_str.c_str()) ) {
-            throw MissingInputElementError{"Failure to append path: OdeAsn1Data/payload/data/bytes to the output document."};
-        }
-
-        // set the OdeAsn1Data/payload/dataType node text node to the type string.
-        if ( !payload_node.parent().child("dataType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::HEX)] ) ) {
-            throw MissingInputElementError{"Failure to update path: OdeAsn1Data/payload/dataType in the output document."};
-        }
+            break;
+        case ASDFRAME_IEEE1609DOT2_J2735MESSAGEFRAME:
+            protocol_.push_back(std::make_tuple(J2735MESSAGEFRAME, decode_messageframe_type, "AdvisorySituationData/asdmDetails/advisoryMessage/Ieee1609Dot2Data/content/unsecuredData/MessageFrame", true));
+            protocol_.push_back(std::make_tuple(IEEE1609DOT2, decode_1609dot2_type, "AdvisorySituationData/asdmDetails/advisoryMessage/Ieee1609Dot2Data", true));
+            protocol_.push_back(std::make_tuple(ASDFRAME, decode_asdframe_type, "AdvisorySituationData", false));
 
 
-	} else {
-
-        throw MissingInputElementError{"An encoder was not specified in the encodingType tag that this module understands."};
+            break;
+        default:
+            throw MissingInputElementError{"An encoder was not specified in the encodingType tag that this module understands."};
 
     }
 
+    encode_for_protocol();
+    
     // convert DOM to a RAW string representation: no spaces, no tabs.
     // for testing.
-    input_doc.save(output_message_stream,"",pugi::format_raw);
+    input_doc.save(output_message_stream, "", pugi::format_raw);
     ilogger->trace("{}: finished...");
+
     return true;
 }
 
@@ -1426,7 +1442,91 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
     return true;
 }
 
-bool ASN1_Codec::encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string ) {
+void ASN1_Codec::encode_1609dot2_frame_data( const std::string& data_as_xml, std::string& hex_string ) {
+    static const char* fnname = "encode_1609dot2_frame_data()";
+    
+    asn_dec_rval_t decode_rval;
+    asn_enc_rval_t encode_rval;
+
+    errlen = max_errbuf_size;
+
+    ilogger->trace("{}: starting...", fnname );
+
+    Ieee1609Dot2Data_t *one609dot2_frame = 0;           // must be initialized to 0.
+
+    decode_rval = xer_decode( 
+            0, 
+            &asn_DEF_Ieee1609Dot2Data,
+            (void **)&one609dot2_frame,
+            data_as_xml.data(),
+            data_as_xml.size()
+            );
+
+    if ( decode_rval.code != RC_OK ) {
+        erroross.str("");
+        erroross << "failed ASN.1 decoding of XML element " << asn_DEF_Ieee1609Dot2Data.name << ": ";
+        if ( decode_rval.code == RC_FAIL ) {
+            erroross << "bad data.";
+        } else {
+            erroross << "more data expected.";
+        }
+        erroross << " Successfully decoded " << decode_rval.consumed << " bytes.";
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    ilogger->trace("{}: ASN.1 decode XML success.", fnname );
+
+    if (asn_check_constraints( &asn_DEF_Ieee1609Dot2Data, one609dot2_frame, errbuf, &errlen )) {
+        erroross.str("");
+        erroross << "failed ASN.1 constraints check of element " << asn_DEF_MessageFrame.name << ": ";
+        erroross.write( errbuf, errlen );
+        ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, one609dot2_frame);
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    buffer_structure_t coer_buffer = {0,0,0};
+
+    if (curr_decode_type_ == ATS_CANONICAL_OER) {
+        encode_rval = oer_encode(
+                &asn_DEF_Ieee1609Dot2Data, 
+                one609dot2_frame, 
+                dynamic_buffer_append, 
+                static_cast<void *>(&coer_buffer) 
+                );
+    } else if (curr_decode_type_ == ATS_UNALIGNED_BASIC_PER) {
+        encode_rval = uper_encode(
+                &asn_DEF_Ieee1609Dot2Data,
+                0,
+                one609dot2_frame, 
+                dynamic_buffer_append, 
+                static_cast<void *>(&coer_buffer) 
+                );
+    } else {
+        erroross.str("");
+        erroross << "Unsupported encoding for Ieee1609Dot2Data element;";
+        erroross.write( errbuf, errlen );
+        ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, one609dot2_frame);
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, one609dot2_frame);
+
+    if ( encode_rval.encoded == -1 ) {
+        erroross.str("");
+        erroross << "failed ASN.1 COER encoding of Ieee1609Dot2Data element " << encode_rval.failed_type->name;
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    if (!bytes_to_hex_(&coer_buffer, hex_string)) {
+        std::free( static_cast<void *>(coer_buffer.buffer) );
+        throw Asn1CodecError{ "failed attempt to encode MessageFrame byte buffer into hex string." };
+    }
+
+    std::free( static_cast<void *>(coer_buffer.buffer) );
+    ilogger->trace("{}: finished.", fnname );
+}
+
+void ASN1_Codec::encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string ) {
     static const char* fnname = "encode_messageframe_data()";
 
     asn_dec_rval_t decode_rval;
@@ -1493,7 +1593,6 @@ bool ASN1_Codec::encode_messageframe_data( const std::string& data_as_xml, std::
 
     std::free( static_cast<void *>(uper_buffer.buffer) );
     ilogger->trace("{}: finished.", fnname );
-    return true;
 }
 
 /**
@@ -1503,7 +1602,7 @@ bool ASN1_Codec::encode_messageframe_data( const std::string& data_as_xml, std::
  * - (maybe some generic pointer like the dframe) -- here this is an AdvisorySituationData_t*; this may be the one piece
  *   that is type specific... and needs a type cast or would be great to have an abstract base... 
  */
-bool ASN1_Codec::encode_asdframe_data( const std::string& data_as_xml, std::string& hex_string ) {
+void ASN1_Codec::encode_asdframe_data(  const std::string& data_as_xml, std::string& hex_string ) {
     static const char* fnname = "encode_asdframe_data()";
 
     asn_dec_rval_t decode_rval;
@@ -1574,7 +1673,6 @@ bool ASN1_Codec::encode_asdframe_data( const std::string& data_as_xml, std::stri
 
     std::free( static_cast<void *>(uper_buffer.buffer) );
     ilogger->trace("{}: finished.", fnname );
-    return true;
 }
 
 bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
@@ -1634,7 +1732,7 @@ bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
         }
     }
 
-    if (!decode_1609dot2 && !decode_messageframe && !decode_asdframe ) {
+    if (!opsflag) {
         throw UnparseableInputError{"Input file did not specify any encoding/decoding operations."};
     }
 
@@ -1707,16 +1805,16 @@ bool ASN1_Codec::filetest() {
             set_codec_requirements( input_doc );            // throws.
 
             // Retain this node reference. It is where the decoded result will be inserted.
-            pugi::xml_node payload_node = ode_payload_query.evaluate_node( input_doc ).node();
+            payload_node_ = ode_payload_query.evaluate_node( input_doc ).node();
 
-            if ( !payload_node ) {
+            if ( !payload_node_ ) {
                 throw UnparseableInputError{ "Failed to find path: OdeAsn1Data/payload/data in the input document." };
             } 
 
             if ( decode_functionality ) {
-                decode_message( payload_node, output_msg_stream );
+                decode_message( payload_node_, output_msg_stream );
             } else {
-                encode_message( payload_node, output_msg_stream );
+                encode_message( output_msg_stream );
             }
 
         } catch (const UnparseableInputError& e) {
