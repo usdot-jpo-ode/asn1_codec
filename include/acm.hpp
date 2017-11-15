@@ -327,9 +327,6 @@ class ASN1_Codec : public tool::Tool {
         std::vector<std::tuple<uint32_t, enum asn_transfer_syntax, std::string, bool>> protocol_;
         std::vector<std::tuple<std::string, std::string>> hex_data_;
 
-        void encode_node_as_hex_string(bool replace = true);
-        void encode_for_protocol();
-
         enum asn_transfer_syntax get_ats_transfer_syntax( const char* ats_type );
         bool set_codec_requirements( pugi::xml_document& doc );
 
@@ -339,9 +336,9 @@ class ASN1_Codec : public tool::Tool {
         bool decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
 
         bool encode_message( std::stringstream& output_message_stream );
-        void encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string );
-        void encode_1609dot2_frame_data( const std::string& data_as_xml, std::string& hex_string );
-        void encode_asdframe_data( const std::string& data_as_xml, std::string& hex_string );
+        void encode_frame_data(const std::string& data_as_xml, std::string& hex_string);
+        void encode_node_as_hex_string(bool replace = true);
+        void encode_for_protocol();
 
         std::string get_current_time() const;
 };

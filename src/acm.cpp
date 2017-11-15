@@ -1131,23 +1131,7 @@ void ASN1_Codec::encode_node_as_hex_string(bool replace) {
     }
 
     // do the encoding
-    switch (curr_op_) {
-        case IEEE1609DOT2:
-	        encode_1609dot2_frame_data(xml_stream.str(), hex_str); 
-
-            break;
-        case J2735MESSAGEFRAME:
-	        encode_messageframe_data(xml_stream.str(), hex_str); 
-
-            break;
-        case ASDFRAME:
-	        encode_asdframe_data(xml_stream.str(), hex_str); 
-
-            break;
-        default:
-            // TODO internal error
-            break;
-    }
+    encode_frame_data(xml_stream.str(), hex_str);
 
     std::string node_name(node.name());
 
@@ -1441,187 +1425,45 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
     ilogger->trace("{}: finished.", fnname );
     return true;
 }
-
-void ASN1_Codec::encode_1609dot2_frame_data( const std::string& data_as_xml, std::string& hex_string ) {
-    static const char* fnname = "encode_1609dot2_frame_data()";
-    
-    asn_dec_rval_t decode_rval;
-    asn_enc_rval_t encode_rval;
-
-    errlen = max_errbuf_size;
-
-    ilogger->trace("{}: starting...", fnname );
-
-    Ieee1609Dot2Data_t *one609dot2_frame = 0;           // must be initialized to 0.
-
-    decode_rval = xer_decode( 
-            0, 
-            &asn_DEF_Ieee1609Dot2Data,
-            (void **)&one609dot2_frame,
-            data_as_xml.data(),
-            data_as_xml.size()
-            );
-
-    if ( decode_rval.code != RC_OK ) {
-        erroross.str("");
-        erroross << "failed ASN.1 decoding of XML element " << asn_DEF_Ieee1609Dot2Data.name << ": ";
-        if ( decode_rval.code == RC_FAIL ) {
-            erroross << "bad data.";
-        } else {
-            erroross << "more data expected.";
-        }
-        erroross << " Successfully decoded " << decode_rval.consumed << " bytes.";
-        throw Asn1CodecError{ erroross.str() };
-    }
-
-    ilogger->trace("{}: ASN.1 decode XML success.", fnname );
-
-    if (asn_check_constraints( &asn_DEF_Ieee1609Dot2Data, one609dot2_frame, errbuf, &errlen )) {
-        erroross.str("");
-        erroross << "failed ASN.1 constraints check of element " << asn_DEF_MessageFrame.name << ": ";
-        erroross.write( errbuf, errlen );
-        ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, one609dot2_frame);
-        throw Asn1CodecError{ erroross.str() };
-    }
-
-    buffer_structure_t coer_buffer = {0,0,0};
-
-    if (curr_decode_type_ == ATS_CANONICAL_OER) {
-        encode_rval = oer_encode(
-                &asn_DEF_Ieee1609Dot2Data, 
-                one609dot2_frame, 
-                dynamic_buffer_append, 
-                static_cast<void *>(&coer_buffer) 
-                );
-    } else if (curr_decode_type_ == ATS_UNALIGNED_BASIC_PER) {
-        encode_rval = uper_encode(
-                &asn_DEF_Ieee1609Dot2Data,
-                0,
-                one609dot2_frame, 
-                dynamic_buffer_append, 
-                static_cast<void *>(&coer_buffer) 
-                );
-    } else {
-        erroross.str("");
-        erroross << "Unsupported encoding for Ieee1609Dot2Data element;";
-        erroross.write( errbuf, errlen );
-        ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, one609dot2_frame);
-        throw Asn1CodecError{ erroross.str() };
-    }
-
-    ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, one609dot2_frame);
-
-    if ( encode_rval.encoded == -1 ) {
-        erroross.str("");
-        erroross << "failed ASN.1 COER encoding of Ieee1609Dot2Data element " << encode_rval.failed_type->name;
-        throw Asn1CodecError{ erroross.str() };
-    }
-
-    if (!bytes_to_hex_(&coer_buffer, hex_string)) {
-        std::free( static_cast<void *>(coer_buffer.buffer) );
-        throw Asn1CodecError{ "failed attempt to encode MessageFrame byte buffer into hex string." };
-    }
-
-    std::free( static_cast<void *>(coer_buffer.buffer) );
-    ilogger->trace("{}: finished.", fnname );
-}
-
-void ASN1_Codec::encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string ) {
-    static const char* fnname = "encode_messageframe_data()";
-
-    asn_dec_rval_t decode_rval;
-    asn_enc_rval_t encode_rval;
-
-    errlen = max_errbuf_size;
-
-    ilogger->trace("{}: starting...", fnname );
-
-    MessageFrame_t *messageframe = 0;           // must be initialized to 0.
-
-    decode_rval = xer_decode( 
-            0, 
-            &asn_DEF_MessageFrame,
-            (void **)&messageframe,
-            data_as_xml.data(),
-            data_as_xml.size()
-            );
-
-    if ( decode_rval.code != RC_OK ) {
-        erroross.str("");
-        erroross << "failed ASN.1 decoding of XML element " << asn_DEF_MessageFrame.name << ": ";
-        if ( decode_rval.code == RC_FAIL ) {
-            erroross << "bad data.";
-        } else {
-            erroross << "more data expected.";
-        }
-        erroross << " Successfully decoded " << decode_rval.consumed << " bytes.";
-        throw Asn1CodecError{ erroross.str() };
-    }
-
-    ilogger->trace("{}: ASN.1 decode XML success.", fnname );
-
-    if (asn_check_constraints( &asn_DEF_MessageFrame, messageframe, errbuf, &errlen )) {
-        erroross.str("");
-        erroross << "failed ASN.1 constraints check of element " << asn_DEF_MessageFrame.name << ": ";
-        erroross.write( errbuf, errlen );
-        ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
-        throw Asn1CodecError{ erroross.str() };
-    }
-
-    buffer_structure_t uper_buffer = {0,0,0};
-
-    encode_rval = uper_encode(
-            &asn_DEF_MessageFrame, 
-            0,
-            messageframe, 
-            dynamic_buffer_append, 
-            static_cast<void *>(&uper_buffer) 
-            );
-
-    ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
-
-    if ( encode_rval.encoded == -1 ) {
-        erroross.str("");
-        erroross << "failed ASN.1 UPER encoding of MessageFrame element " << encode_rval.failed_type->name;
-        throw Asn1CodecError{ erroross.str() };
-    }
-
-    if (!bytes_to_hex_(&uper_buffer, hex_string)) {
-        std::free( static_cast<void *>(uper_buffer.buffer) );
-        throw Asn1CodecError{ "failed attempt to encode MessageFrame byte buffer into hex string." };
-    }
-
-    std::free( static_cast<void *>(uper_buffer.buffer) );
-    ilogger->trace("{}: finished.", fnname );
-}
-
-/**
- * This is ALMOST fixed up enough to parameterize it with:
- *
- * - const struct asn_TYPE_descriptor_s* data_struct
- * - (maybe some generic pointer like the dframe) -- here this is an AdvisorySituationData_t*; this may be the one piece
- *   that is type specific... and needs a type cast or would be great to have an abstract base... 
- */
-void ASN1_Codec::encode_asdframe_data(  const std::string& data_as_xml, std::string& hex_string ) {
-    static const char* fnname = "encode_asdframe_data()";
+        
+void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& hex_string) {
+    static const char* fnname = "encode_frame_data()";
 
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
 
 	// TODO: working toward a general solution for these function; first is passing in a ref to 
 	// these types of structures.
-	const struct asn_TYPE_descriptor_s* data_struct = &asn_DEF_AdvisorySituationData;
+	struct asn_TYPE_descriptor_s* data_struct;
+    void *frame_data = 0;
+
+    switch (curr_op_) {
+        case J2735MESSAGEFRAME:
+            data_struct = &asn_DEF_MessageFrame;
+
+            break;
+        case IEEE1609DOT2:
+            data_struct = &asn_DEF_Ieee1609Dot2Data;
+
+            break;
+        case ASDFRAME:
+            data_struct = &asn_DEF_AdvisorySituationData;
+
+            break;
+        default:
+            // TODO internal err
+            break;
+    }
 
     errlen = max_errbuf_size;
 
     ilogger->trace("{}: starting...", fnname );
 
-    AdvisorySituationData_t *dframe = 0;           // must be initialized to 0.
     decode_rval = xer_decode( 
             0 				// new parameter addition seems to work with nullptr.
 			, data_struct
             // , &asn_DEF_AdvisorySituationData
-            , (void **)&dframe
+            , (void **)&frame_data
             , data_as_xml.data()
             , data_as_xml.size()
             );
@@ -1640,25 +1482,26 @@ void ASN1_Codec::encode_asdframe_data(  const std::string& data_as_xml, std::str
 
     ilogger->trace("{}: ASN.1 decode XML success.", fnname );
 
-    if (asn_check_constraints( data_struct, dframe, errbuf, &errlen )) {
+    if (asn_check_constraints( data_struct, frame_data, errbuf, &errlen )) {
         erroross.str("");
         erroross << "failed ASN.1 constraints check of element " << data_struct->name << ": ";
         erroross.write( errbuf, errlen );
-        ASN_STRUCT_FREE(*data_struct, dframe);
+        ASN_STRUCT_FREE(*data_struct, frame_data);
         throw Asn1CodecError{ erroross.str() };
     }
 
-    buffer_structure_t uper_buffer = {0,0,0};
+    buffer_structure_t buffer = {0,0,0};
 
-    encode_rval = uper_encode(
-			data_struct
-            , 0
-            , dframe
-            , dynamic_buffer_append
-            , static_cast<void *>(&uper_buffer) 
-            );
+    encode_rval = asn_encode(
+        0,
+        curr_decode_type_,
+        data_struct,
+        frame_data, 
+        dynamic_buffer_append, 
+        static_cast<void *>(&buffer) 
+        );
 
-    ASN_STRUCT_FREE(*data_struct, dframe);
+    ASN_STRUCT_FREE(*data_struct, frame_data);
 
     if ( encode_rval.encoded == -1 ) {
         erroross.str("");
@@ -1666,12 +1509,12 @@ void ASN1_Codec::encode_asdframe_data(  const std::string& data_as_xml, std::str
         throw Asn1CodecError{ erroross.str() };
     }
 
-    if (!bytes_to_hex_(&uper_buffer, hex_string)) {
-        std::free( static_cast<void *>(uper_buffer.buffer) );
+    if (!bytes_to_hex_(&buffer, hex_string)) {
+        std::free( static_cast<void *>(buffer.buffer) );
         throw Asn1CodecError{ "failed attempt to encode SDWTIM byte buffer into hex string." };
     }
 
-    std::free( static_cast<void *>(uper_buffer.buffer) );
+    std::free( static_cast<void *>(buffer.buffer) );
     ilogger->trace("{}: finished.", fnname );
 }
 
