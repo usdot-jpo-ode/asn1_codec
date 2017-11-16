@@ -43,13 +43,22 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPDU=MessageFrame")
 add_executable(acm "")
 # add_executable(acm-blob-producer "")
 
+set(CATCH_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/catch")
+add_library(Catch INTERFACE)
+target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})       # catch is header only; tell where to find header.
+add_executable(acm_tests "") 
+
 include( "src/CMakeLists.txt" )
 
 target_link_libraries(acm pthread rdkafka++ asncodec pugixml)
 
+target_link_libraries(acm_tests pthread rdkafka++ asncodec pugixml Catch)
+target_compile_definitions(acm_tests PRIVATE _ASN1_CODEC_TESTS) 
+
 # Copy the data to the build. TODO make this part of the test or data target.
 set(DATA_DIR $<TARGET_FILE_DIR:acm>/data)
 set(CONFIG_DIR $<TARGET_FILE_DIR:acm>/config)
+set(UNIT_DATA_DIR $<TARGET_FILE_DIR:acm>/unit-test-data)
 
 # use cmake command mode (-E) commands to make and move files to build directory
 
@@ -64,6 +73,12 @@ add_custom_command(TARGET acm POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_direct
 
 # Copy the data files.
 add_custom_command(TARGET acm POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/config ${CONFIG_DIR})
+
+add_custom_command(TARGET acm PRE_BUILD COMMAND echo "Copying the data directory")
+add_custom_command(TARGET acm PRE_BUILD COMMAND ${CMAKE_COMMAND} 
+                   -E copy_directory ${CMAKE_SOURCE_DIR}/unit-test-data
+                   ${UNIT_DATA_DIR})
+
 
 # option(BUILD_TESTS "Determines whether to build tests." ON)
 # if(BUILD_TESTS)

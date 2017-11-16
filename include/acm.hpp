@@ -99,7 +99,6 @@ enum class Asn1OpsType : uint32_t {
 	COUNT
 };
 
-
 class UnparseableInputError : public std::runtime_error {
 
     Asn1DataType dt_;
@@ -217,6 +216,7 @@ class ASN1_Codec : public tool::Tool {
         bool launch_producer();
         bool process_message(RdKafka::Message* message, std::stringstream& output_message_stream);
         bool filetest();
+        bool file_test(std::string file_path, std::ostream& os, bool encode = true);
         int operator()(void);
 
         /**
@@ -241,6 +241,15 @@ class ASN1_Codec : public tool::Tool {
         static constexpr int ilognum = 5;                               ///> The number of information logs to rotate.
         static constexpr int elognum = 2;                               ///> The number of error logs to rotate.
         static constexpr std::size_t max_errbuf_size = 128;             ///> The length of error buffers for ASN.1 compiler.
+
+        // possible encoding configurations.
+        static constexpr uint32_t IEEE1609DOT2 = 1;
+        static constexpr uint32_t J2735MESSAGEFRAME = 2;		
+        static constexpr uint32_t IEEE1609DOT2_J2735MESSAGEFRAME = 3;
+        static constexpr uint32_t ASDFRAME = 4;
+        static constexpr uint32_t ASDFRAME_IEEE1609DOT2 = 5;
+        static constexpr uint32_t ASDFRAME_J2735MESSAGEFRAME = 6;
+        static constexpr uint32_t ASDFRAME_IEEE1609DOT2_J2735MESSAGEFRAME = 7;
 
         bool exit_eof;                                                  ///> flag to cause the application to exit on stream eof.
         int32_t eof_cnt;                                                ///> counts the number of eofs needed for exit_eof to work; each partition must end.
@@ -310,6 +319,14 @@ class ASN1_Codec : public tool::Tool {
         enum asn_transfer_syntax decode_1609dot2_type;
         enum asn_transfer_syntax decode_messageframe_type;
         enum asn_transfer_syntax decode_asdframe_type;
+        enum asn_transfer_syntax curr_decode_type_;
+    
+        uint32_t curr_op_;
+        std::string curr_node_path_;
+        pugi::xml_node payload_node_;
+
+        std::vector<std::tuple<uint32_t, enum asn_transfer_syntax, std::string, bool>> protocol_;
+        std::vector<std::tuple<std::string, std::string>> hex_data_;
 
         enum asn_transfer_syntax get_ats_transfer_syntax( const char* ats_type );
         bool set_codec_requirements( pugi::xml_document& doc );
@@ -319,9 +336,10 @@ class ASN1_Codec : public tool::Tool {
         bool decode_1609dot2_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
         bool decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
 
-        bool encode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
-        bool encode_messageframe_data( const std::string& data_as_xml, std::string& hex_string );
-        bool encode_asdframe_data( const std::string& data_as_xml, std::string& hex_string );
+        bool encode_message( std::stringstream& output_message_stream );
+        void encode_frame_data(const std::string& data_as_xml, std::string& hex_string);
+        void encode_node_as_hex_string(bool replace = true);
+        void encode_for_protocol();
 
         std::string get_current_time() const;
 };

@@ -45,6 +45,7 @@ handle the MessageFrames if wrapped in a IEEE 1609.2 Data frame.
 1. [Installation](docs/installation.md)
 1. [Configuration and Operation](docs/configuration.md)
 1. [Development](docs/coding-standards.md)
+1. [Testing](docs/testing.md)
 
 ## Release Notes
 

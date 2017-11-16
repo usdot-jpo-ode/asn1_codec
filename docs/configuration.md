@@ -42,16 +42,6 @@ line options override parameters specified in the configuration file.** The foll
 -v | --log-level       : The info log level [trace,debug,info,warning,error,critical,off]
 ```
 
-## ACM Standalone Operation / Testing
-
-If the `-F` option is used, the ACM will assume its first operand is a filename, attempt to open that file, and decode or
-encode it depending on the `-T` option. The ACM's output is written to stdout. The input XML file must not include any
-newlines. The following is an example command:
-
-```bash
-$ ./acm -F -c config/example.properties -T decode ../data/InputData.Ieee1609Dot2Data.packed.xml
-```
-
 # ACM Deployment
 
 Once the ACM is [installed and configured](installation.md) it operates as a background service.  The ACM can be started
@@ -80,9 +70,22 @@ or MessageFrames by themselves. If 1609.2 wrapped, the ACM finds and extracts th
 J2735 MessageFrame. The decoder uses the `elementType` and `encoderRule` tags to determine which types of decoding to
 perform.
 
-Currently, the encoder expects Traveler Information Messages (TIM) only. The TIM will be contained in a J2735 MessageFrame.
-The encoder uses UPER to ASN.1 encode these TIM messages.  The XML field `OdeAsn1Data/payload/dataType` is adjusted as
-it moves through the ACM.
+When encoding data, the ACM can encode combinations Advisory Situation Data, IEEE 1609.2, and J2735 MessageFrames. 
+Advisory Situation Data and IEEE 1609.2 can both contain a wrapped J2735 MessageFrame, and Advisory Situation Data
+frames can contained wrapped IEEE 1609.2 data. Therefore, there are 7 possible combinations of data types the encoding module 
+can handle:
+
+- J2735 MessageFrame
+- Advisory Situation Data*
+- IEEE 1609.2*
+- Advisory Situation Data wrapping a J2735 MessageFrame
+- IEEE 1609.2 wrapping a J2735 MessageFrame
+- Advisory Situation Data wrapping IEEE 1609.2* data
+- Advisory Situation Data wrapping IEEE 1609.2 wrapping a J2735 MessageFrame
+
+\* Denotes the message should already contain hex data, according the the ASN.1 specification for that message.
+For instance, IEEE 1609.2 must contain hex data in its `unsecuredData` tag. If the hex data is missing or invalid, 
+the ACM with likely generate an error when doing constraint checking.
 
 - After ENCODING this text is changed to: `us.dot.its.jpo.ode.model.OdeHexByteArray`
 - After DECODING this text is changed to: `us.dot.its.jpo.ode.model.OdeXml`
@@ -150,14 +153,14 @@ The following is an example of a portion of a configuration file:
 group.id=0
 
 # Kafka topics for ASN.1 Parsing
-asn1.j2735.topic.consumer=j2735asn1per
-asn1.j2735.topic.producer=j2735asn1xer
+asn1.topic.consumer=j2735asn1per
+asn1.topic.producer=j2735asn1xer
 
 # Amount of time to wait when no message is available (milliseconds)
-asn1.j2735.consumer.timeout.ms=5000
+asn1.consumer.timeout.ms=5000
 
 # For testing purposes, use one partition.
-asn1.j2735.kafka.partition=0
+asn1.kafka.partition=0
 
 # The host ip address for the Broker.
 metadata.broker.list=localhost:9092
@@ -173,12 +176,12 @@ The details of the settings and how they affect the function of the ACM follow:
 
 ## ODE Kafka Interface
 
-- `asn1.j2735.topic.producer` : The Kafka topic name where the ACM will write its output. **The name is case sensitive.**
+- `asn1.topic.producer` : The Kafka topic name where the ACM will write its output. **The name is case sensitive.**
 
-- `asn1.j2735.topic.consumer` : The Kafka topic name used by the Operational Data Environment (or other producer) that will be
+- `asn1.topic.consumer` : The Kafka topic name used by the Operational Data Environment (or other producer) that will be
   consumed by the ACM. **The name is case sensitive.**
 
-- `asn1.j2735.consumer.timeout.ms` : The amount of time the consumer blocks (or waits) for a new message. If a message is
+- `asn1.consumer.timeout.ms` : The amount of time the consumer blocks (or waits) for a new message. If a message is
   received before this time has elapsed it will be processed immediately.
 
 - `group.id` : The group identifier for the ACM consumer.  Consumers label
@@ -186,7 +189,7 @@ The details of the settings and how they affect the function of the ACM follow:
   delivered to one consumer instance within each subscribing consumer group.
   Consumer instances can be in separate processes or on separate machines.
 
-- `asn1.j2735.kafka.partition` : The partition(s) consumed by this ACM. A Kafka topic can be divided,
+- `asn1.kafka.partition` : The partition(s) consumed by this ACM. A Kafka topic can be divided,
   or partitioned, into several "parallel" streams. A topic may have many partitions so it can handle an arbitrary
   amount of data.
 
