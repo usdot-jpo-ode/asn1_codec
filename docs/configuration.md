@@ -93,7 +93,7 @@ can handle:
 - Advisory Situation Data wrapping IEEE 1609.2* data
 - Advisory Situation Data wrapping IEEE 1609.2 wrapping a J2735 MessageFrame
 
-* Denotes the message should already contain hex data, according the the ASN.1 specification for that message.
+\* Denotes the message should already contain hex data, according the the ASN.1 specification for that message.
 For instance, IEEE 1609.2 must contain hex data in its `unsecuredData` tag. If the hex data is missing or invalid, 
 the ACM with likely generate an error when doing constraint checking.
 
