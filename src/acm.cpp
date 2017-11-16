@@ -464,7 +464,7 @@ bool ASN1_Codec::configure() {
         partition = optInt( 'p' );
 
     } else {
-        auto search = pconf.find("asn1.j2735.kafka.partition");
+        auto search = pconf.find("asn1.kafka.partition");
         if ( search != pconf.end() ) {
             partition = std::stoi(search->second);              // throws.    
         }  // otherwise leave at default; PARTITION_UA
@@ -506,7 +506,7 @@ bool ASN1_Codec::configure() {
     // librdkafka defined configuration.
     conf->set("default_topic_conf", tconf, error_string);
 
-    search = pconf.find("asn1.j2735.topic.consumer");
+    search = pconf.find("asn1.topic.consumer");
     if ( search != pconf.end() ) {
         consumed_topics.push_back( search->second );
         ilogger->info("{}: consumed topic: {}", fnname , search->second);
@@ -523,7 +523,7 @@ bool ASN1_Codec::configure() {
 
     } else {
         // maybe it was specified in the configuration file.
-        auto search = pconf.find("asn1.j2735.topic.producer");
+        auto search = pconf.find("asn1.topic.producer");
         if ( search != pconf.end() ) {
             published_topic_name = search->second;
         } else {
@@ -534,7 +534,7 @@ bool ASN1_Codec::configure() {
 
     ilogger->info("{}: published topic: {}", fnname , published_topic_name);
 
-    search = pconf.find("asn1.j2735.consumer.timeout.ms");
+    search = pconf.find("asn1.consumer.timeout.ms");
     if ( search != pconf.end() ) {
         try {
             consumer_timeout = std::stoi( search->second );
