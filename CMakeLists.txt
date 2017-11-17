@@ -55,6 +55,8 @@ target_link_libraries(acm pthread rdkafka++ asncodec pugixml)
 target_link_libraries(acm_tests pthread rdkafka++ asncodec pugixml Catch)
 target_compile_definitions(acm_tests PRIVATE _ASN1_CODEC_TESTS) 
 
+add_subdirectory(kafka-test)
+
 # Copy the data to the build. TODO make this part of the test or data target.
 set(DATA_DIR $<TARGET_FILE_DIR:acm>/data)
 set(CONFIG_DIR $<TARGET_FILE_DIR:acm>/config)

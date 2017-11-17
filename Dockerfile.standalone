@@ -44,5 +44,3 @@ RUN cd /asn1-codec && mkdir -p /build && cd /build && cmake /asn1-codec && make
 
 # Add test data. This changes frequently so keep it low in the file.
 ADD ./docker-test /asn1-codec/docker-test
-
-CMD ["/asn1-codec/docker-test/acm.sh"]
