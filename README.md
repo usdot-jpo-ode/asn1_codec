@@ -1,7 +1,7 @@
 # Abstract Syntax Notation One (ASN.1) Codec Module for the Operational Data Environment (ODE)
 
 The ASN.1 Codec Module (ACM) processes Kafka data streams that preset [ODE
-Metadata](http://github.com/usdot-jpo-ode/jpo-ode/blob/develop/docs/Metadata_v3.md) wrapped ASN.1 data.  It can perform
+Metadata](https://github.com/usdot-jpo-ode/jpo-ode/blob/develop/docs/metadata_standards.md) wrapped ASN.1 data.  It can perform
 one of two functions depending on how it is started:
 
 1. **Decode**: This function is used to process messages *from* the connected
