@@ -10,6 +10,6 @@ asn1c -fcompound-names -gen-PER -gen-OER -pdu=all \
     SEMI_v2.3.0_070616.asn \
     2>&1 | tee compile.out
 
-sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' Makefile.am.example
+sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' converter-example.mk
 
-make -f Makefile.am.example
+make -f converter-example.mk 
