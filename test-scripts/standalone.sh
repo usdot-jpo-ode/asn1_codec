@@ -52,7 +52,7 @@ echo "Running standalone test with "$1 $2 $3 $4
 echo "**************************"
 
 # Start the PPM in a new container.
-docker run --name acm_kafka -v /tmp/docker-test/asn1-codec/data:/asn1_codec_data -it --rm -p '8080:8080' -d asn1codec_asn1_codec:latest /asn1_codec/docker-test/acm_standalone.sh $TYPE
+docker run --name acm_kafka -v /tmp/docker-test/asn1-codec/data:/asn1_codec_data -it --rm -p '8080:8080' -d asn1codec_asn1_codec:latest /asn1_codec/docker-test/acm_standalone.sh $TYPE > /dev/null
 
 sleep 10
 
