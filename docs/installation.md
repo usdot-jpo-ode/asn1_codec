@@ -204,7 +204,7 @@ ACM repository. You can pull fresh headers from the following locations:
           {
               "debug": true,
               "default-runtime": "runc",
-              "dns": ["160.91.126.23","160.91.126.28”],
+              "dns": ["160.91.126.23","160.91.126.28"],
               "icc": true,
               "insecure-registries": [],
               "ip": "0.0.0.0",
