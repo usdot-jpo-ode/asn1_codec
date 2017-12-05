@@ -3,8 +3,14 @@ USER root
 
 WORKDIR /asn1_codec
 
+VOLUME ["/asn1_codec_share"]
+
 # Add build tools.
 RUN apt-get update && apt-get install -y software-properties-common wget git make gcc-4.9 g++-4.9 gcc-4.9-base && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 100 && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 100
+
+#install editors vim and nano
+#RUN apt-get update && apt-get install -y vim
+#RUN apt-get update && apt-get install -y nano
 
 # Install cmake.
 RUN wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz && tar -xvf cmake-3.7.2.tar.gz
@@ -38,6 +44,12 @@ ADD ./include /asn1_codec/include
 ADD ./src /asn1_codec/src
 ADD ./kafka-test /asn1_codec/kafka-test
 ADD ./unit-test-data /asn1_codec/unit-test-data
+ADD ./run_acm.sh /asn1_codec
+
+RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.profile
+RUN echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.bashrc
+RUN echo "export CC=gcc" >> ~/.profile
+RUN echo "export CC=gcc" >> ~/.bashrc
 
 # Build acm.
 RUN cd /asn1_codec && mkdir -p /build && cd /build && cmake /asn1_codec && make
@@ -45,4 +57,6 @@ RUN cd /asn1_codec && mkdir -p /build && cd /build && cmake /asn1_codec && make
 # Add test data. This changes frequently so keep it low in the file.
 ADD ./docker-test /asn1_codec/docker-test
 
-CMD ["/asn1_codec/docker-test/acm.sh"]
+# run ACM
+RUN chmod 7777 /asn1_codec/run_acm.sh
+CMD ["/asn1_codec/run_acm.sh"]

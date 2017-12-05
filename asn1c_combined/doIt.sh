@@ -12,4 +12,4 @@ asn1c -fcompound-names -gen-PER -gen-OER -pdu=all \
 
 sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' converter-example.mk
 
-make -f converter-example.mk 
+make -f converter-example.mk
