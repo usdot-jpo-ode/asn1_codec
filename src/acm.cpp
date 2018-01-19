@@ -919,6 +919,10 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
     switch (message->err()) {
 
         case RdKafka::ERR__TIMED_OUT:
+            ilogger->info("{}: Waiting for more BSMs.", fnname );
+            break;
+
+        case RdKafka::ERR__MSG_TIMED_OUT:
             ilogger->info("{}: Waiting for more BSMs from the ODE producer.", fnname );
             break;
 
