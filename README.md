@@ -17,84 +17,66 @@ is subsequently *encoded into ASN.1 binary data*.
 
 ![ASN.1 Codec Operations](docs/graphics/asn1codec-operations.png)
 
-## Current ACM Data Types
-
-- The ACM handles inbound (from CV environment to ODE) Basic Safety Messages (BSMs)
-and Traveler Information Messages (TIMs) as SAE J2735 MessageFrames. It will also
-handle the MessageFrames if wrapped in a IEEE 1609.2 Data frame.
-
-	 - IEEE 1609.2 frames are usually encoded using COER rules, but the
-       module will use metadata provided by the ODE to determine the decoder to use.
-
-	 - SAE J2735 frames are usually encoded using UPER rules, but the
-	   module will use metadata provided by the ODE to determine the decoder to use.
-     
-- The ACM handles outbound (from ODE to CV environment) TIMs as SAE J2735 MessageFrames.
-
-	 - Currently, the SAE J2735 MessageFrame is encoded by the ODE using XER
-       rules. UPER rules are used to encode these payload for transmission to the CV environment.
-
-## Table of Contents
+# Table of Contents
 
 1. [Release Notes](#release-notes)
-1. [Project Management](#project-management)
-1. [Code Management and Deployment](#code-management-and-deployment)
-1. [Downloading the Source Code and Documentation](#downloading-the-source-code-and-documentation)
+1. [Getting Involved](#getting-involved)
 1. [Documentation](#documentation)
-1. [Code Documentation](#code-documentation)
 1. [Installation](docs/installation.md)
 1. [Configuration and Operation](docs/configuration.md)
-1. [Development](docs/coding-standards.md)
+1. [Interface](docs/interface.md)
 1. [Testing](docs/testing.md)
+1. [Project Management](#project-management)
 
-## Release Notes
-
-### ODE Sprint 24
+# Release Notes
 
 - ODE-537/581/584/585/586/537: ASN.1 codec module development and integration. 
 
-# Development and Collaboration Tools
+# Getting Involved
 
-## Project Management
+This project is sponsored by the U.S. Department of Transportation and supports Operational Data Environment data type
+conversions. Here are some ways you can start getting involved in this project:
 
-This project is managed using the Jira tool.
+- **Pull the code and check it out!**  The ASN.1 Codec project uses the [Pull Request Model](https://help.github.com/articles/using-pull-requests).
+    - Github has [instructions](https://help.github.com/articles/signing-up-for-a-new-github-account) for setting up an account and getting started with repositories.
+- If you would like to improve this code base or the documentation, [fork the project](https://github.com/usdot-jpo-ode/asn1_codec#fork-destination-box) and submit a pull request.
+- If you find a problem with the code or the documentation, please submit an [issue](https://github.com/usdot-jpo-ode/asn1_codec/issues/new).
 
-- [Jira Project Portal](https://usdotjpoode.atlassian.net/secure/Dashboard.jsp)
+## Introduction
 
-## Code Management and Deployment
+This project uses the [Pull Request Model](https://help.github.com/articles/using-pull-requests). This involves the following project components:
 
-Detailed [installation instructions](docs/installation.md) are provided on another page, so we recommend starting there
-if you want to run the ACM. If you just want to examine the code and documentation, you will need Git.
+- The usdot-jpo-ode organization project's [master branch](https://github.com/usdot-jpo-ode/asn1_codec).
+- A personal GitHub account.
+- A fork of a project release tag or master branch in your personal GitHub account.
 
-- [Git](https://git-scm.com/)
+A high level overview of our model and these components is as follows. All work will be submitted via pull requests.
+Developers will work on branches on their personal machines (local clients), push these branches to their **personal GitHub repos** and issue a pull
+request to the organization asn1_codec project. One the project's main developers must review the Pull Request and merge it
+or, if there are issues, discuss them with the submitter. This will ensure that the developers have a better
+understanding of the code base *and* we catch problems before they enter `master`. The following process should be followed:
 
-# Getting Started
+## Initial Setup
 
-## Downloading the Source Code and Documentation
-
-Follow these instructions to download the source code and documentation onto your machine. *This will not download the
-submodules the ACM requires to build (see the [installation instructions](docs/installation.md)).*
-
+1. If you do not have one yet, create a personal (or organization) account on GitHub (assume your account name is `<your-github-account-name>`).
+1. Log into your personal (or organization) account.
+1. Fork [asn1_codec](https://github.com/usdot-jpo-ode/asn1_codec/fork) into your personal GitHub account.
+1. On your computer (local client), clone the master branch from you GitHub account:
 ```bash
-git clone https://github.com/usdot-jpo-ode/asn1_codec.git
-```
-or
-
-```bash
-git clone git@github.com:usdot-jpo-ode/asn1_codec.git
+$ git clone https://github.com/<your-github-account-name>/asn1_codec.git
 ```
 
-## Documentation
+## Additional Resources for Initial Setup
+  
+- [About Git Version Control](http://git-scm.com/book/en/v2/Getting-Started-About-Version-Control)
+- [First-Time Git Setup](http://git-scm.com/book/en/Getting-Started-First-Time-Git-Setup)
+- [Article on Forking](https://help.github.com/articles/fork-a-repo)
 
-This documentation is in the `README.md` file. The remaining documentation files are in the `docs` subdirectory.  The
-following document will help practitioners build, test, deploy, and understand the ACM's functions:
+# Documentation
 
-- [ASN.1 Codec Module User Guide](docs/acm_user_manual.docx)
-
-All stakeholders are invited to provide input to these documents. Stakeholders should direct all input on this document
-to the JPO Product Owner at DOT, FHWA, or JPO. To provide feedback, we recommend that you create an "issue" in this
-repository (https://github.com/usdot-jpo-ode/asn1_codec/issues). You will need a GitHub account to create an issue. If you
-don’t have an account, a dialog will be presented to you to create one at no cost.
+This documentation is in the `README.md` file. Additional information can be found using the links in the [Table of
+Contents](#table-of-contents).  All stakeholders are invited to provide input to these documents. Stakeholders should
+direct all input on this document to the JPO Product Owner at DOT, FHWA, or JPO. 
 
 ## Code Documentation
 
@@ -108,3 +90,10 @@ $ doxygen
 
 The documentation is in HTML and is written to the `<install root>/asn1_codec/docs/html` directory. Open `index.html` in a
 browser.  
+
+## Project Management
+
+This project is managed using the Jira tool.
+
+- [Jira Project Portal](https://usdotjpoode.atlassian.net/secure/Dashboard.jsp)
+
