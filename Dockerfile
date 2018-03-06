@@ -52,7 +52,7 @@ RUN echo "export CC=gcc" >> ~/.profile
 RUN echo "export CC=gcc" >> ~/.bashrc
 
 # Build acm.
-RUN cd /asn1_codec && mkdir -p /build && cd /build && cmake /asn1_codec && make
+RUN mkdir -p /build && cd /build && cmake /asn1_codec && make
 
 # Add test data. This changes frequently so keep it low in the file.
 ADD ./docker-test /asn1_codec/docker-test
