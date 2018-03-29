@@ -99,6 +99,8 @@ enum class Asn1OpsType : uint32_t {
 	COUNT
 };
 
+extern asn_TYPE_descriptor_t *asn_pdu_collection[];
+
 class UnparseableInputError : public std::runtime_error {
 
     Asn1DataType dt_;
@@ -290,6 +292,7 @@ class ASN1_Codec : public tool::Tool {
         pugi::xml_document internal_doc;
         pugi::xml_document error_doc;                                   ///> A base XML document to use in responding to input XML parse errors.
 
+
         unsigned int xml_parse_options;
         pugi::xpath_query ieee1609dot2_unsecuredData_query;
         pugi::xpath_query ode_payload_query;
@@ -321,15 +324,20 @@ class ASN1_Codec : public tool::Tool {
         enum asn_transfer_syntax decode_asdframe_type;
         enum asn_transfer_syntax curr_decode_type_;
     
-        uint32_t curr_op_;
+        struct asn_TYPE_descriptor_s* curr_op_;
         std::string curr_node_path_;
         pugi::xml_node payload_node_;
 
-        std::vector<std::tuple<uint32_t, enum asn_transfer_syntax, std::string, bool>> protocol_;
+        std::vector<std::tuple<struct asn_TYPE_descriptor_s*, enum asn_transfer_syntax, std::string, bool>> protocol_;
         std::vector<std::tuple<std::string, std::string>> hex_data_;
 
+        std::unordered_map<std::string, struct asn_TYPE_descriptor_s*> asn_name_type_map_;
+
+        void make_asn_name_type_map();
+
         enum asn_transfer_syntax get_ats_transfer_syntax( const char* ats_type );
-        bool set_codec_requirements( pugi::xml_document& doc );
+        bool set_encoding_requirements( pugi::xml_document& doc );
+        bool set_decoding_requirements( pugi::xml_document& doc );
 
         bool decode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool decode_message_legacy( pugi::xml_node& payload_node, std::stringstream& output_message_stream );

@@ -11,10 +11,11 @@ for l in sys.stdin:
 
         print('Encodings', file=sys.stderr)
 
-        for encoding in root.findall('./metadata/encodings/encodings'):
-            print('  Name: {}'.format(encoding[0].text), file=sys.stderr)
-            print('  Type: {}'.format(encoding[2].text), file=sys.stderr)
-        
+        for encoding in root.findall('./metadata//encoding'):
+            print('  Path: {}'.format(encoding[0].text), file=sys.stderr)
+            print('  Type: {}'.format(encoding[1].text), file=sys.stderr)
+            print('  Rule: {}'.format(encoding[2].text), file=sys.stderr)
+
     except Exception as e:
         continue
 
