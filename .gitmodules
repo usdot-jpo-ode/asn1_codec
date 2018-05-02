@@ -4,10 +4,9 @@
 [submodule "pugixml"]
 	path = pugixml
 	url = https://github.com/zeux/pugixml.git
-[submodule "scms-asn"]
-	path = scms-asn
-	url = https://stash.campllc.org/scm/scms/scms-asn.git
-	branch = release/1.2.1
+[submodule "scms-asn1"]
+	path = scms-asn1
+	url = https://github.com/usdot-jpo-ode/scms-asn1.git
 [submodule "librdkafka"]
 	path = librdkafka
 	url = https://github.com/edenhill/librdkafka.git
