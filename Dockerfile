@@ -34,7 +34,7 @@ RUN cd /asn1_codec/asn1c && aclocal && test -f configure || autoreconf -iv && ./
 # Generate ASN.1 API.
 RUN export LD_LIBRARY_PATH=/usr/local/lib
 ADD ./asn1c_combined /asn1_codec/asn1c_combined
-ADD ./scms-asn /asn1_codec/scms-asn
+ADD ./scms-asn1 /asn1_codec/scms-asn1
 RUN cd /asn1_codec/asn1c_combined && bash doIt.sh
 
 # add the source and build files
