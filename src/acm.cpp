@@ -134,6 +134,7 @@ static int dynamic_buffer_append(const void *buffer, size_t size, void *app_key)
 }
 
 bool ASN1_Codec::data_available = true;
+bool ASN1_Codec::bootstrap = true;
 
 const char* asn1errortypes[] = {
     [static_cast<int>(Asn1ErrorType::SUCCESS)] = "SUCCESS",
@@ -235,6 +236,7 @@ std::string ASN1_Codec::get_current_time() const {
 
 void ASN1_Codec::sigterm (int sig) {
     data_available = false;
+    bootstrap = false;
 }
 
 void ASN1_Codec::metadata_print (const std::string &topic, const RdKafka::Metadata *metadata) {
@@ -1792,70 +1794,84 @@ int ASN1_Codec::operator()(void) {
         return EXIT_FAILURE;
     }
 
-    if ( !launch_consumer() ) return EXIT_FAILURE;
-    if ( !launch_producer() ) return EXIT_FAILURE;
+    while (bootstrap) {
+        // reset flag here, or else nothing works below
+        data_available = true;
 
-    // consume-produce loop.
-    while (data_available) {
-
-        std::unique_ptr<RdKafka::Message> msg{ consumer_ptr->consume( consumer_timeout ) };
-
-        try {
-
-            success = process_message( msg.get(), output_msg_stream );          // throws.
-
-        } catch (const UnparseableInputError& e) {
-
-            elogger->trace("{}: UnparseableInputError {}", fnname , e.what() );
-            add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
-            error_doc.save(output_msg_stream,"",pugi::format_raw);
-
-        } catch (const MissingInputElementError& e) {
-
-            elogger->trace("{}: MissingInputElementError {}", fnname , e.what() );
-            add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
-            error_doc.save(output_msg_stream,"",pugi::format_raw);
-
-        } catch (const pugi::xpath_exception& e ) {
-
-            elogger->trace("{}: pugi::xpath_exception {}", fnname, e.what() );
-            add_error_xml( error_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, e.what(), true );
-            error_doc.save(output_msg_stream,"",pugi::format_raw);
-
-        } catch (const Asn1CodecError& e) {
-
-            elogger->trace("{}: Asn1CodecError {}", fnname , e.what() );
-            add_error_xml( input_doc, e.data_type(), e.error_type(), e.what(), false );
-            input_doc.save(output_msg_stream,"",pugi::format_raw);
-
+        if ( !launch_consumer() ) {
+            std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ) );
+        
+            continue;
         }
 
-        if ( msg->len() > 0 ) {
+        if ( !launch_producer() ) {
+            std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ) );
 
-            std::cerr << msg->len() << " bytes consumed from topic: " << consumed_topics[0] << '\n';
+            continue;
+        }
 
-            std::string output_msg_string = output_msg_stream.str();
-            status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)output_msg_string.c_str(), output_msg_string.size(), NULL, NULL);
+        // consume-produce loop.
+        while (data_available) {
 
-            if (status != RdKafka::ERR_NO_ERROR) {
-                elogger->error("{}: Failure of XER encoding: {}", fnname , RdKafka::err2str( status ));
+            std::unique_ptr<RdKafka::Message> msg{ consumer_ptr->consume( consumer_timeout ) };
 
-            } else {
-                // successfully sent; update counters.
-                msg_send_count++;
-                msg_send_bytes += output_msg_string.size();
-                ilogger->trace("{}: successful encoding/decoding", fnname );
-                std::cerr << output_msg_string.size() << " bytes produced to topic: " << published_topic_ptr->name() << '\n';
+            try {
+
+                success = process_message( msg.get(), output_msg_stream );          // throws.
+
+            } catch (const UnparseableInputError& e) {
+
+                elogger->trace("{}: UnparseableInputError {}", fnname , e.what() );
+                add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
+                error_doc.save(output_msg_stream,"",pugi::format_raw);
+
+            } catch (const MissingInputElementError& e) {
+
+                elogger->trace("{}: MissingInputElementError {}", fnname , e.what() );
+                add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
+                error_doc.save(output_msg_stream,"",pugi::format_raw);
+
+            } catch (const pugi::xpath_exception& e ) {
+
+                elogger->trace("{}: pugi::xpath_exception {}", fnname, e.what() );
+                add_error_xml( error_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, e.what(), true );
+                error_doc.save(output_msg_stream,"",pugi::format_raw);
+
+            } catch (const Asn1CodecError& e) {
+
+                elogger->trace("{}: Asn1CodecError {}", fnname , e.what() );
+                add_error_xml( input_doc, e.data_type(), e.error_type(), e.what(), false );
+                input_doc.save(output_msg_stream,"",pugi::format_raw);
+
             }
 
-            // clear out the stream
-            output_msg_stream.str("");
-            output_msg_stream.clear();
-        } 
+            if ( msg->len() > 0 ) {
 
-        // NOTE: good for troubleshooting, but bad for performance.
-        elogger->flush();
-        ilogger->flush();
+                std::cerr << msg->len() << " bytes consumed from topic: " << consumed_topics[0] << '\n';
+
+                std::string output_msg_string = output_msg_stream.str();
+                status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)output_msg_string.c_str(), output_msg_string.size(), NULL, NULL);
+
+                if (status != RdKafka::ERR_NO_ERROR) {
+                    elogger->error("{}: Failure of XER encoding: {}", fnname , RdKafka::err2str( status ));
+
+                } else {
+                    // successfully sent; update counters.
+                    msg_send_count++;
+                    msg_send_bytes += output_msg_string.size();
+                    ilogger->trace("{}: successful encoding/decoding", fnname );
+                    std::cerr << output_msg_string.size() << " bytes produced to topic: " << published_topic_ptr->name() << '\n';
+                }
+
+                // clear out the stream
+                output_msg_stream.str("");
+                output_msg_stream.clear();
+            } 
+
+            // NOTE: good for troubleshooting, but bad for performance.
+            elogger->flush();
+            ilogger->flush();
+        }
     }
 
     ilogger->info("{}: shutting down...", fnname );

@@ -234,6 +234,7 @@ class ASN1_Codec : public tool::Tool {
 
     private:
 
+        static bool bootstrap;                                          ///> flag indicating we need to bootstrap the consumer and producer
         static bool data_available;                                     ///> flag to exit application; set via signals so static.
 
         static constexpr long ilogsize = 1048576 * 5;                   ///> The size of a single information log; these rotate.
