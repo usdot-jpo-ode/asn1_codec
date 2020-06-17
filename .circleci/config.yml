@@ -29,6 +29,7 @@ jobs:
       - run:
           name: Set up Docker
           command: |
+            set -x
             docker version
             docker-compose version
             sudo apt-get update
