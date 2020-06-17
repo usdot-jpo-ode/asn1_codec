@@ -20,6 +20,7 @@ jobs:
       - image: 'circleci/openjdk:8u252-jdk'
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Initialize Submodules
           command: |
