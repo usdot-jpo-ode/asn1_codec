@@ -27,7 +27,7 @@ jobs:
             git submodule init
             git submodule update
       - run:
-          name: Analyze on SonarCloud
+          name: Set up Docker
           command: |
             docker version
             docker-compose version
