@@ -34,6 +34,7 @@ jobs:
             docker version
             docker-compose version
             sudo apt-get update
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
             sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-engine
             sudo rm /usr/local/bin/docker-compose
             curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
