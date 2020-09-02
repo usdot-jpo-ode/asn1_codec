@@ -31,7 +31,7 @@ before_install:
     - sudo apt-get update -qq
 
 install:
-    - sudo apt-get install -qq g++=4.9
+    - sudo apt-get install g++=4.9
     - export CXX="g++=4.9"
 
 script:
