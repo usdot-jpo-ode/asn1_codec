@@ -50,6 +50,7 @@ jobs:
       - run:
           name: Instal Deps
           command: |
+            set -x
             sudo apt-get install -qq g++-4.9
             export CXX="g++-4.9"
 workflows:
