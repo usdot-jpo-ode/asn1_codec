@@ -474,7 +474,7 @@ bool ASN1_Codec::configure() {
 
     ilogger->info("{}: kafka partition: {}", fnname , partition);
 
-        // confluent cloud integration
+    // confluent cloud integration
     String kafkaType = std::getenv("KAFKA_TYPE");
     if (kafkaType != null && kafkaType == "CONFLUENT") {
         ilogger->info("Attempting to utilize Confluent Cloud.");
