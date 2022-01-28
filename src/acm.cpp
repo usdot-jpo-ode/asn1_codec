@@ -474,6 +474,28 @@ bool ASN1_Codec::configure() {
 
     ilogger->info("{}: kafka partition: {}", fnname , partition);
 
+        // confluent cloud integration
+    String kafkaType = std::getenv("KAFKA_TYPE");
+    if (kafkaType != null && kafkaType == "CONFLUENT") {
+        ilogger->info("Attempting to utilize Confluent Cloud.");
+        conf->set("ssl.endpoint.identification.algorithm", "https", error_string);
+        conf->set("security.protocol", "SASL_SSL", error_string);
+        conf->set("sasl.mechanism", "SASL_SSL", error_string);
+        String username = std::getenv("CONFLUENT_KEY");
+        String password = std::getenv("CONFLUENT_SECRET");
+
+        if (username != null && password != null) {
+            String auth = "org.apache.kafka.common.security.plain.PlainLoginModule required " + 
+                "username=\"" + username + "\" " +
+                "password=\"" + password + "\";";
+            conf->set("sasl.jaas.config", auth, error_string);
+        }
+        else {
+            elogger->error("Unable to utilize Confluent Cloud due to a problem with authentication. Key and/or secret not set.");
+        }
+    }
+    // end of confluent cloud integration
+
     if ( getOption('g').isSet() && conf->set("group.id", optString('g'), error_string) != RdKafka::Conf::CONF_OK) {
         // NOTE: there are some checks in librdkafka that require this to be present and set.
         elogger->error("{}: kafka error setting configuration parameters group.id h: {}", fnname , error_string);
