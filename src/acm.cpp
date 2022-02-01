@@ -482,7 +482,7 @@ bool ASN1_Codec::configure() {
         
         conf->set("bootstrap.servers", std::getenv("DOCKER_HOST_IP"));
         conf->set("security.protocol", "SASL_SSL", error_string);
-        conf->set("sasl.mechanisms", "PLAIN", error_string);
+        conf->set("sasl.mechanism", "PLAIN", error_string);
 
         std::string username = std::getenv("CONFLUENT_KEY");
         std::string password = std::getenv("CONFLUENT_SECRET");
