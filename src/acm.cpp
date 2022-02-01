@@ -475,16 +475,16 @@ bool ASN1_Codec::configure() {
     ilogger->info("{}: kafka partition: {}", fnname , partition);
 
     // confluent cloud integration
-    String kafkaType = std::getenv("KAFKA_TYPE");
+    std::string kafkaType = std::getenv("KAFKA_TYPE");
     if (kafkaType != null && kafkaType == "CONFLUENT") {
         ilogger->info("Attempting to utilize Confluent Cloud.");
         conf->set("ssl.endpoint.identification.algorithm", "https", error_string);
         conf->set("security.protocol", "SASL_SSL", error_string);
         conf->set("sasl.mechanism", "SASL_SSL", error_string);
-        String username = std::getenv("CONFLUENT_KEY");
-        String password = std::getenv("CONFLUENT_SECRET");
+        std::string username = std::getenv("CONFLUENT_KEY");
+        std::string password = std::getenv("CONFLUENT_SECRET");
 
-        if (username != null && password != null) {
+        if (username != NULL && password != NULL) {
             conf->set("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required", error_string);
             conf->set("sasl.username", "\"" + username + "\"", error_string);
             conf->set("sasl.password", "\"" + password + "\"", error_string);
