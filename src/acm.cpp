@@ -479,11 +479,13 @@ bool ASN1_Codec::configure() {
     if (kafkaType != null && kafkaType == "CONFLUENT") {
         ilogger->info("Attempting to utilize Confluent Cloud.");
         conf->set("ssl.endpoint.identification.algorithm", "https", error_string);
+        
+        conf->set("bootstrap.servers", std::getenv("DOCKER_HOST_IP"));
         conf->set("security.protocol", "SASL_SSL", error_string);
-        conf->set("sasl.mechanism", "SASL_SSL", error_string);
+        conf->set("sasl.mechanisms", "PLAIN", error_string);
+
         std::string username = std::getenv("CONFLUENT_KEY");
         std::string password = std::getenv("CONFLUENT_SECRET");
-
         if (username != NULL && password != NULL) {
             conf->set("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required", error_string);
             conf->set("sasl.username", "\"" + username + "\"", error_string);
