@@ -488,8 +488,8 @@ bool ASN1_Codec::configure() {
         std::string password = std::getenv("CONFLUENT_SECRET");
         if (username != NULL && password != NULL) {
             conf->set("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required", error_string);
-            conf->set("sasl.username", "\"" + username + "\"", error_string);
-            conf->set("sasl.password", "\"" + password + "\"", error_string);
+            conf->set("sasl.username", username, error_string);
+            conf->set("sasl.password", password, error_string);
         }
         else {
             elogger->error("Unable to utilize Confluent Cloud due to a problem with authentication. Key and/or secret not set.");
