@@ -476,24 +476,21 @@ bool ASN1_Codec::configure() {
 
     // confluent cloud integration
     std::string kafkaType = std::getenv("KAFKA_TYPE");
-    if (kafkaType != null && kafkaType == "CONFLUENT") {
-        ilogger->info("Attempting to utilize Confluent Cloud.");
-        conf->set("ssl.endpoint.identification.algorithm", "https", error_string);
-        
-        conf->set("bootstrap.servers", std::getenv("DOCKER_HOST_IP"));
-        conf->set("security.protocol", "SASL_SSL", error_string);
-        conf->set("sasl.mechanism", "PLAIN", error_string);
-
+    if (kafkaType == "CONFLUENT") {
+        // get username and password
         std::string username = std::getenv("CONFLUENT_KEY");
         std::string password = std::getenv("CONFLUENT_SECRET");
-        if (username != NULL && password != NULL) {
-            conf->set("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required", error_string);
-            conf->set("sasl.username", username, error_string);
-            conf->set("sasl.password", password, error_string);
-        }
-        else {
-            elogger->error("Unable to utilize Confluent Cloud due to a problem with authentication. Key and/or secret not set.");
-        }
+
+        // necessary
+        conf->set("bootstrap.servers", std::getenv("DOCKER_HOST_IP"), error_string);
+        conf->set("security.protocol", "SASL_SSL", error_string);
+        conf->set("sasl.mechanism", "PLAIN", error_string);
+        conf->set("sasl.username", username.c_str(), error_string);
+        conf->set("sasl.password", password.c_str(), error_string);
+
+        // may or may not be necessary
+        conf->set("ssl.endpoint.identification.algorithm", "https", error_string); // may or may not be necessary
+        conf->set("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required", error_string); // may or may not be necessary
     }
     // end of confluent cloud integration
 
