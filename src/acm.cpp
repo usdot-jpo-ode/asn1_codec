@@ -291,6 +291,8 @@ void ASN1_Codec::metadata_print (const std::string &topic, const RdKafka::Metada
 }
 
 bool ASN1_Codec::topic_available( const std::string& topic ) {
+    std::cout << "Initiating the topic_available() method." << std::endl; // DEBUG
+
     bool r = false;
 
     RdKafka::Metadata* md;
@@ -304,20 +306,27 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
         while ( it != md->topics()->end() && !r ) {
             // finish when we find it.
             r = ( (*it)->topic() == topic );
-            if ( r ) ilogger->info( "Topic: {} found in the kafka metadata.", topic );
+            if ( r ) {
+                ilogger->info( "Topic: {} found in the kafka metadata.", topic );
+                std::cout << "Topic: " << topic << " found in the kafka metadata." << std::endl;
+            }
             ++it;
         }
-        if (!r) ilogger->warn( "Metadata did not contain topic: {}.", topic );
+        if (!r) {
+            ilogger->warn( "Metadata did not contain topic: {}.", topic );
+            std::cout << "Metadata did not contain topic: " << topic << std::endl;
+        }
 
     } else {
         elogger->error( "cannot retrieve consumer metadata with error: {}.", err2str(err) );
+        std::cout << "Cannot retrieve consumer metadata with error: " << err2str(err) << std::endl;
     }
     
+    std::cout << "The topic_available() method has finished executing. Return value: " << r << std::endl;
     return r;
 }
 
-void ASN1_Codec::print_configuration() const
-{
+void ASN1_Codec::print_configuration() const {
     std::cout << "# Global config" << "\n";
     std::list<std::string>* conf_list = conf->dump();
 
@@ -344,6 +353,7 @@ void ASN1_Codec::print_configuration() const
 }
 
 bool ASN1_Codec::configure() {
+    std::cout << "Initiating the configure() method." << std::endl; // DEBUG
 
     static const char* fnname = "configure()";
     std::string line;
@@ -476,21 +486,25 @@ bool ASN1_Codec::configure() {
 
     // confluent cloud integration
     std::string kafkaType = std::getenv("KAFKA_TYPE");
+    std::cout << "Kafka type: " << kafkaType << std::endl; // DEBUG
     if (kafkaType == "CONFLUENT") {
+        std::cout << "Setting up Confluent Cloud configuration key/value pairs." << std::endl; // DEBUG
+
         // get username and password
         std::string username = std::getenv("CONFLUENT_KEY");
         std::string password = std::getenv("CONFLUENT_SECRET");
 
-        // necessary
+        // set up config
         conf->set("bootstrap.servers", std::getenv("DOCKER_HOST_IP"), error_string);
-        conf->set("security.protocol", "SASL_SSL", error_string);
+        std::cout << "Docker host IP: " << std::getenv("DOCKER_HOST_IP") << std::endl; // DEBUG
+        conf->set("ssl.endpoint.identification.algorithm", "https", error_string);
+        conf->set("secxurity.protocol", "SASL_SSL", error_string);
         conf->set("sasl.mechanism", "PLAIN", error_string);
+        conf->set("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule", error_string);
         conf->set("sasl.username", username.c_str(), error_string);
         conf->set("sasl.password", password.c_str(), error_string);
 
-        // may or may not be necessary
-        conf->set("ssl.endpoint.identification.algorithm", "https", error_string);
-        conf->set("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required", error_string);
+        std::cout << "Finished setting up Confluent Cloud configuration key/value pairs." << std::endl;
     }
     // end of confluent cloud integration
 
@@ -515,6 +529,8 @@ bool ASN1_Codec::configure() {
         }
 
         ilogger->info("{}: offset in partition set to byte: {}", fnname , o);
+        std::cout << "Finished with configuration. " << std::endl; // DEBUG
+        print_configuration();
     }
 
     // Do we want to exit if a stream eof is sent.
@@ -522,6 +538,7 @@ bool ASN1_Codec::configure() {
 
     if (optIsSet('d') && conf->set("debug", optString('d'), error_string) != RdKafka::Conf::CONF_OK) {
         elogger->error("{}: kafka error setting configuration parameter debug: {}", fnname , error_string);
+        std::cout << fnname << ": Kafka error setting configuration parameter debug: " << error_string << std::endl; // DEBUG
         return false;
     }
 
@@ -532,10 +549,12 @@ bool ASN1_Codec::configure() {
     if ( search != pconf.end() ) {
         consumed_topics.push_back( search->second );
         ilogger->info("{}: consumed topic: {}", fnname , search->second);
+        std::cout << fnname << ": consumed topic: " << search->second << std::endl; // DEBUG
 
     } else {
         
         elogger->error("{}: no consumer topic was specified; must fail.", fnname );
+        std::cout << fnname << ": No consumer topic was specified." << std::endl; // DEBUG
         return false;
     }
 
@@ -555,6 +574,7 @@ bool ASN1_Codec::configure() {
     }
 
     ilogger->info("{}: published topic: {}", fnname , published_topic_name);
+    std::cout << fnname << ": published topic: " << published_topic_name << std::endl; // DEBUG
 
     search = pconf.find("asn1.consumer.timeout.ms");
     if ( search != pconf.end() ) {
@@ -562,35 +582,42 @@ bool ASN1_Codec::configure() {
             consumer_timeout = std::stoi( search->second );
         } catch( std::exception& e ) {
             ilogger->info("{}: using the default consumer timeout value.", fnname );
+            std::cout << fnname << ": Using the default consuemr timeout value." << std::endl; // DEBUG
         }
     }
 
     ilogger->trace("{}: finished.", fnname );
+    std::cout << fnname << ": Finished." << std::endl; // DEBUG
+    print_configuration();
     return true;
 }
 
-bool ASN1_Codec::launch_producer()
-{
+bool ASN1_Codec::launch_producer() {
+    std::cout << "Initiating the launch_producer() method." << std::endl; // DEBUG
     std::string error_string;
 
     producer_ptr = std::shared_ptr<RdKafka::Producer>( RdKafka::Producer::create(conf, error_string) );
     if ( !producer_ptr ) {
         elogger->critical("Failed to create producer with error: {}.", error_string );
+        std::cout << "Failed to create producer with error: " << error_string << std::endl; // DEBUG
         return false;
     }
 
     published_topic_ptr = std::shared_ptr<RdKafka::Topic>( RdKafka::Topic::create(producer_ptr.get(), published_topic_name, tconf, error_string) );
     if ( !published_topic_ptr ) {
         elogger->critical("Failed to create topic: {}. Error: {}.", published_topic_name, error_string );
+        std::cout << "Failed to create topic " << published_topic_name << ". Error: " << error_string << std::endl; // DEBUG
         return false;
     } 
 
     ilogger->info("Producer: {} created using topic: {}.", producer_ptr->name(), published_topic_name);
+    std::cout << "Producer " << producer_ptr->name() << " created using topic " << published_topic_name << std::endl; // DEBUG
     return true;
 }
 
-bool ASN1_Codec::launch_consumer()
-{
+bool ASN1_Codec::launch_consumer(){
+    std::cout << "Initiating the launch_consumer() method." << std::endl; // DEBUG
+
     std::string error_string;
 
     consumer_ptr = std::shared_ptr<RdKafka::KafkaConsumer>( RdKafka::KafkaConsumer::create(conf, error_string) );
@@ -603,9 +630,14 @@ bool ASN1_Codec::launch_consumer()
     // loop terminates with a signal (CTRL-C) or when all the topics are available.
     int tcount = 0;
     for ( auto& topic : consumed_topics ) {
+        std::cout << "Looking for topic: " << topic << std::endl;
+        int attempt = 0;
         while ( data_available && tcount < consumed_topics.size() ) {
+            attempt++;
+            std::cout << "Attempt: " << attempt << std::endl;
             if ( topic_available(topic) ) {
                 ilogger->trace("Consumer topic: {} is available.", topic);
+                std::cout << "Consumer topic: " << topic << " is available." << std::endl;
                 // count it and attempt to get the next one if it exists.
                 ++tcount;
                 break;
@@ -613,6 +645,7 @@ bool ASN1_Codec::launch_consumer()
             // topic is not available, wait for a second or two.
             std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ) );
             ilogger->trace("Waiting for needed consumer topic: {}.", topic);
+            std::cout << "Waiting for needed consumer topic: " << topic << std::endl;
         }
     }
 
@@ -638,8 +671,9 @@ bool ASN1_Codec::launch_consumer()
     return true;
 }
 
-bool ASN1_Codec::make_loggers( bool remove_files )
-{
+bool ASN1_Codec::make_loggers( bool remove_files ) {
+    std::cout << "Initiating the make_loggers() method." << std::endl; // DEBUG
+    
     // defaults.
     std::string path{ "logs/" };
     std::string ilogname{ "log.info" };
@@ -754,6 +788,7 @@ bool ASN1_Codec::make_loggers( bool remove_files )
      */
 
 bool ASN1_Codec::add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1ErrorType et, std::string message, bool update_time ) {
+    std::cout << "Initiating the add_error_xml() method." << std::endl; // DEBUG
 
 	static const char* fnname = "add_error_xml()";
 	bool r = true;
@@ -926,6 +961,7 @@ enum asn_transfer_syntax ASN1_Codec::get_ats_transfer_syntax( const char* ats ) 
 }
 
 bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& output_message_stream ) {
+    std::cout << "Initiating the process_message() method." << std::endl; // DEBUG
 
     static const char* fnname = "process_message()";
     static std::string tsname;
@@ -1032,6 +1068,7 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
 }
 
 bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream ) {
+    std::cout << "Initiating the decode_message() method." << std::endl; // DEBUG
 
     static const char* fnname = "decode_message()";
     bool success = true;
@@ -1434,7 +1471,10 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
 }
         
 void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& hex_string) {
-    static const char* fnname = "encode_frame_data()";
+
+    static const char* fnname = "set_codec_requirements()";
+
+    std::cout << "Initiating " << fnname << "() method." << std::endl; // DEBUG
 
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
@@ -1520,8 +1560,9 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
 }
 
 bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
-
     static const char* fnname = "set_codec_requirements()";
+
+    std::cout << "Initiating " << fnname << "() method." << std::endl; // DEBUG
 
     enum asn_transfer_syntax atstype = ATS_INVALID;
 	opsflag = 0;
@@ -1677,6 +1718,8 @@ bool ASN1_Codec::filetest() {
     static const char* fnname = "filetest()";
     bool r = true;
 
+    std::cout << "Initiating filetest() method." << std::endl; // DEBUG
+
     std::string error_string;
     RdKafka::ErrorCode status;
     std::stringstream output_msg_stream;
@@ -1695,10 +1738,12 @@ bool ASN1_Codec::filetest() {
     }
 
     ilogger->trace("{}: Starting...", fnname);
+    std::cout << fnname << ": Starting..." << std::endl; // DEBUG
 
     std::FILE* ifile = std::fopen( operands[0].c_str(), "r" );
     if (!ifile) {
         std::cerr << "cannot open " << operands[0] << '\n';
+        std::cout << fnname << ": Cannot open " << operands[0] << std::endl; // DEBUG
         return EXIT_FAILURE;
     }
 
@@ -1714,6 +1759,7 @@ bool ASN1_Codec::filetest() {
     if ( consumed_xml_buffer.size() > 0 ) {
 
         ilogger->trace("{}: successful read of the test file having {} bytes.", fnname, consumed_xml_buffer.size() );
+        std::cout << fnname << ": Successful read of the test file have " << consumed_xml_buffer.size() << " bytes." << std::endl; // DEBUG
 
         msg_recv_count++;
         msg_recv_bytes += consumed_xml_buffer.size();
@@ -1790,6 +1836,7 @@ bool ASN1_Codec::filetest() {
 }
 
 int ASN1_Codec::operator()(void) {
+    std::cout << "Initiating operator() method." << std::endl; // DEBUG
 
     static const char* fnname = "run()";
 
