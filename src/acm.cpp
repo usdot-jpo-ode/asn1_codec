@@ -375,6 +375,7 @@ bool ASN1_Codec::configure() {
 
     const std::string& cfile = optString('c');              // needed for error message.
     ilogger->trace("{}: using configuration file: {}", fnname , cfile );
+    std::cout << "using configuration file: " << cfile << std::endl;
     std::ifstream ifs{ cfile };
 
     if (!ifs) {
@@ -395,16 +396,19 @@ bool ASN1_Codec::configure() {
                 // some of these configurations are stored in each...?? strange.
                 if ( tconf->set(pieces[0], pieces[1], error_string) == RdKafka::Conf::CONF_OK ) {
                     ilogger->info("{}: kafka topic configuration: {} = {}", fnname , pieces[0], pieces[1]);
+                    std::cout << "kafka topic configuration: " << pieces[0] << " = " << pieces[1] << std::endl;
                     done = true;
                 }
 
                 if ( conf->set(pieces[0], pieces[1], error_string) == RdKafka::Conf::CONF_OK ) {
                     ilogger->info("{}: kafka configuration: {} = {}", fnname , pieces[0], pieces[1]);
+                    std::cout << "kafka configuration: " << pieces[0] << " = " << pieces[1] << std::endl;
                     done = true;
                 }
 
                 if ( !done ) { 
                     ilogger->info("{}: ASN1_Codec configuration: {} = {}", fnname , pieces[0], pieces[1]);
+                    std::cout << "ASN1_Codec configuration: " << pieces[0] << " = " << pieces[1] << std::endl;
                     // These configuration options are not expected by Kafka.
                     // Assume there are for the ASN1_Codec.
                     pconf[ pieces[0] ] = pieces[1];
@@ -412,6 +416,7 @@ bool ASN1_Codec::configure() {
 
             } else {
                 elogger->warn("{}: too many pieces in the configuration file line: {}", fnname , line);
+                std::cout << "too many pieces in the configuration file line: " << line << std::endl;
             }
 
         } // otherwise: empty or comment line.
@@ -497,12 +502,11 @@ bool ASN1_Codec::configure() {
         // set up config
         conf->set("bootstrap.servers", std::getenv("DOCKER_HOST_IP"), error_string);
         std::cout << "Docker host IP: " << std::getenv("DOCKER_HOST_IP") << std::endl; // DEBUG
-        conf->set("ssl.endpoint.identification.algorithm", "https", error_string);
-        conf->set("secxurity.protocol", "SASL_SSL", error_string);
-        conf->set("sasl.mechanism", "PLAIN", error_string);
-        conf->set("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule", error_string);
+        conf->set("security.protocol", "SASL_SSL", error_string);
+        conf->set("sasl.mechanisms", "PLAIN", error_string);
         conf->set("sasl.username", username.c_str(), error_string);
         conf->set("sasl.password", password.c_str(), error_string);
+        conf->set("session.timeout.ms", "45000", error_string);
 
         std::cout << "Finished setting up Confluent Cloud configuration key/value pairs." << std::endl;
     }
@@ -511,6 +515,7 @@ bool ASN1_Codec::configure() {
     if ( getOption('g').isSet() && conf->set("group.id", optString('g'), error_string) != RdKafka::Conf::CONF_OK) {
         // NOTE: there are some checks in librdkafka that require this to be present and set.
         elogger->error("{}: kafka error setting configuration parameters group.id h: {}", fnname , error_string);
+        std::cout << "kafka error setting configuration parameter group.id: " << error_string << std::endl;
         return false;
     }
 
@@ -530,7 +535,6 @@ bool ASN1_Codec::configure() {
 
         ilogger->info("{}: offset in partition set to byte: {}", fnname , o);
         std::cout << "Finished with configuration. " << std::endl; // DEBUG
-        print_configuration();
     }
 
     // Do we want to exit if a stream eof is sent.
@@ -588,7 +592,7 @@ bool ASN1_Codec::configure() {
 
     ilogger->trace("{}: finished.", fnname );
     std::cout << fnname << ": Finished." << std::endl; // DEBUG
-    print_configuration();
+    // print_configuration();
     return true;
 }
 
