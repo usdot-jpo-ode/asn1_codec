@@ -487,10 +487,6 @@ bool ASN1_Codec::configure() {
         conf->set("sasl.mechanism", "PLAIN", error_string);
         conf->set("sasl.username", username.c_str(), error_string);
         conf->set("sasl.password", password.c_str(), error_string);
-
-        // may or may not be necessary
-        conf->set("ssl.endpoint.identification.algorithm", "https", error_string);
-        conf->set("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required", error_string);
     }
     // end of confluent cloud integration
 
