@@ -61,7 +61,7 @@
 #include "AdvisorySituationData.h"
 #include "tool.hpp"
 #include "spdlog/spdlog.h"
-#include "rdkafkacpp.h"
+#include "librdkafka/rdkafkacpp.h"
 #include "pugixml.hpp"
 
 #include <deque>

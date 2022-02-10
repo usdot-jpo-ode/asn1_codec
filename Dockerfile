@@ -20,8 +20,12 @@ RUN cd cmake-3.7.2 && ./bootstrap && make && make install && cd /home
 RUN apt-get update && apt-get install -y automake libtool
 
 # Install librdkafka.
-ADD ./librdkafka /asn1_codec/librdkafka
-RUN cd /asn1_codec/librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
+RUN apt-get install -y libsasl2-dev
+RUN apt-get install -y libsasl2-modules
+RUN apt-get install -y libssl-dev
+RUN apt-get install -y librdkafka-dev
+# ADD ./librdkafka /asn1_codec/librdkafka
+# RUN cd /asn1_codec/librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
