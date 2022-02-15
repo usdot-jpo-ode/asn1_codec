@@ -13,19 +13,18 @@ RUN apt-get update && apt-get install -y software-properties-common wget git mak
 #RUN apt-get update && apt-get install -y nano
 
 # Install cmake.
-RUN wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz && tar -xvf cmake-3.7.2.tar.gz
-RUN cd cmake-3.7.2 && ./bootstrap && make && make install && cd /home
+RUN apt-get install -y cmake
 
 # install libtool and automake
-RUN apt-get update && apt-get install -y automake libtool
+RUN apt-get install -y automake libtool
 
 # Install librdkafka.
 RUN apt-get install -y libsasl2-dev
 RUN apt-get install -y libsasl2-modules
 RUN apt-get install -y libssl-dev
 RUN apt-get install -y librdkafka-dev
-# ADD ./librdkafka /asn1_codec/librdkafka
-# RUN cd /asn1_codec/librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
+ADD ./librdkafka /asn1_codec/librdkafka
+RUN cd /asn1_codec/librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
