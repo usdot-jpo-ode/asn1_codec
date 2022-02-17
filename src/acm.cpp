@@ -612,9 +612,7 @@ bool ASN1_Codec::launch_consumer(){
     // loop terminates with a signal (CTRL-C) or when all the topics are available.
     int tcount = 0;
     for ( auto& topic : consumed_topics ) {
-        int attempt = 0;
         while ( data_available && tcount < consumed_topics.size() ) {
-            attempt++;
             if ( topic_available(topic) ) {
                 ilogger->trace("Consumer topic: {} is available.", topic);
                 // count it and attempt to get the next one if it exists.
