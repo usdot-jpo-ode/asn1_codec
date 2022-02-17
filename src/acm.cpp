@@ -1439,8 +1439,7 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
 }
         
 void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& hex_string) {
-
-    static const char* fnname = "set_codec_requirements()";
+    static const char* fnname = "encode_frame_data()";
 
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
