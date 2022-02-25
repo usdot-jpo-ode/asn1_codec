@@ -325,8 +325,7 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
     } else {
         elogger->error( "cannot retrieve consumer metadata with error: {}.", err2str(err) );
     }
-    
-    // std::cout << "The topic_available() method has finished executing. Return value: " << r << std::endl;
+
     return r;
 }
 
@@ -497,7 +496,6 @@ bool ASN1_Codec::configure() {
         conf->set("sasl.mechanism", "PLAIN", error_string);
         conf->set("sasl.username", username.c_str(), error_string);
         conf->set("sasl.password", password.c_str(), error_string);
-        // conf->set("debug", "all", error_string);
         conf->set("api.version.request", "true", error_string);
         conf->set("api.version.fallback.ms", "0", error_string);
         conf->set("broker.version.fallback", "0.10.0.0", error_string);
@@ -576,7 +574,6 @@ bool ASN1_Codec::configure() {
     }
 
     ilogger->trace("{}: finished.", fnname );
-    // print_configuration();
     return true;
 }
 
