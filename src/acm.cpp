@@ -72,15 +72,6 @@
 #include <unistd.h>
 #endif
 
-const char* getEnvironmentVariable(const char* variableName) {
-    const char* toReturn = std::getenv(variableName);
-    if (!toReturn) {
-        std::cout << "Something went wrong attempting to retrieve the environment variable " << variableName << std::endl;
-        toReturn = "";
-    }
-    return toReturn;
-}
-
 /**
  * @brief predicate indicating whether a file exists on the filesystem.
  *
@@ -1902,6 +1893,15 @@ int ASN1_Codec::operator()(void) {
     std::cerr << "ASN1_Codec consumed   : " << msg_recv_count << " blocks and " << msg_recv_bytes << " bytes\n";
     std::cerr << "ASN1_Codec published  : " << msg_send_count << " blocks and " << msg_send_bytes << " bytes\n";
     return EXIT_SUCCESS;
+}
+
+const char* ASN1_Codec::getEnvironmentVariable(const char* variableName) {
+    const char* toReturn = std::getenv(variableName);
+    if (!toReturn) {
+        ilogger->error("Something went wrong attempting to retrieve the environment variable {}", variableName);
+        toReturn = "";
+    }
+    return toReturn;
 }
 
 #ifndef _ASN1_CODEC_TESTS

@@ -218,6 +218,7 @@ class ASN1_Codec : public tool::Tool {
         bool filetest();
         bool file_test(std::string file_path, std::ostream& os, bool encode = true);
         int operator()(void);
+        const char* getEnvironmentVariable(const char* variableName);
 
         /**
          * @brief Create and setup the two loggers used for the ASN1_Codec. The locations and filenames for the logs can be specified
