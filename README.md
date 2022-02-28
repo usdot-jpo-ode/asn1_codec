@@ -102,6 +102,12 @@ This project is managed using the Jira tool.
 Rather than using a local kafka instance, the ACM can utilize an instance of kafka hosted by Confluent Cloud via SASL.
 
 ## Environment variables
+### Purpose & Usage
+- The DOCKER_HOST_IP environment variable is used to communicate with the bootstrap server that the instance of Kafka is running on.
+- The KAFKA_TYPE environment variable specifies what type of kafka connection will be attempted and is used to check if Confluent should be utilized.
+- The CONFLUENT_KEY and CONFLUENT_SECRET environment variables are used to authenticate with the bootstrap server.
+
+### Values
 - DOCKER_HOST_IP must be set to the bootstrap server address (excluding the port)
 - KAFKA_TYPE must be set to "CONFLUENT"
 - CONFLUENT_KEY must be set to the API key being utilized for CC
