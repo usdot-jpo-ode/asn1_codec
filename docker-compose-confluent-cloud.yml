@@ -10,8 +10,6 @@ services:
       CONFLUENT_KEY: ${CONFLUENT_KEY}
       CONFLUENT_SECRET: ${CONFLUENT_SECRET}
       ACM_CONFIG_FILE: adm.properties
-    depends_on:
-      - kafka
   aem:
     build:
       context: .
@@ -22,5 +20,3 @@ services:
       CONFLUENT_KEY: ${CONFLUENT_KEY}
       CONFLUENT_SECRET: ${CONFLUENT_SECRET}
       ACM_CONFIG_FILE: aem.properties
-    depends_on:
-      - kafka
