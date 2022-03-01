@@ -16,8 +16,6 @@ RUN apt-get install -y automake libtool
 
 # Install librdkafka.
 RUN apt-get install -y libsasl2-dev libsasl2-modules libssl-dev librdkafka-dev
-ADD ./librdkafka /asn1_codec/librdkafka
-RUN cd /asn1_codec/librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
