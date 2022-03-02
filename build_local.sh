@@ -11,7 +11,7 @@ INFO="[${CYAN}i${NC}]"
 
 buildAsn1c(){
     # build asn1c
-    echo "Building asn1c"
+    echo "${GREEN}Building asn1c${NC}"
     cd ./asn1c
     git pull origin master
     aclocal
@@ -25,7 +25,7 @@ buildAsn1c(){
 
 buildPugiXml(){
     # build pugixml
-    echo "Building pugixml"
+    echo "${GREEN}Building pugixml${NC}"
     cd ./pugixml
     git pull origin master
     mkdir build
@@ -39,7 +39,7 @@ buildPugiXml(){
 
 compileSpecAndBuildLibrary(){
     # Compile the Specifications and Build the Library
-    echo "Compile spec and build library"
+    echo "${GREEN}Compile spec and build library${NC}"
     cd ./asn1c_combined
     ./doIt.sh
     # get back to main directory
@@ -48,12 +48,19 @@ compileSpecAndBuildLibrary(){
 
 buildACM(){
     # Build the ACM
-    echo "Building ACM"
+    echo "${GREEN}Building ACM${NC}"
     mkdir build
     cd build
     cmake ..
     make
     # get back to main directory
+    cd ../
+}
+
+runTests() {
+    # assumes everything has been built
+    cd ./build
+    ./acm_tests
     cd ../
 }
 
@@ -63,13 +70,7 @@ runAll(){
     buildPugiXml
     compileSpecAndBuildLibrary
     buildACM
-}
-
-runTests() {
-    # assumes everything has been built
-    cd ./build
-    ./acm_tests
-    cd ../
+    runTests
 }
 
 help(){
