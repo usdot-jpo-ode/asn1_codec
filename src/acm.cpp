@@ -304,20 +304,23 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
         while ( it != md->topics()->end() && !r ) {
             // finish when we find it.
             r = ( (*it)->topic() == topic );
-            if ( r ) ilogger->info( "Topic: {} found in the kafka metadata.", topic );
+            if ( r ) {
+                ilogger->info( "Topic: {} found in the kafka metadata.", topic );
+            }
             ++it;
         }
-        if (!r) ilogger->warn( "Metadata did not contain topic: {}.", topic );
+        if (!r) {
+            ilogger->warn( "Metadata did not contain topic: {}.", topic );
+        }
 
     } else {
         elogger->error( "cannot retrieve consumer metadata with error: {}.", err2str(err) );
     }
-    
+
     return r;
 }
 
-void ASN1_Codec::print_configuration() const
-{
+void ASN1_Codec::print_configuration() const {
     std::cout << "# Global config" << "\n";
     std::list<std::string>* conf_list = conf->dump();
 
@@ -344,7 +347,6 @@ void ASN1_Codec::print_configuration() const
 }
 
 bool ASN1_Codec::configure() {
-
     static const char* fnname = "configure()";
     std::string line;
     std::string error_string;
@@ -358,7 +360,6 @@ bool ASN1_Codec::configure() {
 
     // must use a configuration file.
     if ( !optIsSet('c') ) {
-        std::cout << fnname << ": asked to use a configuration file, but option not set.\n";
         elogger->error( "{}: asked to use a configuration file, but option not set.", fnname  );
         return false;
     }
@@ -368,7 +369,6 @@ bool ASN1_Codec::configure() {
     std::ifstream ifs{ cfile };
 
     if (!ifs) {
-        std::cout << fnname << ": cannot open configuration file: " << cfile << '\n';
         elogger->error("{}: cannot open configuration file: {}", fnname , cfile);
         return false;
     }
@@ -474,6 +474,25 @@ bool ASN1_Codec::configure() {
 
     ilogger->info("{}: kafka partition: {}", fnname , partition);
 
+    // confluent cloud integration
+    std::string kafkaType = getEnvironmentVariable("KAFKA_TYPE");
+    if (kafkaType == "CONFLUENT") {
+        // get username and password
+        std::string username = getEnvironmentVariable("CONFLUENT_KEY");
+        std::string password = getEnvironmentVariable("CONFLUENT_SECRET");
+
+        // set up config
+        conf->set("bootstrap.servers", getEnvironmentVariable("DOCKER_HOST_IP"), error_string);
+        conf->set("security.protocol", "SASL_SSL", error_string);
+        conf->set("sasl.mechanism", "PLAIN", error_string);
+        conf->set("sasl.username", username.c_str(), error_string);
+        conf->set("sasl.password", password.c_str(), error_string);
+        conf->set("api.version.request", "true", error_string);
+        conf->set("api.version.fallback.ms", "0", error_string);
+        conf->set("broker.version.fallback", "0.10.0.0", error_string);
+    }
+    // end of confluent cloud integration
+
     if ( getOption('g').isSet() && conf->set("group.id", optString('g'), error_string) != RdKafka::Conf::CONF_OK) {
         // NOTE: there are some checks in librdkafka that require this to be present and set.
         elogger->error("{}: kafka error setting configuration parameters group.id h: {}", fnname , error_string);
@@ -549,8 +568,7 @@ bool ASN1_Codec::configure() {
     return true;
 }
 
-bool ASN1_Codec::launch_producer()
-{
+bool ASN1_Codec::launch_producer() {
     std::string error_string;
 
     producer_ptr = std::shared_ptr<RdKafka::Producer>( RdKafka::Producer::create(conf, error_string) );
@@ -569,8 +587,7 @@ bool ASN1_Codec::launch_producer()
     return true;
 }
 
-bool ASN1_Codec::launch_consumer()
-{
+bool ASN1_Codec::launch_consumer(){
     std::string error_string;
 
     consumer_ptr = std::shared_ptr<RdKafka::KafkaConsumer>( RdKafka::KafkaConsumer::create(conf, error_string) );
@@ -618,8 +635,7 @@ bool ASN1_Codec::launch_consumer()
     return true;
 }
 
-bool ASN1_Codec::make_loggers( bool remove_files )
-{
+bool ASN1_Codec::make_loggers( bool remove_files ) {    
     // defaults.
     std::string path{ "logs/" };
     std::string ilogname{ "log.info" };
@@ -734,7 +750,6 @@ bool ASN1_Codec::make_loggers( bool remove_files )
      */
 
 bool ASN1_Codec::add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1ErrorType et, std::string message, bool update_time ) {
-
 	static const char* fnname = "add_error_xml()";
 	bool r = true;
 
@@ -906,7 +921,6 @@ enum asn_transfer_syntax ASN1_Codec::get_ats_transfer_syntax( const char* ats ) 
 }
 
 bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& output_message_stream ) {
-
     static const char* fnname = "process_message()";
     static std::string tsname;
     static RdKafka::MessageTimestamp ts;
@@ -1012,7 +1026,6 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
 }
 
 bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream ) {
-
     static const char* fnname = "decode_message()";
     bool success = true;
     pugi::xml_parse_result parse_result;
@@ -1500,7 +1513,6 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
 }
 
 bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
-
     static const char* fnname = "set_codec_requirements()";
 
     enum asn_transfer_syntax atstype = ATS_INVALID;
@@ -1770,7 +1782,6 @@ bool ASN1_Codec::filetest() {
 }
 
 int ASN1_Codec::operator()(void) {
-
     static const char* fnname = "run()";
 
     RdKafka::ErrorCode status;
@@ -1882,6 +1893,15 @@ int ASN1_Codec::operator()(void) {
     std::cerr << "ASN1_Codec consumed   : " << msg_recv_count << " blocks and " << msg_recv_bytes << " bytes\n";
     std::cerr << "ASN1_Codec published  : " << msg_send_count << " blocks and " << msg_send_bytes << " bytes\n";
     return EXIT_SUCCESS;
+}
+
+const char* ASN1_Codec::getEnvironmentVariable(const char* variableName) {
+    const char* toReturn = std::getenv(variableName);
+    if (!toReturn) {
+        ilogger->error("Something went wrong attempting to retrieve the environment variable {}", variableName);
+        toReturn = "";
+    }
+    return toReturn;
 }
 
 #ifndef _ASN1_CODEC_TESTS

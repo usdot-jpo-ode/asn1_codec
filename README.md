@@ -27,6 +27,7 @@ is subsequently *encoded into ASN.1 binary data*.
 1. [Interface](docs/interface.md)
 1. [Testing](docs/testing.md)
 1. [Project Management](#project-management)
+1. [Confluent Cloud Integration](#confluent-cloud-integration)
 
 # Release Notes
 
@@ -97,3 +98,23 @@ This project is managed using the Jira tool.
 
 - [Jira Project Portal](https://usdotjpoode.atlassian.net/secure/Dashboard.jsp)
 
+# Confluent Cloud Integration
+Rather than using a local kafka instance, the ACM can utilize an instance of kafka hosted by Confluent Cloud via SASL.
+
+## Environment variables
+### Purpose & Usage
+- The DOCKER_HOST_IP environment variable is used to communicate with the bootstrap server that the instance of Kafka is running on.
+- The KAFKA_TYPE environment variable specifies what type of kafka connection will be attempted and is used to check if Confluent should be utilized.
+- The CONFLUENT_KEY and CONFLUENT_SECRET environment variables are used to authenticate with the bootstrap server.
+
+### Values
+- DOCKER_HOST_IP must be set to the bootstrap server address (excluding the port)
+- KAFKA_TYPE must be set to "CONFLUENT"
+- CONFLUENT_KEY must be set to the API key being utilized for CC
+- CONFLUENT_SECRET must be set to the API secret being utilized for CC
+
+## CC Docker Compose File
+There is a provided docker-compose file (docker-compose-confluent-cloud.yml) that passes the above environment variables into the container that gets created. Further, this file doesn't spin up a local kafka instance since it is not required.
+
+## Note
+This has only been tested with Confluent Cloud but technically all SASL authenticated Kafka brokers can be reached using this method.

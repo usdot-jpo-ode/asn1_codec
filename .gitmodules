@@ -7,6 +7,3 @@
 [submodule "scms-asn1"]
 	path = scms-asn1
 	url = https://github.com/usdot-jpo-ode/scms-asn1.git
-[submodule "librdkafka"]
-	path = librdkafka
-	url = https://github.com/edenhill/librdkafka.git

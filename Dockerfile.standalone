@@ -4,7 +4,7 @@ USER root
 WORKDIR /asn1_codec
 
 # Add build tools.
-RUN apt-get update && apt-get install -y software-properties-common wget git make gcc-4.9 g++-4.9 gcc-4.9-base && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 100 && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 100
+RUN apt-get update && apt-get install -y software-properties-common wget git make gcc-7 g++-7 gcc-7-base && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 100 && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 100
 
 # Install cmake.
 RUN wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz && tar -xvf cmake-3.7.2.tar.gz
@@ -14,8 +14,7 @@ RUN cd cmake-3.7.2 && ./bootstrap && make && make install && cd /home
 RUN apt-get update && apt-get install -y automake libtool
 
 # Install librdkafka.
-ADD ./librdkafka /asn1_codec/librdkafka
-RUN cd /asn1_codec/librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
+RUN apt-get install -y libsasl2-dev libsasl2-modules libssl-dev librdkafka-dev
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
