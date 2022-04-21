@@ -38,13 +38,24 @@ $ sudo apt install autoconf
 $ sudo apt install libtool
 ```
 
-## 4. Create a base directory from which to install all the necessary components to test the ACM.
+## 4. Install librdkafka
+
+Talking to a Kafka instance, subscribing and producting to topics requires the use of a third party library. We use the librdkafka library as a c/c++ implementation. This can be imported as a submodule, or installed in your development machine:
+
+```bash
+$ sudo apt install libsasl2-dev 
+$ sudo apt install libsasl2-modules
+$ sudo apt install libssl-dev 
+$ sudo apt install librdkafka-dev
+```
+
+## 5. Create a base directory from which to install all the necessary components to test the ACM.
 
 ```bash
 $ export GIT_REPOS=~/some/dir/you/want/to/put/this/stuff
 ```
 
-## 5. Install the ACM Code, Submodules, and Documentation
+## 6. Install the ACM Code, Submodules, and Documentation
 
 ```bash
 $ cd $GIT_REPOS
@@ -63,7 +74,7 @@ $ cd $GIT_REPOS/asn1_codec
 $ git submodule update --init --recursive
 ```
 
-## 6. Build the Submodules
+## 7. Build the Submodules
 
 ### a. Build the ASN.1 Compiler (asn1c).  
 
@@ -114,28 +125,7 @@ Note: an out of source build is also an option and works.
 
 This should install these libraries in the usual locations, i.e., `/usr/local/lib` `/usr/local/include`
 
-### c. Build the librdkafka library.
-
-The ACM uses the [Kafka](https://kafka.apache.org) distributed streaming platform to consume and produce data. Since the
-ACM and ASN.1 compiler are written in C/C++, a C++ implementation of Kafka is used. The open source library used is
-called [`librdkafka`](https://github.com/edenhill/librdkafka). `librdkafka` has been included as a submodule in the
-ACM project. To install this module (if not already installed) use the following instructions:
-
-```bash
-$ cd $GIT_REPOS/asn1_codec/librdkafka
-$ git pull origin master
-$ ./configure
-$ make
-$ sudo make install
-```
-
-This should install the libraries in `/usr/local/lib/`. Two libraries: `librdkafka++.a` and `librdkafka.a`
-This should install the headers in `/usr/local/include/librdkafka/`. Two headers: `rdkafka.h` and `rdkafkacpp.h`
-
-Note: if you put these in a different location, the ACM may not build.
-Note: There is a CMakeLists.txt file, but using CMake did not work.
-
-## 7. Compile the J2735 and IEEE 1609.2 ASN.1 Specification Files and Build the CV ASN.1 Codec Library
+## 8. Compile the J2735 and IEEE 1609.2 ASN.1 Specification Files and Build the CV ASN.1 Codec Library
 
 The ACM project's `asn1c_combined` subdirectory is where a library that performs connected vehicle specific ASN.1
 encoding and decoding will be built. More specifically, this library decodes various ASN.1 binary encodings (e.g., UPER,
@@ -169,7 +159,7 @@ During compilation numerous source code files will be generated in or moved into
 static library, `libasncodec.a`, and the command line tool, `converter-example`. The latter is not
 needed, but useful. Do not remove the header files that are generated in this directory
 
-## 8. Build the ACM
+## 9. Build the ACM
 
 Finally, build the ACM.  The ACM is build using CMake.
 
