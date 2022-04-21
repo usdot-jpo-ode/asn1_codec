@@ -590,10 +590,14 @@ bool ASN1_Codec::launch_producer() {
 bool ASN1_Codec::launch_consumer(){
     std::string error_string;
 
-    consumer_ptr = std::shared_ptr<RdKafka::KafkaConsumer>( RdKafka::KafkaConsumer::create(conf, error_string) );
-    if (!consumer_ptr) {
-        elogger->critical("Failed to create consumer with error: {}",  error_string );
-        return false;
+    // check if the consumer was previously created to avoid 
+    // issues with consumers in a group not able to consume
+    if(!consumer_ptr){
+        consumer_ptr = std::shared_ptr<RdKafka::KafkaConsumer>( RdKafka::KafkaConsumer::create(conf, error_string) );
+        if (!consumer_ptr) {
+            elogger->critical("Failed to create consumer with error: {}",  error_string );
+            return false;
+        }
     }
 
     // wait on the topics we specified to become available for subscription.
