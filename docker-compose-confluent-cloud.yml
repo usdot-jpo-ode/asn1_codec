@@ -10,8 +10,6 @@ services:
       CONFLUENT_KEY: ${CONFLUENT_KEY}
       CONFLUENT_SECRET: ${CONFLUENT_SECRET}
       ACM_CONFIG_FILE: adm.properties
-      ACM_LOG_TO_CONSOLE: "true"
-      ACM_LOG_TO_FILE: "false"
   aem:
     build:
       context: .
@@ -22,5 +20,3 @@ services:
       CONFLUENT_KEY: ${CONFLUENT_KEY}
       CONFLUENT_SECRET: ${CONFLUENT_SECRET}
       ACM_CONFIG_FILE: aem.properties
-      ACM_LOG_TO_CONSOLE: "true"
-      ACM_LOG_TO_FILE: "false"

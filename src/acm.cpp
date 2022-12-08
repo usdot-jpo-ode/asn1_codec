@@ -204,7 +204,8 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
 	, decode_1609dot2_type{ATS_CANONICAL_OER}
 	, decode_messageframe_type{ATS_UNALIGNED_BASIC_PER}
 	, decode_asdframe_type{ATS_UNALIGNED_BASIC_PER}
-    , logger{}
+    , ilogger{}
+    , elogger{}
 {
 }
 
@@ -304,16 +305,16 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
             // finish when we find it.
             r = ( (*it)->topic() == topic );
             if ( r ) {
-                logger->info("Topic: " + topic + " found in the kafka metadata.");
+                ilogger->info( "Topic: {} found in the kafka metadata.", topic );
             }
             ++it;
         }
         if (!r) {
-            logger->warn("Metadata did not contain topic: " + topic);
+            ilogger->warn( "Metadata did not contain topic: {}.", topic );
         }
 
     } else {
-        logger->error("cannot retrieve consumer metadata with error: " + err2str(err));
+        elogger->error( "cannot retrieve consumer metadata with error: {}.", err2str(err) );
     }
 
     return r;
@@ -346,12 +347,12 @@ void ASN1_Codec::print_configuration() const {
 }
 
 bool ASN1_Codec::configure() {
-    const std::string fnname = "configure()";
+    static const char* fnname = "configure()";
     std::string line;
     std::string error_string;
     StrVector pieces;
 
-    logger->trace(fnname + ": starting...");
+    ilogger->trace("{}: starting...", fnname );
 
     // configurations; global and topic (the names in these are fixed)
     conf  = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
@@ -359,16 +360,16 @@ bool ASN1_Codec::configure() {
 
     // must use a configuration file.
     if ( !optIsSet('c') ) {
-        logger->error(fnname + ": asked to use a configuration file, but option not set.");
+        elogger->error( "{}: asked to use a configuration file, but option not set.", fnname  );
         return false;
     }
 
     const std::string& cfile = optString('c');              // needed for error message.
-    logger->trace(fnname + ": using configuration file: " + cfile );
+    ilogger->trace("{}: using configuration file: {}", fnname , cfile );
     std::ifstream ifs{ cfile };
 
     if (!ifs) {
-        logger->error(fnname + ": cannot open configuration file: " + cfile);
+        elogger->error("{}: cannot open configuration file: {}", fnname , cfile);
         return false;
     }
 
@@ -383,24 +384,24 @@ bool ASN1_Codec::configure() {
                 string_utilities::strip( pieces[1] );
                 // some of these configurations are stored in each...?? strange.
                 if ( tconf->set(pieces[0], pieces[1], error_string) == RdKafka::Conf::CONF_OK ) {
-                    logger->info(fnname + ": kafka topic configuration: " + pieces[0] + " = " + pieces[1]);
+                    ilogger->info("{}: kafka topic configuration: {} = {}", fnname , pieces[0], pieces[1]);
                     done = true;
                 }
 
                 if ( conf->set(pieces[0], pieces[1], error_string) == RdKafka::Conf::CONF_OK ) {
-                    logger->info(fnname + ": kafka configuration: " + pieces[0] + " = " + pieces[1]);
+                    ilogger->info("{}: kafka configuration: {} = {}", fnname , pieces[0], pieces[1]);
                     done = true;
                 }
 
                 if ( !done ) { 
-                    logger->info(fnname + ": ASN1_Codec configuration: " + pieces[0] + " = " + pieces[1]);
+                    ilogger->info("{}: ASN1_Codec configuration: {} = {}", fnname , pieces[0], pieces[1]);
                     // These configuration options are not expected by Kafka.
                     // Assume there are for the ASN1_Codec.
                     pconf[ pieces[0] ] = pieces[1];
                 }
 
             } else {
-                logger->warn(fnname + ": too many pieces in the configuration file line: " + line);
+                elogger->warn("{}: too many pieces in the configuration file line: {}", fnname , line);
             }
 
         } // otherwise: empty or comment line.
@@ -423,21 +424,21 @@ bool ASN1_Codec::configure() {
     
     if ( optIsSet('v') ) {
         if ( "trace" == optString('v') ) {
-            logger->set_info_level( spdlog::level::trace );
+            ilogger->set_level( spdlog::level::trace );
         } else if ( "debug" == optString('v') ) {
-            logger->set_info_level( spdlog::level::trace );
+            ilogger->set_level( spdlog::level::trace );
         } else if ( "info" == optString('v') ) {
-            logger->set_info_level( spdlog::level::trace );
+            ilogger->set_level( spdlog::level::trace );
         } else if ( "warning" == optString('v') ) {
-            logger->set_info_level( spdlog::level::warn );
+            ilogger->set_level( spdlog::level::warn );
         } else if ( "error" == optString('v') ) {
-            logger->set_info_level( spdlog::level::err );
+            ilogger->set_level( spdlog::level::err );
         } else if ( "critical" == optString('v') ) {
-            logger->set_info_level( spdlog::level::critical );
+            ilogger->set_level( spdlog::level::critical );
         } else if ( "off" == optString('v') ) {
-            logger->set_info_level( spdlog::level::off );
+            ilogger->set_level( spdlog::level::off );
         } else {
-            logger->warn("information logger level was configured but unreadable; using default.");
+            elogger->warn("information logger level was configured but unreadable; using default.");
         }
     } // else it is already set to default.
 
@@ -450,13 +451,13 @@ bool ASN1_Codec::configure() {
 
     pugi::xml_parse_result result = error_doc.load_file( errorfile.c_str() );
     if (!result) {
-        logger->error(fnname + ": Failure to find or parse the error template file: " + result.description() + " (offset = " + std::to_string(result.offset) + ")!");
+        elogger->error("{}: Failure to find or parse the error template file: {} (offset = {})!", fnname , result.description(), result.offset);
         return false;
     } 
 
     if ( optIsSet('b') ) {
         // broker specified.
-        logger->info(fnname + ": setting kafka broker to: " + optString('b'));
+        ilogger->info("{}: setting kafka broker to: {}", fnname , optString('b'));
         conf->set("metadata.broker.list", optString('b'), error_string);
     } 
 
@@ -471,7 +472,7 @@ bool ASN1_Codec::configure() {
         }  // otherwise leave at default; PARTITION_UA
     }
 
-    logger->info(fnname + ": kafka partition: " + std::to_string(partition));
+    ilogger->info("{}: kafka partition: {}", fnname , partition);
 
     // confluent cloud integration
     std::string kafkaType = getEnvironmentVariable("KAFKA_TYPE");
@@ -494,7 +495,7 @@ bool ASN1_Codec::configure() {
 
     if ( getOption('g').isSet() && conf->set("group.id", optString('g'), error_string) != RdKafka::Conf::CONF_OK) {
         // NOTE: there are some checks in librdkafka that require this to be present and set.
-        logger->error(fnname + ": kafka error setting configuration parameters group.id h: " + error_string);
+        elogger->error("{}: kafka error setting configuration parameters group.id h: {}", fnname , error_string);
         return false;
     }
 
@@ -512,14 +513,14 @@ bool ASN1_Codec::configure() {
             offset = strtoll(o.c_str(), NULL, 10);              // throws
         }
 
-        logger->info(fnname + ": offset in partition set to byte: " + o);
+        ilogger->info("{}: offset in partition set to byte: {}", fnname , o);
     }
 
     // Do we want to exit if a stream eof is sent.
     exit_eof = getOption('x').isSet();
 
     if (optIsSet('d') && conf->set("debug", optString('d'), error_string) != RdKafka::Conf::CONF_OK) {
-        logger->error(fnname + ": kafka error setting configuration parameter debug: " + error_string);
+        elogger->error("{}: kafka error setting configuration parameter debug: {}", fnname , error_string);
         return false;
     }
 
@@ -529,11 +530,11 @@ bool ASN1_Codec::configure() {
     search = pconf.find("asn1.topic.consumer");
     if ( search != pconf.end() ) {
         consumed_topics.push_back( search->second );
-        logger->info(fnname + ": consumed topic: " + search->second);
+        ilogger->info("{}: consumed topic: {}", fnname , search->second);
 
     } else {
         
-        logger->error(fnname + ": no consumer topic was specified; must fail.");
+        elogger->error("{}: no consumer topic was specified; must fail.", fnname );
         return false;
     }
 
@@ -547,23 +548,23 @@ bool ASN1_Codec::configure() {
         if ( search != pconf.end() ) {
             published_topic_name = search->second;
         } else {
-            logger->error(fnname + ": no publisher topic was specified; must fail.");
+            elogger->error("{}: no publisher topic was specified; must fail.", fnname );
             return false;
         }
     }
 
-    logger->info(fnname + ": published topic: " + published_topic_name);
+    ilogger->info("{}: published topic: {}", fnname , published_topic_name);
 
     search = pconf.find("asn1.consumer.timeout.ms");
     if ( search != pconf.end() ) {
         try {
             consumer_timeout = std::stoi( search->second );
         } catch( std::exception& e ) {
-            logger->info(fnname + ": using the default consumer timeout value.");
+            ilogger->info("{}: using the default consumer timeout value.", fnname );
         }
     }
 
-    logger->trace(fnname + ": finished.");
+    ilogger->trace("{}: finished.", fnname );
     return true;
 }
 
@@ -572,17 +573,17 @@ bool ASN1_Codec::launch_producer() {
 
     producer_ptr = std::shared_ptr<RdKafka::Producer>( RdKafka::Producer::create(conf, error_string) );
     if ( !producer_ptr ) {
-        logger->critical("Failed to create producer with error: " + error_string);
+        elogger->critical("Failed to create producer with error: {}.", error_string );
         return false;
     }
 
     published_topic_ptr = std::shared_ptr<RdKafka::Topic>( RdKafka::Topic::create(producer_ptr.get(), published_topic_name, tconf, error_string) );
     if ( !published_topic_ptr ) {
-        logger->critical("Failed to create topic: " + published_topic_name + ". Error: " + error_string + ".");
+        elogger->critical("Failed to create topic: {}. Error: {}.", published_topic_name, error_string );
         return false;
     } 
 
-    logger->info("Producer: " + producer_ptr->name() + " created using topic: " + published_topic_name + ".");
+    ilogger->info("Producer: {} created using topic: {}.", producer_ptr->name(), published_topic_name);
     return true;
 }
 
@@ -594,7 +595,7 @@ bool ASN1_Codec::launch_consumer(){
     if(!consumer_ptr){
         consumer_ptr = std::shared_ptr<RdKafka::KafkaConsumer>( RdKafka::KafkaConsumer::create(conf, error_string) );
         if (!consumer_ptr) {
-            logger->critical("Failed to create consumer with error: " + error_string);
+            elogger->critical("Failed to create consumer with error: {}",  error_string );
             return false;
         }
     }
@@ -605,14 +606,14 @@ bool ASN1_Codec::launch_consumer(){
     for ( auto& topic : consumed_topics ) {
         while ( data_available && tcount < consumed_topics.size() ) {
             if ( topic_available(topic) ) {
-                logger->trace("Consumer topic: " + topic + " is available.");
+                ilogger->trace("Consumer topic: {} is available.", topic);
                 // count it and attempt to get the next one if it exists.
                 ++tcount;
                 break;
             }
             // topic is not available, wait for a second or two.
             std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ) );
-            logger->trace("Waiting for needed consumer topic: " + topic + ".");
+            ilogger->trace("Waiting for needed consumer topic: {}.", topic);
         }
     }
 
@@ -620,11 +621,11 @@ bool ASN1_Codec::launch_consumer(){
         // all the needed topics are available for subscription.
         RdKafka::ErrorCode status = consumer_ptr->subscribe(consumed_topics);
         if (status) {
-            logger->critical("Failed to subscribe to " + std::to_string(consumed_topics.size()) + " topics. Error: " + RdKafka::err2str(status) + ".");
+            elogger->critical("Failed to subscribe to {} topics. Error: {}.", consumed_topics.size(), RdKafka::err2str(status) );
             return false;
         }
     } else {
-        logger->warn("User cancelled ASN1_Codec while waiting for topics to become available.");
+        ilogger->warn("User cancelled ASN1_Codec while waiting for topics to become available.");
         return false;
     }
 
@@ -634,7 +635,7 @@ bool ASN1_Codec::launch_consumer(){
         osbuf << topic;
     }
 
-    logger->info("Consumer: " + consumer_ptr->name() + " created using topics: " + osbuf.str() + ".");
+    ilogger->info("Consumer: {} created using topics: {}.", consumer_ptr->name(), osbuf.str());
     return true;
 }
 
@@ -695,8 +696,15 @@ bool ASN1_Codec::make_loggers( bool remove_files ) {
         }
     }
 
-    // initialize logger
-    logger = std::make_shared<AcmLogger>(ilogname, elogname);
+    // setup information logger.
+    ilogger = spdlog::rotating_logger_mt("ilog", ilogname, ilogsize, ilognum);
+    ilogger->set_pattern("[%C%m%d %H:%M:%S.%f] [%l] %v");
+    ilogger->set_level( iloglevel );
+
+    // setup error logger.
+    elogger = spdlog::rotating_logger_mt("elog", elogname, elogsize, elognum);
+    elogger->set_level( iloglevel );
+    elogger->set_pattern("[%C%m%d %H:%M:%S.%f] [%l] %v");
     return true;
 }
 
@@ -746,7 +754,7 @@ bool ASN1_Codec::make_loggers( bool remove_files ) {
      */
 
 bool ASN1_Codec::add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1ErrorType et, std::string message, bool update_time ) {
-	const std::string fnname = "add_error_xml()";
+	static const char* fnname = "add_error_xml()";
 	bool r = true;
 
 	// Attempt to set all these fields; log the errors; return false if any fail.
@@ -754,35 +762,35 @@ bool ASN1_Codec::add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1Er
 	// access this directly because we remove the bytes branch.
 	pugi::xml_node metadata_node = doc.child("OdeAsn1Data").child("metadata");
 	if ( !metadata_node ) {
-		// logger->error(fnname + ": Cannot find OdeAsn1Data/metadata nodes in function input document.");
+		//elogger->error("{}: Cannot find OdeAsn1Data/metadata nodes in function input document.", fnname );
 		return false;
 	}
 
 	pugi::xml_node payload_node  = doc.child("OdeAsn1Data").child("payload");
 	if ( !payload_node ) {
-		// logger->error(fnname + ": Cannot find OdeAsn1Data/payload nodes in function input document.");
+		//elogger->error("{}: Cannot find OdeAsn1Data/payload nodes in function input document.", fnname );
 		return false;
 	}
 
 	if ( !metadata_node.child("payloadType").text().set( asn1datatypes[static_cast<int>(Asn1DataType::PAYLOAD)]  ) ) {
-		// logger->error(fnname + ": Failure to update the payloadType field of the error xml");
+		//elogger->error("{}: Failure to update the payloadType field of the error xml", fnname );
 		r = false;
 	}
 
 	// receivedAt is only updatable if update_time is true.
 	if ( update_time && !metadata_node.child("receivedAt").text().set( get_current_time().c_str() ) ) {
-		// logger->error(fnname + ": Failure to update the receivedAt field of the error xml");
+		//elogger->error("{}: Failure to update the receivedAt field of the error xml", fnname );
 		r = false;
 	}
 
 	// generateAt time is always updated; it is the time of generating this message.
 	if ( !metadata_node.child("generatedAt").text().set( get_current_time().c_str() ) ) {
-		// logger->error(fnname + ": Failure to update the generatedAt field of the error xml");
+		//elogger->error("{}: Failure to update the generatedAt field of the error xml", fnname );
 		r = false;
 	}
 
 	if ( !payload_node.child("dataType").text().set( asn1datatypes[static_cast<int>(dt)]  ) ) {
-		// logger->error(fnname + ": Failure to update the dataType field of the error xml");
+		//elogger->error("{}: Failure to update the dataType field of the error xml", fnname );
 		r = false;
 	}
 
@@ -800,12 +808,12 @@ bool ASN1_Codec::add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1Er
 	}
 
 	if ( !data_node.child("code").text().set( asn1errortypes[static_cast<int>(et)]  ) ) {
-		// logger->error(fnname + ": Failure to update the data/code field of the error xml");
+		//elogger->error("{}: Failure to update the data/code field of the error xml", fnname );
 		r = false;
 	}
 
 	if ( !data_node.child("message").text().set( message.c_str() ) ) {
-		// logger->error(fnname + ": Failure to update the data/message field of the error xml");
+		//elogger->error("{}: Failure to update the data/message field of the error xml", fnname );
 		r = false;
 	}
 
@@ -917,7 +925,7 @@ enum asn_transfer_syntax ASN1_Codec::get_ats_transfer_syntax( const char* ats ) 
 }
 
 bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& output_message_stream ) {
-    const std::string fnname = "process_message()";
+    static const char* fnname = "process_message()";
     static std::string tsname;
     static RdKafka::MessageTimestamp ts;
     
@@ -926,16 +934,16 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
 
     size_t bytes_processed = 0;
 
-	logger->trace(fnname + ": starting...");
+	ilogger->trace("{}: starting...", fnname);
 
     switch (message->err()) {
 
         case RdKafka::ERR__TIMED_OUT:
-            logger->info(fnname + ": Waiting for more BSMs.");
+            ilogger->info("{}: Waiting for more BSMs.", fnname );
             break;
 
         case RdKafka::ERR__MSG_TIMED_OUT:
-            logger->info(fnname + ": Waiting for more BSMs from the ODE producer.");
+            ilogger->info("{}: Waiting for more BSMs from the ODE producer.", fnname );
             break;
 
         case RdKafka::ERR_NO_ERROR:
@@ -943,7 +951,7 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
             msg_recv_count++;
             msg_recv_bytes += message->len();
 
-            logger->trace(fnname + ": Read message at byte offset: " + std::to_string(message->offset()) + " with length " + std::to_string(message->len()));
+            ilogger->trace("{}: Read message at byte offset: {} with length {}", fnname , message->offset(), message->len() );
 
             ts = message->timestamp();
 
@@ -956,11 +964,11 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
                     tsname = "unknown";
                 }
 
-                logger->trace(fnname + ": Message timestamp: " + tsname + ", type: " + std::to_string(ts.timestamp));
+                ilogger->trace("{}: Message timestamp: {}, type: {}", fnname , tsname, ts.timestamp);
             }
 
             if ( message->key() ) {
-                logger->trace(fnname + ": Message key: " + *message->key() );
+                ilogger->trace("{}: Message key: {}", fnname , *message->key() );
             }
 
             // already verified non-zero message length.
@@ -993,42 +1001,42 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
             break;
 
         case RdKafka::ERR__PARTITION_EOF:
-            logger->info("ODE BSM consumer partition end of file, but ASN1_Codec still alive.");
+            ilogger->info("ODE BSM consumer partition end of file, but ASN1_Codec still alive.");
             if (exit_eof) {
                 eof_cnt++;
 
                 if (eof_cnt == partition_cnt) {
-                    logger->info("EOF reached for all " + std::to_string(partition_cnt) + " partition(s)");
+                    ilogger->info("EOF reached for all {} partition(s)", partition_cnt);
                     data_available = false;
                 }
             }
             break;
 
         case RdKafka::ERR__UNKNOWN_TOPIC:
-            logger->error("cannot consume due to an UNKNOWN consumer topic: " + message->errstr());
+            elogger->error("cannot consume due to an UNKNOWN consumer topic: {}", message->errstr());
 
         case RdKafka::ERR__UNKNOWN_PARTITION:
-            logger->error("cannot consume due to an UNKNOWN consumer partition: " + message->errstr());
+            elogger->error("cannot consume due to an UNKNOWN consumer partition: {}", message->errstr());
             data_available = false;
             break;
 
         default:
-            logger->error("cannot consume due to an error: " + message->errstr());
+            elogger->error("cannot consume due to an error: {}", message->errstr());
             data_available = false;
     }
 
-	logger->trace(fnname + ": finished...");
+	ilogger->trace("{}: finished...", fnname);
     return false;
 }
 
 bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream ) {
-    const std::string fnname = "decode_message()";
+    static const char* fnname = "decode_message()";
     bool success = true;
     pugi::xml_parse_result parse_result;
 
     buffer_structure_t xb = {0, 0, 0};
 
-    logger->trace(fnname + ": starting...");
+    ilogger->trace("{}: starting...", fnname);
 
     if ( !decode_1609dot2 && !decode_messageframe ) {
         // if neither of these is set, this function becomes a noop and nothing will be returned, so this is an
@@ -1104,7 +1112,7 @@ bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream
 
     // convert DOM to a RAW string representation: no spaces, no tabs.
     input_doc.save(output_message_stream,"",pugi::format_raw);
-    logger->trace(fnname + ": finished...");
+    ilogger->trace("{}: finished...", fnname);
     return success;
 } 
 
@@ -1174,7 +1182,7 @@ void ASN1_Codec::encode_for_protocol() {
 // throws MissingInputElementError or Asn1CodecError (from encode_messageframe_data call) ONLY!
 bool ASN1_Codec::encode_message( std::stringstream& output_message_stream ) {
 
-    const std::string fnname = "encode_message()";
+    static const char* fnname = "encode_message()";
 
     protocol_.clear();
     hex_data_.clear();
@@ -1241,7 +1249,7 @@ bool ASN1_Codec::encode_message( std::stringstream& output_message_stream ) {
 
 // throws Asn1CodecError ONLY!
 bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structure_t* xml_buffer ) {
-    const std::string fnname = "decode_1609dot2_data()";
+    static const char* fnname = "decode_1609dot2_data()";
 
     // enum asn_dec_rval_code_e {
     // 	RC_OK,		                                  // successful decoding.
@@ -1267,7 +1275,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
 
     Ieee1609Dot2Data_t *ieee1609data = 0;        // must initialize to 0 according to asn.1 instructions.
 
-    logger->trace(fnname + ": starting...");
+    ilogger->trace("{}: starting...", fnname);
 
     // remove all spaces.
     data_as_hex.erase( remove_if ( data_as_hex.begin(), data_as_hex.end(), isspace), data_as_hex.end());
@@ -1276,14 +1284,14 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
         throw Asn1CodecError{"failed attempt to decode IEEE 1609.2 hex string: string empty."};
     }
 
-    logger->trace(fnname + ": success extracting " + asn_DEF_Ieee1609Dot2Data.name + " hex string: " + data_as_hex );
+    ilogger->trace("{}: success extracting {} hex string: {}", fnname , asn_DEF_Ieee1609Dot2Data.name, data_as_hex );
 
     byte_buffer.clear();
     if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
         throw Asn1CodecError{"failed attempt to decode IEEE 1609.2 hex string: cannot convert to bytes."};
     }
 
-    logger->trace(fnname + ": successful conversion to raw byte buffer." );
+    ilogger->trace("{}: successful conversion to raw byte buffer.", fnname );
 
     // Decode BAH Bytes (A 1609.2 Frame) into the appropriate structure.
     decode_rval = asn_decode( 
@@ -1307,7 +1315,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
         throw Asn1CodecError{ erroross.str() };
     }
 
-    logger->trace(fnname + ": ASN.1 binary decode success." );
+    ilogger->trace("{}: ASN.1 binary decode success.", fnname );
 
     // check the data in the returned structure against the ASN.1 specification constraints.
     if (asn_check_constraints( &asn_DEF_Ieee1609Dot2Data, ieee1609data, errbuf, &errlen )) {
@@ -1335,7 +1343,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
         throw Asn1CodecError{ erroross.str() };
     }
 
-    logger->trace(fnname + ": finished.");
+    ilogger->trace("{}: finished.", fnname );
     return true;
 }
 
@@ -1343,7 +1351,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
  * TODO: This method should be generalizable to any type def and structure pointer -- tried but moved on.
  */
 bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer ) {
-    const std::string fnname = "decode_messageframe_data()";
+    static const char* fnname = "decode_messageframe_data()";
 
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
@@ -1352,7 +1360,7 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
 
     MessageFrame_t *messageframe = 0;           // must be initialized to 0.
 
-    logger->trace(fnname + ": starting...");
+    ilogger->trace("{}: starting...", fnname);
 
     // remove all spaces.
     data_as_hex.erase( remove_if ( data_as_hex.begin(), data_as_hex.end(), isspace), data_as_hex.end());
@@ -1361,14 +1369,14 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
         throw Asn1CodecError{"failed attempt to decode MessageFrame hex string: string empty."};
     }
 
-    logger->trace(fnname + ": success extracting " + asn_DEF_MessageFrame.name + " hex string: " + data_as_hex);
+    ilogger->trace("{}: success extracting {} hex string: {}", fnname , asn_DEF_MessageFrame.name, data_as_hex );
 
     byte_buffer.clear();
     if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
         throw Asn1CodecError{"failed attempt to decode MessageFrame hex string: cannot convert to bytes."};
     }
 
-    logger->trace(fnname + ": successful conversion to raw byte buffer.");
+    ilogger->trace("{}: successful conversion to raw byte buffer.", fnname );
 
     decode_rval = asn_decode( 
             0, 
@@ -1391,7 +1399,7 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
         throw Asn1CodecError{ erroross.str() };
     }
 
-    logger->trace(fnname + ": ASN.1 binary decode successful.");
+    ilogger->trace("{}: ASN.1 binary decode successful.", fnname );
 
     if (asn_check_constraints( &asn_DEF_MessageFrame, messageframe, errbuf, &errlen )) {
         erroross.str("");
@@ -1418,12 +1426,12 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
         throw Asn1CodecError{ erroross.str() };
     }
 
-    logger->trace(fnname + ": finished.");
+    ilogger->trace("{}: finished.", fnname );
     return true;
 }
         
 void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& hex_string) {
-    const std::string fnname = "encode_frame_data()";
+    static const char* fnname = "encode_frame_data()";
 
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
@@ -1509,7 +1517,7 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
 }
 
 bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
-    const std::string fnname = "set_codec_requirements()";
+    static const char* fnname = "set_codec_requirements()";
 
     enum asn_transfer_syntax atstype = ATS_INVALID;
 	opsflag = 0;
@@ -1568,7 +1576,7 @@ bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
 }
 
 bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode) {
-    const std::string fnname = "file_test()";
+    static const char* fnname = "file_test()";
 
     std::stringstream output_msg_stream;
     bool r = true;
@@ -1625,28 +1633,28 @@ bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode)
         } catch (const UnparseableInputError& e) {
 
             r = false;
-            // logger->trace(fnname + ": UnparseableInputError " + e.what());
+            //elogger->trace("{}: UnparseableInputError {}", fnname , e.what() );
             add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
             error_doc.save(output_msg_stream,"",pugi::format_raw);
 
         } catch (const MissingInputElementError& e) {
 
             r = false;
-            // logger->trace(fnname + ": MissingInputElementError " + e.what() );
+            //elogger->trace("{}: MissingInputElementError {}", fnname , e.what() );
             add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
             error_doc.save(output_msg_stream,"",pugi::format_raw);
 
         } catch (const pugi::xpath_exception& e ) {
 
             r = false;
-            // logger->trace(fnname + ": pugi::xpath_exception " + e.what() );
+            //elogger->trace("{}: pugi::xpath_exception {}", fnname, e.what() );
             add_error_xml( error_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, e.what(), true );
             error_doc.save(output_msg_stream,"",pugi::format_raw);
 
         } catch (const Asn1CodecError& e) {
 
             r = false;
-            // logger->trace(fnname + ": Asn1CodecError " + e.what() );
+            //elogger->trace("{}: Asn1CodecError {}", fnname , e.what() );
             add_error_xml( input_doc, e.data_type(), e.error_type(), e.what(), false );
             input_doc.save(output_msg_stream,"",pugi::format_raw);
         }
@@ -1662,7 +1670,7 @@ bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode)
  *
  */
 bool ASN1_Codec::filetest() {
-    const std::string fnname = "filetest()";
+    static const char* fnname = "filetest()";
     bool r = true;
 
     std::string error_string;
@@ -1682,7 +1690,7 @@ bool ASN1_Codec::filetest() {
         return EXIT_FAILURE;
     }
 
-    logger->trace(fnname + ": Starting...");
+    ilogger->trace("{}: Starting...", fnname);
 
     std::FILE* ifile = std::fopen( operands[0].c_str(), "r" );
     if (!ifile) {
@@ -1701,7 +1709,7 @@ bool ASN1_Codec::filetest() {
 
     if ( consumed_xml_buffer.size() > 0 ) {
 
-        logger->trace(fnname + ": successful read of the test file having " + std::to_string(consumed_xml_buffer.size()) + " bytes.");
+        ilogger->trace("{}: successful read of the test file having {} bytes.", fnname, consumed_xml_buffer.size() );
 
         msg_recv_count++;
         msg_recv_bytes += consumed_xml_buffer.size();
@@ -1736,28 +1744,28 @@ bool ASN1_Codec::filetest() {
         } catch (const UnparseableInputError& e) {
 
             r = false;
-            logger->trace(fnname + ": UnparseableInputError " + std::string(e.what()));
+            elogger->trace("{}: UnparseableInputError {}", fnname , e.what() );
             add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
             error_doc.save(output_msg_stream,"",pugi::format_raw);
 
         } catch (const MissingInputElementError& e) {
 
             r = false;
-            logger->trace(fnname + ": MissingInputElementError " + std::string(e.what()));
+            elogger->trace("{}: MissingInputElementError {}", fnname , e.what() );
             add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
             error_doc.save(output_msg_stream,"",pugi::format_raw);
 
         } catch (const pugi::xpath_exception& e ) {
 
             r = false;
-            logger->trace(fnname + ": pugi::xpath_exception " + std::string(e.what()));
+            elogger->trace("{}: pugi::xpath_exception {}", fnname, e.what() );
             add_error_xml( error_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, e.what(), true );
             error_doc.save(output_msg_stream,"",pugi::format_raw);
 
         } catch (const Asn1CodecError& e) {
 
             r = false;
-            logger->trace(fnname + ": Asn1CodecError " + std::string(e.what()));
+            elogger->trace("{}: Asn1CodecError {}", fnname , e.what() );
             add_error_xml( input_doc, e.data_type(), e.error_type(), e.what(), false );
             input_doc.save(output_msg_stream,"",pugi::format_raw);
 
@@ -1766,18 +1774,19 @@ bool ASN1_Codec::filetest() {
         std::cout << output_msg_stream.str() << '\n';
 
     } else {
-        logger->trace("Read an empty file.");
+        ilogger->trace("Read an empty file.");
     }
 
     // NOTE: good for troubleshooting, but bad for performance.
-    logger->trace(fnname + ": Finished.");
-    logger->flush();
+    ilogger->trace("{}: Finished.", fnname);
+    elogger->flush();
+    ilogger->flush();
 
     return r ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int ASN1_Codec::operator()(void) {
-    const std::string fnname = "run()";
+    static const char* fnname = "run()";
 
     RdKafka::ErrorCode status;
     std::string error_string;
@@ -1827,25 +1836,25 @@ int ASN1_Codec::operator()(void) {
 
             } catch (const UnparseableInputError& e) {
 
-                logger->trace(fnname + ": UnparseableInputError " + e.what() );
+                elogger->trace("{}: UnparseableInputError {}", fnname , e.what() );
                 add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
                 error_doc.save(output_msg_stream,"",pugi::format_raw);
 
             } catch (const MissingInputElementError& e) {
 
-                logger->trace(fnname + ": MissingInputElementError " + e.what() );
+                elogger->trace("{}: MissingInputElementError {}", fnname , e.what() );
                 add_error_xml( error_doc, e.data_type(), e.error_type(), e.what(), true );
                 error_doc.save(output_msg_stream,"",pugi::format_raw);
 
             } catch (const pugi::xpath_exception& e ) {
 
-                logger->trace(fnname + ": pugi::xpath_exception " + e.what() );
+                elogger->trace("{}: pugi::xpath_exception {}", fnname, e.what() );
                 add_error_xml( error_doc, Asn1DataType::ODE, Asn1ErrorType::REQUEST, e.what(), true );
                 error_doc.save(output_msg_stream,"",pugi::format_raw);
 
             } catch (const Asn1CodecError& e) {
 
-                logger->trace(fnname + ": Asn1CodecError " + e.what());
+                elogger->trace("{}: Asn1CodecError {}", fnname , e.what() );
                 add_error_xml( input_doc, e.data_type(), e.error_type(), e.what(), false );
                 input_doc.save(output_msg_stream,"",pugi::format_raw);
 
@@ -1859,13 +1868,13 @@ int ASN1_Codec::operator()(void) {
                 status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)output_msg_string.c_str(), output_msg_string.size(), NULL, NULL);
 
                 if (status != RdKafka::ERR_NO_ERROR) {
-                    logger->error(fnname + ": Failure of XER encoding: " + RdKafka::err2str(status));
+                    elogger->error("{}: Failure of XER encoding: {}", fnname , RdKafka::err2str( status ));
 
                 } else {
                     // successfully sent; update counters.
                     msg_send_count++;
                     msg_send_bytes += output_msg_string.size();
-                    logger->trace(fnname + ": successful encoding/decoding");
+                    ilogger->trace("{}: successful encoding/decoding", fnname );
                     std::cerr << output_msg_string.size() << " bytes produced to topic: " << published_topic_ptr->name() << '\n';
                 }
 
@@ -1875,16 +1884,17 @@ int ASN1_Codec::operator()(void) {
             } 
 
             // NOTE: good for troubleshooting, but bad for performance.
-            logger->flush();
+            elogger->flush();
+            ilogger->flush();
         }
     }
 
-    logger->info(fnname + ": shutting down..." );
-    logger->info("ASN1_Codec consumed  : " + std::to_string(msg_recv_count) + " blocks and " + std::to_string(msg_recv_bytes) + " bytes");
-    logger->info("ASN1_Codec published : " + std::to_string(msg_send_count) + " blocks and " + std::to_string(msg_send_bytes) + " bytes");
+    ilogger->info("{}: shutting down...", fnname );
+    ilogger->info("ASN1_Codec consumed  : {} blocks and {} bytes", msg_recv_count, msg_recv_bytes);
+    ilogger->info("ASN1_Codec published : {} blocks and {} bytes", msg_send_count, msg_send_bytes);
 
     std::cerr << "ASN1_Codec operations complete; shutting down...\n";
-    std::cerr << "ASN1_Codec consumed   : " << std::to_string(msg_recv_count) << " blocks and " << std::to_string(msg_recv_bytes) << " bytes\n";
+    std::cerr << "ASN1_Codec consumed   : " << msg_recv_count << " blocks and " << msg_recv_bytes << " bytes\n";
     std::cerr << "ASN1_Codec published  : " << msg_send_count << " blocks and " << msg_send_bytes << " bytes\n";
     return EXIT_SUCCESS;
 }
@@ -1892,7 +1902,7 @@ int ASN1_Codec::operator()(void) {
 const char* ASN1_Codec::getEnvironmentVariable(const char* variableName) {
     const char* toReturn = std::getenv(variableName);
     if (!toReturn) {
-        logger->error("Something went wrong attempting to retrieve the environment variable " + std::string(variableName));
+        ilogger->error("Something went wrong attempting to retrieve the environment variable {}", variableName);
         toReturn = "";
     }
     return toReturn;
@@ -1949,12 +1959,12 @@ int main( int argc, char* argv[] )
                 std::exit( EXIT_SUCCESS );
             } else {
                 std::cerr << "Current configuration settings do not work.\n";
-                asn1_codec.logger->error( "current configuration settings do not work; exiting." );
+                asn1_codec.ilogger->error( "current configuration settings do not work; exiting." );
                 std::exit( EXIT_FAILURE );
             }
         } catch ( std::exception& e ) {
             std::cerr << "Fatal Exception: " << e.what() << '\n';
-            asn1_codec.logger->error("exception: " + std::string(e.what()));
+            asn1_codec.elogger->error( "exception: {}", e.what() );
             std::exit( EXIT_FAILURE );
         }
     }
