@@ -125,8 +125,7 @@ ACMBlobProducer::ACMBlobProducer( const std::string& name, const std::string& de
     tconf{nullptr},
     producer_ptr{},
     published_topic_ptr{},
-    ilogger{},
-    elogger{}
+    logger{}
 {
 }
 
@@ -184,25 +183,25 @@ bool ACMBlobProducer::configure() {
 
     if ( optIsSet('v') ) {
         if ( "trace" == optString('v') ) {
-            ilogger->set_level( spdlog::level::trace );
+            logger->set_info_level( spdlog::level::trace );
         } else if ( "debug" == optString('v') ) {
-            ilogger->set_level( spdlog::level::trace );
+            logger->set_info_level( spdlog::level::trace );
         } else if ( "info" == optString('v') ) {
-            ilogger->set_level( spdlog::level::trace );
+            logger->set_info_level( spdlog::level::trace );
         } else if ( "warning" == optString('v') ) {
-            ilogger->set_level( spdlog::level::warn );
+            logger->set_info_level( spdlog::level::warn );
         } else if ( "error" == optString('v') ) {
-            ilogger->set_level( spdlog::level::err );
+            logger->set_info_level( spdlog::level::err );
         } else if ( "critical" == optString('v') ) {
-            ilogger->set_level( spdlog::level::critical );
+            logger->set_info_level( spdlog::level::critical );
         } else if ( "off" == optString('v') ) {
-            ilogger->set_level( spdlog::level::off );
+            logger->set_info_level( spdlog::level::off );
         } else {
-            elogger->warn("information logger level was configured but unreadable; using default.");
+            logger->warn("information logger level was configured but unreadable; using default.");
         }
     } // else it is already set to default.
 
-    ilogger->trace("starting configure()");
+    logger->trace("starting configure()");
 
     std::string line;
     std::string error_string;
@@ -214,18 +213,18 @@ bool ACMBlobProducer::configure() {
 
     // must use a configuration file.
     if ( !optIsSet('F') ) {
-        elogger->error( "Must specify the path to an input binary file." );
+        logger->error( "Must specify the path to an input binary file." );
         return false;
     }
 
     input_file = optString('F');
 
     if ( !fileExists( input_file ) ) {
-        elogger->error( "The input file: {} does not exist.", input_file );
+        logger->error( "The input file: " + input_file + " does not exist.");
         return false;
     }
 
-    ilogger->info("using input file: {}", input_file );
+    logger->info("using input file: " + input_file );
 
     if ( optIsSet('B') ) {
         try {
@@ -236,24 +235,24 @@ bool ACMBlobProducer::configure() {
     }
 
     if ( !fileExists( input_file ) ) {
-        elogger->error( "The input file: {} does not exist.", input_file );
+        logger->error( "The input file: " + input_file + " does not exist.");
         return false;
     }
 
-    ilogger->info("using input file: {}", input_file );
+    logger->info("using input file: " + input_file);
 
     // must use a configuration file.
     if ( !optIsSet('c') ) {
-        elogger->error( "asked to use a configuration file, but option not set." );
+        logger->error( "asked to use a configuration file, but option not set." );
         return false;
     }
 
     const std::string& cfile = optString('c');              // needed for error message.
-    ilogger->info("using configuration file: {}", cfile );
+    logger->info("using configuration file: " + cfile );
     std::ifstream ifs{ cfile };
 
     if (!ifs) {
-        elogger->error("cannot open configuration file: {}", cfile);
+        logger->error("cannot open configuration file: " + cfile);
         return false;
     }
 
@@ -268,24 +267,24 @@ bool ACMBlobProducer::configure() {
                 string_utilities::strip( pieces[1] );
                 // some of these configurations are stored in each...?? strange.
                 if ( tconf->set(pieces[0], pieces[1], error_string) == RdKafka::Conf::CONF_OK ) {
-                    ilogger->info("kafka topic configuration: {} = {}", pieces[0], pieces[1]);
+                    logger->info("kafka topic configuration: " + pieces[0] + " = " + pieces[1]);
                     done = true;
                 }
 
                 if ( conf->set(pieces[0], pieces[1], error_string) == RdKafka::Conf::CONF_OK ) {
-                    ilogger->info("kafka configuration: {} = {}", pieces[0], pieces[1]);
+                    logger->info("kafka configuration: " + pieces[0] + " = " + pieces[1]);
                     done = true;
                 }
 
                 if ( !done ) { 
-                    ilogger->info("ACMBlobProducer configuration: {} = {}", pieces[0], pieces[1]);
+                    logger->info("ACMBlobProducer configuration: " + pieces[0] + " = " + pieces[1]);
                     // These configuration options are not expected by Kafka.
                     // Assume there are for the ACMBlobProducer.
                     mconf[ pieces[0] ] = pieces[1];
                 }
 
             } else {
-                elogger->warn("too many pieces in the configuration file line: {}", line);
+                logger->warn("too many pieces in the configuration file line: " + line);
             }
 
         } // otherwise: empty or comment line.
@@ -295,7 +294,7 @@ bool ACMBlobProducer::configure() {
 
     if ( optIsSet('b') ) {
         // broker specified.
-        ilogger->info("setting kafka broker to: {}", optString('b'));
+        logger->info("setting kafka broker to: " + optString('b'));
         conf->set("metadata.broker.list", optString('b'), error_string);
     } 
 
@@ -310,16 +309,16 @@ bool ACMBlobProducer::configure() {
         }  // otherwise leave at default; PARTITION_UA
     }
 
-    ilogger->info("kafka partition: {}", partition);
+    logger->info("kafka partition: " + partition);
 
     if ( getOption('g').isSet() && conf->set("group.id", optString('g'), error_string) != RdKafka::Conf::CONF_OK) {
         // NOTE: there are some checks in librdkafka that require this to be present and set.
-        elogger->error("kafka error setting configuration parameters group.id h: {}", error_string);
+        logger->error("kafka error setting configuration parameters group.id h: " + error_string);
         return false;
     }
 
     if (optIsSet('d') && conf->set("debug", optString('d'), error_string) != RdKafka::Conf::CONF_OK) {
-        elogger->error("kafka error setting configuration parameter debug: {}", error_string);
+        logger->error("kafka error setting configuration parameter debug: " + error_string);
         return false;
     }
 
@@ -336,13 +335,13 @@ bool ACMBlobProducer::configure() {
         if ( search != mconf.end() ) {
             published_topic_name = search->second;
         } else {
-            elogger->error("no publisher topic was specified; must fail.");
+            logger->error("no publisher topic was specified; must fail.");
             return false;
         }
     }
 
-    ilogger->info("published topic: {}", published_topic_name);
-    ilogger->trace("ending configure()");
+    logger->info("published topic: " + published_topic_name);
+    logger->trace("ending configure()");
     return true;
 }
 
@@ -356,17 +355,17 @@ bool ACMBlobProducer::launch_producer()
 
     producer_ptr = std::shared_ptr<RdKafka::Producer>( RdKafka::Producer::create(conf, error_string) );
     if ( !producer_ptr ) {
-        elogger->critical("Failed to create producer with error: {}.", error_string );
+        logger->critical("Failed to create producer with error: " + error_string );
         return false;
     }
 
     published_topic_ptr = std::shared_ptr<RdKafka::Topic>( RdKafka::Topic::create(producer_ptr.get(), published_topic_name, tconf, error_string) );
     if ( !published_topic_ptr ) {
-        elogger->critical("Failed to create topic: {}. Error: {}.", published_topic_name, error_string );
+        logger->critical("Failed to create topic: " + published_topic_name + ". Error: " + error_string + ".");
         return false;
     } 
 
-    ilogger->info("Producer: {} created using topic: {}.", producer_ptr->name(), published_topic_name);
+    logger->info("Producer: " +  producer_ptr->name() + " created using topic: {}." + published_topic_name);
     return true;
 }
 
@@ -428,15 +427,8 @@ bool ACMBlobProducer::make_loggers( bool remove_files )
         }
     }
 
-    // setup information logger.
-    ilogger = spdlog::rotating_logger_mt("ilog", ilogname, ilogsize, ilognum);
-    ilogger->set_pattern("[%C%m%d %H:%M:%S.%f] [%l] %v");
-    ilogger->set_level( iloglevel );
-
-    // setup error logger.
-    elogger = spdlog::rotating_logger_mt("elog", elogname, elogsize, elognum);
-    elogger->set_level( iloglevel );
-    elogger->set_pattern("[%C%m%d %H:%M:%S.%f] [%l] %v");
+    // initialize logger
+    logger = std::make_shared<AcmLogger>(ilogname, elogname);
     return true;
 }
 
@@ -475,7 +467,7 @@ int ACMBlobProducer::operator()(void) {
         source = fopen( input_file.c_str(), "rb" );
 
         if ( !source ) {
-            elogger->error("No file: {}; cannot be opened for decoding.",input_file);
+            logger->error("No file: " + input_file + "; cannot be opened for decoding.");
             return false;
         } 
 
@@ -489,14 +481,14 @@ int ACMBlobProducer::operator()(void) {
                 status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)buf, bytes_read, NULL, NULL);
 
                 if (status != RdKafka::ERR_NO_ERROR) {
-                    elogger->error("Production failure code {} after reading {} bytes.", RdKafka::err2str( status ), bytes_read);
+                    logger->error("Production failure code " + RdKafka::err2str( status ) + " after reading " + bytes_read + " bytes.");
                     break;
 
                 } else {
                     // successfully sent; update counters.
                     msg_send_count++;
                     msg_send_bytes += bytes_read;
-                    ilogger->trace("Production success of {} bytes.", bytes_read);
+                    logger->trace("Production success of " + std::to_string(bytes_read) + " bytes.");
                 }
 
 
@@ -505,18 +497,17 @@ int ACMBlobProducer::operator()(void) {
         }
 
         fclose( source );
-        ilogger->info( "Finished producing the entire file.");
+        logger->info( "Finished producing the entire file.");
         std::cerr << "Sleeping for 5 seconds after file round " << ++file_round << "\n";
         std::this_thread::sleep_for( std::chrono::seconds(5) ); 
     }
 
-    ilogger->info("ACMBlobProducer operations complete; shutting down...");
-    ilogger->info("ACMBlobProducer published : {} blocks and {} bytes", msg_send_count, msg_send_bytes);
+    logger->info("ACMBlobProducer operations complete; shutting down...");
+    logger->info("ACMBlobProducer published : " + std::to_string(msg_send_count) + " blocks and " + std::to_string(msg_send_bytes) + " bytes");
     std::cerr << "ACMBlobProducer published : " << msg_send_count << " binary blocks of size: " << block_size << " for " << msg_send_bytes << " bytes.\n";
     
     // NOTE: good for troubleshooting, but bad for performance.
-    elogger->flush();
-    ilogger->flush();
+    logger->flush();
     return EXIT_SUCCESS;
 }
 
@@ -565,12 +556,12 @@ int main( int argc, char* argv[] )
                 std::exit( EXIT_SUCCESS );
             } else {
                 std::cerr << "Current configuration settings do not work.\n";
-                acm_blob_producer.ilogger->error( "current configuration settings do not work; exiting." );
+                acm_blob_producer.logger->error( "current configuration settings do not work; exiting." );
                 std::exit( EXIT_FAILURE );
             }
         } catch ( std::exception& e ) {
             std::cerr << "Fatal Exception: " << e.what() << '\n';
-            acm_blob_producer.elogger->error( "exception: {}", e.what() );
+            acm_blob_producer.logger->error( "exception: " + e.what() );
             std::exit( EXIT_FAILURE );
         }
     }

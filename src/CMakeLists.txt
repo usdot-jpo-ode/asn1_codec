@@ -5,6 +5,7 @@ target_sources(acm PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}/acm.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/tool.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/utilities.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/acmLogger.cpp"
     )
 
 # Include here all the relevant code for the above sources.
@@ -25,6 +26,7 @@ target_sources(acm_tests PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}/acm.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/tool.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/utilities.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/acmLogger.cpp"
     )
 
 target_include_directories(acm_tests PUBLIC
