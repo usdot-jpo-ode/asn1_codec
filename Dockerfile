@@ -8,20 +8,20 @@ VOLUME ["/asn1_codec_share"]
 # Add build tools.
 RUN apt-get update && apt-get install -y software-properties-common wget git make gcc-7 g++-7 gcc-7-base && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 100 && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 100
 
-#install editors vim and nano
-#RUN apt-get update && apt-get install -y vim
-#RUN apt-get update && apt-get install -y nano
-
 # Install cmake.
-RUN wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz && tar -xvf cmake-3.7.2.tar.gz
-RUN cd cmake-3.7.2 && ./bootstrap && make && make install && cd /home
+RUN apt-get install -y cmake
 
 # install libtool and automake
-RUN apt-get update && apt-get install -y automake libtool
+RUN apt-get install -y automake libtool
 
 # Install librdkafka.
-ADD ./librdkafka /asn1_codec/librdkafka
-RUN cd /asn1_codec/librdkafka && ln -s /usr/bin/python3 /usr/bin/python && ./configure && make && make install
+RUN apt-get install -y sudo
+RUN wget -qO - https://packages.confluent.io/deb/7.3/archive.key | sudo apt-key add -
+RUN add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/7.3 stable main"
+RUN add-apt-repository "deb https://packages.confluent.io/clients/deb $(lsb_release -cs) main"
+RUN apt update
+RUN apt-get install -y libsasl2-modules libsasl2-modules-gssapi-mit libsasl2-dev libssl-dev 
+RUN apt install -y librdkafka-dev
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
