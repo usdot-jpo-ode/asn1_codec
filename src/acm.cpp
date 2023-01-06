@@ -293,7 +293,7 @@ void ASN1_Codec::metadata_print (const std::string &topic, const RdKafka::Metada
 bool ASN1_Codec::topic_available( const std::string& topic ) {
     bool r = false;
 
-    RdKafka::Metadata* md;
+    RdKafka::Metadata* md; // must be freed if allocated
     RdKafka::ErrorCode err = consumer_ptr->metadata( true, nullptr, &md, 5000 );
     // TODO: Will throw a broker transport error (ERR__TRANSPORT = -195) if the broker is not available.
 
@@ -315,6 +315,10 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
 
     } else {
         elogger->error( "cannot retrieve consumer metadata with error: {}.", err2str(err) );
+    }
+
+    if (md) {
+        delete md; // free metadata
     }
 
     return r;
