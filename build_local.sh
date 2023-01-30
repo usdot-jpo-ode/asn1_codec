@@ -20,6 +20,7 @@ buildAsn1c(){
     # build asn1c
     echo "${GREEN}Building asn1c${NC}"
     cd ./asn1c
+    git reset --hard
     git pull origin master
     aclocal
     test -f ./configure || autoreconf -iv
