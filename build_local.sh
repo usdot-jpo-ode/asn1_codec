@@ -9,6 +9,13 @@ TICK="[${GREEN}✓${NC}]"
 CROSS="[${RED}✗${NC}]"
 INFO="[${CYAN}i${NC}]"
 
+initializeSubmodules(){
+    # initialize submodules
+    echo "${GREEN}Initializing submodules${NC}"
+    git submodule update --recursive --init
+    git pull --recurse-submodules
+}
+
 buildAsn1c(){
     # build asn1c
     echo "${GREEN}Building asn1c${NC}"
@@ -66,6 +73,7 @@ runTests() {
 
 runAll(){
     # following from instructions in installation.md, this is the proper build order
+    initializeSubmodules
     buildAsn1c
     buildPugiXml
     compileSpecAndBuildLibrary
