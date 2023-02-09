@@ -60,9 +60,10 @@
 #include "Ieee1609Dot2Data.h"
 #include "AdvisorySituationData.h"
 #include "tool.hpp"
-#include "spdlog/spdlog.h"
 #include "librdkafka/rdkafkacpp.h"
 #include "pugixml.hpp"
+
+#include "acmLogger.hpp"
 
 #include <deque>
 #include <utility>
@@ -201,8 +202,7 @@ class ASN1_Codec : public tool::Tool {
 
     public:
 
-        std::shared_ptr<spdlog::logger> ilogger;
-        std::shared_ptr<spdlog::logger> elogger;
+        std::shared_ptr<AcmLogger> logger;
 
         static void sigterm (int sig);
 

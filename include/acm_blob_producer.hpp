@@ -51,14 +51,14 @@
 
 #include <librdkafka/rdkafkacpp.h>
 #include "tool.hpp"
-#include "spdlog/spdlog.h"
+
+#include "acmLogger.hpp"
 
 class ACMBlobProducer : public tool::Tool {
 
     public:
 
-        std::shared_ptr<spdlog::logger> ilogger;
-        std::shared_ptr<spdlog::logger> elogger;
+        std::shared_ptr<AcmLogger> logger;
 
         static void sigterm (int sig);
 
