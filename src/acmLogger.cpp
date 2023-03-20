@@ -12,7 +12,7 @@ AcmLogger::AcmLogger(std::string logname) {
     if (logToConsoleFlag) {
         sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
     }
-    setLogger(std::make_shared<spdlog::logger>("ilog", begin(sinks), end(sinks)));
+    setLogger(std::make_shared<spdlog::logger>("log", begin(sinks), end(sinks)));
     set_level(loglevel);
     set_pattern("[%C%m%d %H:%M:%S.%f] [%l] %v");
 }

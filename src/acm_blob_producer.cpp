@@ -114,8 +114,6 @@ ACMBlobProducer::ACMBlobProducer( const std::string& name, const std::string& de
     Tool{ name, description },
     msg_send_count{0},
     msg_send_bytes{0},
-    iloglevel{ spdlog::level::trace },
-    eloglevel{ spdlog::level::err },
     mconf{},
     partition{RdKafka::Topic::PARTITION_UA},
     debug{""},
@@ -398,7 +396,7 @@ bool ACMBlobProducer::make_loggers( bool remove_files )
         }
     }
     
-    // ilog check for user-defined file locations and names.
+    // log check for user-defined file locations and names.
     if (getOption('i').hasArg()) {
         // replace default.
         logname = string_utilities::basename<std::string>( getOption('i').argument() );
@@ -513,8 +511,7 @@ int main(int argc, char* argv[])
     acm_blob_producer.addOption('v', "log-level", "The info log level [trace,debug,info,warning,error,critical,off]", true);
     acm_blob_producer.addOption('D', "log-dir", "Directory for the log files.", true);
     acm_blob_producer.addOption('R', "log-rm", "Remove specified/default log files if they exist.", false);
-    acm_blob_producer.addOption('i', "ilog", "Information log file name.", true);
-    acm_blob_producer.addOption('e', "elog", "Error log file name.", true);
+    acm_blob_producer.addOption('i', "log", "Log file name.", true);
     acm_blob_producer.addOption('F', "file", "Input binary file", true);
     acm_blob_producer.addOption('B', "blocksize", "The block size to read and write.", true);
     acm_blob_producer.addOption('h', "help", "print out some help");

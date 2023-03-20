@@ -171,8 +171,6 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     , msg_recv_bytes{0}
     , msg_send_bytes{0}
     , msg_filt_bytes{0}
-    , iloglevel{ spdlog::level::trace }
-    , eloglevel{ spdlog::level::err }
     , pconf{}
     , brokers{"localhost"}
     , partition{RdKafka::Topic::PARTITION_UA}
@@ -1906,8 +1904,7 @@ int main( int argc, char* argv[] )
     asn1_codec.addOption( 'v', "log-level", "The info log level [trace,debug,info,warning,error,critical,off]", true );
     asn1_codec.addOption( 'D', "log-dir", "Directory for the log files.", true );
     asn1_codec.addOption( 'R', "log-rm", "Remove specified/default log files if they exist.", false );
-    asn1_codec.addOption( 'i', "ilog", "Information log file name.", true );
-    asn1_codec.addOption( 'e', "elog", "Error log file name.", true );
+    asn1_codec.addOption( 'i', "log", "Log file name.", true );
     asn1_codec.addOption( 'h', "help", "print out some help" );
     asn1_codec.addOption( 'F', "infile", "accept a file and bypass kafka.", false );
     asn1_codec.addOption( 'T', "codec-type", "The type of codec to use: decode or encode; defaults to decode", true );
