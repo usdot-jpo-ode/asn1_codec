@@ -238,10 +238,6 @@ class ASN1_Codec : public tool::Tool {
         static bool bootstrap;                                          ///> flag indicating we need to bootstrap the consumer and producer
         static bool data_available;                                     ///> flag to exit application; set via signals so static.
 
-        static constexpr long ilogsize = 1048576 * 5;                   ///> The size of a single information log; these rotate.
-        static constexpr long elogsize = 1048576 * 2;                   ///> The size of a single error log; these rotate.
-        static constexpr int ilognum = 5;                               ///> The number of information logs to rotate.
-        static constexpr int elognum = 2;                               ///> The number of error logs to rotate.
         static constexpr std::size_t max_errbuf_size = 128;             ///> The length of error buffers for ASN.1 compiler.
 
         // possible encoding configurations.
@@ -266,8 +262,6 @@ class ASN1_Codec : public tool::Tool {
         uint64_t msg_filt_bytes;                                        ///> Counter for the nubmer of BSM bytes filtered/suppressed.
 
         // Logging.
-        spdlog::level::level_enum iloglevel;                            ///> Log level for the information log.
-        spdlog::level::level_enum eloglevel;                            ///> Log level for the error log.
         std::string mode;
         std::string debug;
 
