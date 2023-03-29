@@ -25,8 +25,7 @@ line options override parameters specified in the configuration file.** The foll
 ```bash
 -T | --codec-type      : The type of codec to use: decode or encode; defaults to decode
 -h | --help            : print out some help
--e | --elog            : Error log file name.
--i | --ilog            : Information log file name.
+-i | --log             : Log file name.
 -R | --log-rm          : Remove specified/default log files if they exist.
 -D | --log-dir         : Directory for the log files.
 -F | --infile          : accept a file and bypass kafka.
@@ -103,24 +102,22 @@ handle multiple partitions within a single topic.
 
 # ACM Logging
 
-ACM operations are logged to two files: an information log and an error log.  The files are rotating log files, i.e., a set number of log files will
-be used to record the ACM's information. By default, these files are located in a `logs` directory from where the ACM is launched and the files are
-named `log.info` and `log.error`. The maximum size of a `log.info` files is 5MB and 5 files are rotated. The maximum size of a `log.error` file is 2MB
-and 2 files are rotated. Logging configuration is controlled through the command line, not through the configuration file. The following operation are available:
+ACM operations are optionally logged to the console and/or to a file.  The file is a rotating log file, i.e., a set number of log files will
+be used to record the ACM's information. By default, the file is in a `logs` directory from where the ACM is launched and the file is
+named `log`. The maximum size of a `log` file is 5MB and 5 files are rotated.
+Logging configuration is controlled through the command line, not through the configuration file. The following operation are available:
 
 - `-R` : When the ACM starts remove any log files having either the default or user specified names; otherwise, new log entries will be appended to existing files.
 
 - `-D` : The directory where the log files should be written. This can be relative or absolute. If the directory does not exist, it will be created.
 
-- `-e` : The error log file's name.
+- `-i` : The log file's name.
 
-- `-i` : The information log file's name.
-
-- `-v` : The minimum level of message to write to the information log. From lowest to highest, the message levels are `off`, `trace`, `debug`, `info`,
+- `-v` : The minimum level of message to write to the log. From lowest to highest, the message levels are `off`, `trace`, `debug`, `info`,
          `warning`, `error`, `critical`. As an example, if you specify `info` then all messages that are `info, warning, error, or critical` will be written to
          the log.
 
-The information log will write the configuration it will use as `info` messages when it starts.  All log messages are
+The log will write the configuration it will use as `info` messages when it starts.  All log messages are
 preceeded with a date and time stamp and the level of the log message.
 
 ```

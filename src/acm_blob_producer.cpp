@@ -114,8 +114,6 @@ ACMBlobProducer::ACMBlobProducer( const std::string& name, const std::string& de
     Tool{ name, description },
     msg_send_count{0},
     msg_send_bytes{0},
-    iloglevel{ spdlog::level::trace },
-    eloglevel{ spdlog::level::err },
     mconf{},
     partition{RdKafka::Topic::PARTITION_UA},
     debug{""},
@@ -183,19 +181,19 @@ bool ACMBlobProducer::configure() {
 
     if ( optIsSet('v') ) {
         if ( "trace" == optString('v') ) {
-            logger->set_info_level( spdlog::level::trace );
+            logger->set_level( spdlog::level::trace );
         } else if ( "debug" == optString('v') ) {
-            logger->set_info_level( spdlog::level::trace );
+            logger->set_level( spdlog::level::trace );
         } else if ( "info" == optString('v') ) {
-            logger->set_info_level( spdlog::level::trace );
+            logger->set_level( spdlog::level::trace );
         } else if ( "warning" == optString('v') ) {
-            logger->set_info_level( spdlog::level::warn );
+            logger->set_level( spdlog::level::warn );
         } else if ( "error" == optString('v') ) {
-            logger->set_info_level( spdlog::level::err );
+            logger->set_level( spdlog::level::err );
         } else if ( "critical" == optString('v') ) {
-            logger->set_info_level( spdlog::level::critical );
+            logger->set_level( spdlog::level::critical );
         } else if ( "off" == optString('v') ) {
-            logger->set_info_level( spdlog::level::off );
+            logger->set_level( spdlog::level::off );
         } else {
             logger->warn("information logger level was configured but unreadable; using default.");
         }
@@ -373,8 +371,7 @@ bool ACMBlobProducer::make_loggers( bool remove_files )
 {
     // defaults.
     std::string path{ "logs/" };
-    std::string ilogname{ "log.bproducer.info" };
-    std::string elogname{ "log.bproducer.error" };
+    std::string logname{ "log.bproducer.info" };
 
     if (getOption('D').hasArg()) {
         // replace default
@@ -399,36 +396,23 @@ bool ACMBlobProducer::make_loggers( bool remove_files )
         }
     }
     
-    // ilog check for user-defined file locations and names.
+    // log check for user-defined file locations and names.
     if (getOption('i').hasArg()) {
         // replace default.
-        ilogname = string_utilities::basename<std::string>( getOption('i').argument() );
-    }
-
-    if (getOption('e').hasArg()) {
-        // replace default.
-        elogname = string_utilities::basename<std::string>( getOption('e').argument() );
+        logname = string_utilities::basename<std::string>( getOption('i').argument() );
     }
     
-    ilogname = path + ilogname;
-    elogname = path + elogname;
+    logname = path + logname;
 
-    if ( remove_files && fileExists( ilogname ) ) {
-        if ( std::remove( ilogname.c_str() ) != 0 ) {
+    if ( remove_files && fileExists( logname ) ) {
+        if ( std::remove( logname.c_str() ) != 0 ) {
             std::cerr << "Error removing the previous information log file.\n";
             return false;
         }
     }
 
-    if ( remove_files && fileExists( elogname ) ) {
-        if ( std::remove( elogname.c_str() ) != 0 ) {
-            std::cerr << "Error removing the previous error log file.\n";
-            return false;
-        }
-    }
-
     // initialize logger
-    logger = std::make_shared<AcmLogger>(ilogname, elogname);
+    logger = std::make_shared<AcmLogger>(logname);
     return true;
 }
 
@@ -481,7 +465,7 @@ int ACMBlobProducer::operator()(void) {
                 status = producer_ptr->produce(published_topic_ptr.get(), partition, RdKafka::Producer::RK_MSG_COPY, (void *)buf, bytes_read, NULL, NULL);
 
                 if (status != RdKafka::ERR_NO_ERROR) {
-                    logger->error("Production failure code " + RdKafka::err2str( status ) + " after reading " + bytes_read + " bytes.");
+                    logger->error("Production failure code " + RdKafka::err2str( status ) + " after reading " + std::to_string(bytes_read) + " bytes.");
                     break;
 
                 } else {
@@ -513,39 +497,38 @@ int ACMBlobProducer::operator()(void) {
 
 #ifndef _ASN1_CODEC_TESTS
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
     ACMBlobProducer acm_blob_producer{"ACMBlobProducer","ASN1 Processing Module"};
 
-    acm_blob_producer.addOption( 'c', "config", "Configuration file name and path.", true );
-    acm_blob_producer.addOption( 'C', "config-check", "Check the configuration file contents and output the settings.", false );
-    acm_blob_producer.addOption( 't', "produce-topic", "The name of the topic to produce.", true );
-    acm_blob_producer.addOption( 'p', "partition", "Consumer topic partition from which to read.", true );
-    acm_blob_producer.addOption( 'g', "group", "Consumer group identifier", true );
-    acm_blob_producer.addOption( 'b', "broker", "Broker address (localhost:9092)", true );
-    acm_blob_producer.addOption( 'd', "debug", "debug level.", true );
-    acm_blob_producer.addOption( 'v', "log-level", "The info log level [trace,debug,info,warning,error,critical,off]", true );
-    acm_blob_producer.addOption( 'D', "log-dir", "Directory for the log files.", true );
-    acm_blob_producer.addOption( 'R', "log-rm", "Remove specified/default log files if they exist.", false );
-    acm_blob_producer.addOption( 'i', "ilog", "Information log file name.", true );
-    acm_blob_producer.addOption( 'e', "elog", "Error log file name.", true );
-    acm_blob_producer.addOption( 'F', "file", "Input binary file", true );
-    acm_blob_producer.addOption( 'B', "blocksize", "The block size to read and write.", true );
-    acm_blob_producer.addOption( 'h', "help", "print out some help" );
+    acm_blob_producer.addOption('c', "config", "Configuration file name and path.", true);
+    acm_blob_producer.addOption('C', "config-check", "Check the configuration file contents and output the settings.", false);
+    acm_blob_producer.addOption('t', "produce-topic", "The name of the topic to produce.", true);
+    acm_blob_producer.addOption('p', "partition", "Consumer topic partition from which to read.", true);
+    acm_blob_producer.addOption('g', "group", "Consumer group identifier", true);
+    acm_blob_producer.addOption('b', "broker", "Broker address (localhost:9092)", true);
+    acm_blob_producer.addOption('d', "debug", "debug level.", true);
+    acm_blob_producer.addOption('v', "log-level", "The info log level [trace,debug,info,warning,error,critical,off]", true);
+    acm_blob_producer.addOption('D', "log-dir", "Directory for the log files.", true);
+    acm_blob_producer.addOption('R', "log-rm", "Remove specified/default log files if they exist.", false);
+    acm_blob_producer.addOption('i', "log", "Log file name.", true);
+    acm_blob_producer.addOption('F', "file", "Input binary file", true);
+    acm_blob_producer.addOption('B', "blocksize", "The block size to read and write.", true);
+    acm_blob_producer.addOption('h', "help", "print out some help");
 
     if (!acm_blob_producer.parseArgs(argc, argv)) {
         acm_blob_producer.usage();
-        std::exit( EXIT_FAILURE );
+        std::exit(EXIT_FAILURE);
     }
 
     if (acm_blob_producer.optIsSet('h')) {
         acm_blob_producer.help();
-        std::exit( EXIT_SUCCESS );
+        std::exit(EXIT_SUCCESS);
     }
 
     // can set levels if needed here.
-    if ( !acm_blob_producer.make_loggers( acm_blob_producer.optIsSet('R') )) {
-        std::exit( EXIT_FAILURE );
+    if (!acm_blob_producer.make_loggers((acm_blob_producer.optIsSet('R')))) {
+        std::exit(EXIT_FAILURE);
     }
 
     // configuration check.
@@ -553,21 +536,21 @@ int main( int argc, char* argv[] )
         try {
             if (acm_blob_producer.configure()) {
                 acm_blob_producer.print_configuration();
-                std::exit( EXIT_SUCCESS );
+                std::exit(EXIT_SUCCESS);
             } else {
                 std::cerr << "Current configuration settings do not work.\n";
-                acm_blob_producer.logger->error( "current configuration settings do not work; exiting." );
-                std::exit( EXIT_FAILURE );
+                acm_blob_producer.logger->error("current configuration settings do not work; exiting.");
+                std::exit(EXIT_FAILURE);
             }
-        } catch ( std::exception& e ) {
+        } catch (std::exception& e) {
             std::cerr << "Fatal Exception: " << e.what() << '\n';
-            acm_blob_producer.logger->error( "exception: " + e.what() );
-            std::exit( EXIT_FAILURE );
+            acm_blob_producer.logger->error(e.what());
+            std::exit(EXIT_FAILURE);
         }
     }
 
     // The module will run and when it terminates return an appropriate error code.
-    std::exit( acm_blob_producer.run() );
+    std::exit(acm_blob_producer.run());
 }
 
 #endif
