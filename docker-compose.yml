@@ -17,7 +17,7 @@ services:
   asn1_codec:
     build:
       context: .
-      dockerfile: Dockerfile.standalone
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
       - "9090:9090"
@@ -31,3 +31,4 @@ services:
       ACM_CONFIG_FILE: adm.properties
       ACM_LOG_TO_CONSOLE: "true"
       ACM_LOG_TO_FILE: "false"
+      ACM_LOG_LEVEL: ${ACM_LOG_LEVEL}

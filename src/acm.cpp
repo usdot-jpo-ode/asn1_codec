@@ -171,8 +171,6 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     , msg_recv_bytes{0}
     , msg_send_bytes{0}
     , msg_filt_bytes{0}
-    , iloglevel{ spdlog::level::trace }
-    , eloglevel{ spdlog::level::err }
     , pconf{}
     , brokers{"localhost"}
     , partition{RdKafka::Topic::PARTITION_UA}
@@ -425,21 +423,21 @@ bool ASN1_Codec::configure() {
         else if ( "decode" == optString('T') ) decode_functionality = true;
     } 
     
-    if ( optIsSet('v') ) {
-        if ( "trace" == optString('v') ) {
-            logger->set_info_level( spdlog::level::trace );
-        } else if ( "debug" == optString('v') ) {
-            logger->set_info_level( spdlog::level::trace );
-        } else if ( "info" == optString('v') ) {
-            logger->set_info_level( spdlog::level::trace );
-        } else if ( "warning" == optString('v') ) {
-            logger->set_info_level( spdlog::level::warn );
-        } else if ( "error" == optString('v') ) {
-            logger->set_info_level( spdlog::level::err );
-        } else if ( "critical" == optString('v') ) {
-            logger->set_info_level( spdlog::level::critical );
-        } else if ( "off" == optString('v') ) {
-            logger->set_info_level( spdlog::level::off );
+    if (optIsSet('v')) {
+        if ("trace" == optString('v')) {
+            logger->set_level(spdlog::level::trace);
+        } else if ("debug" == optString('v')) {
+            logger->set_level(spdlog::level::trace);
+        } else if ("info" == optString('v')) {
+            logger->set_level(spdlog::level::trace);
+        } else if ("warning" == optString('v')) {
+            logger->set_level(spdlog::level::warn);
+        } else if ("error" == optString('v')) {
+            logger->set_level(spdlog::level::err);
+        } else if ("critical" == optString('v')) {
+            logger->set_level(spdlog::level::critical);
+        } else if ("off" == optString('v')) {
+            logger->set_level(spdlog::level::off);
         } else {
             logger->warn("information logger level was configured but unreadable; using default.");
         }
@@ -645,8 +643,7 @@ bool ASN1_Codec::launch_consumer(){
 bool ASN1_Codec::make_loggers( bool remove_files ) {    
     // defaults.
     std::string path{ "logs/" };
-    std::string ilogname{ "log.info" };
-    std::string elogname{ "log.error" };
+    std::string logname{ "log.info" };
 
     if (getOption('D').hasArg()) {
         // replace default
@@ -671,36 +668,23 @@ bool ASN1_Codec::make_loggers( bool remove_files ) {
         }
     }
     
-    // ilog check for user-defined file locations and names.
+    // log check for user-defined file locations and names.
     if (getOption('i').hasArg()) {
         // replace default.
-        ilogname = string_utilities::basename<std::string>( getOption('i').argument() );
-    }
-
-    if (getOption('e').hasArg()) {
-        // replace default.
-        elogname = string_utilities::basename<std::string>( getOption('e').argument() );
+        logname = string_utilities::basename<std::string>( getOption('i').argument() );
     }
     
-    ilogname = path + ilogname;
-    elogname = path + elogname;
+    logname = path + logname;
 
-    if ( remove_files && fileExists( ilogname ) ) {
-        if ( std::remove( ilogname.c_str() ) != 0 ) {
+    if ( remove_files && fileExists( logname ) ) {
+        if ( std::remove( logname.c_str() ) != 0 ) {
             std::cerr << "Error removing the previous information log file.\n";
             return false;
         }
     }
 
-    if ( remove_files && fileExists( elogname ) ) {
-        if ( std::remove( elogname.c_str() ) != 0 ) {
-            std::cerr << "Error removing the previous error log file.\n";
-            return false;
-        }
-    }
-
     // initialize logger
-    logger = std::make_shared<AcmLogger>(ilogname, elogname);
+    logger = std::make_shared<AcmLogger>(logname);
     return true;
 }
 
@@ -1920,8 +1904,7 @@ int main( int argc, char* argv[] )
     asn1_codec.addOption( 'v', "log-level", "The info log level [trace,debug,info,warning,error,critical,off]", true );
     asn1_codec.addOption( 'D', "log-dir", "Directory for the log files.", true );
     asn1_codec.addOption( 'R', "log-rm", "Remove specified/default log files if they exist.", false );
-    asn1_codec.addOption( 'i', "ilog", "Information log file name.", true );
-    asn1_codec.addOption( 'e', "elog", "Error log file name.", true );
+    asn1_codec.addOption( 'i', "log", "Log file name.", true );
     asn1_codec.addOption( 'h', "help", "print out some help" );
     asn1_codec.addOption( 'F', "infile", "accept a file and bypass kafka.", false );
     asn1_codec.addOption( 'T', "codec-type", "The type of codec to use: decode or encode; defaults to decode", true );

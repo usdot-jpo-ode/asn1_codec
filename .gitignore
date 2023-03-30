@@ -8,3 +8,5 @@ docs/html
 /.settings/language.settings.xml
 /sh.exe.stackdump
 /asn1c_combined/J2735_201603DA.ASN
+
+.env
