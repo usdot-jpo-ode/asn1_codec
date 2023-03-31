@@ -29,9 +29,8 @@ is subsequently *encoded into ASN.1 binary data*.
 1. [Project Management](#project-management)
 1. [Confluent Cloud Integration](#confluent-cloud-integration)
 
-# Release Notes
-
-- ODE-537/581/584/585/586/537: ASN.1 codec module development and integration. 
+## Release Notes
+The current version and release history of the asn1_codec: [asn1_codec Release Notes](<docs/Release_notes.md>)
 
 # Getting Involved
 
