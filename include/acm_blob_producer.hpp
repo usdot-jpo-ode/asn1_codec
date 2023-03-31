@@ -51,14 +51,14 @@
 
 #include <librdkafka/rdkafkacpp.h>
 #include "tool.hpp"
-#include "spdlog/spdlog.h"
+
+#include "acmLogger.hpp"
 
 class ACMBlobProducer : public tool::Tool {
 
     public:
 
-        std::shared_ptr<spdlog::logger> ilogger;
-        std::shared_ptr<spdlog::logger> elogger;
+        std::shared_ptr<AcmLogger> logger;
 
         static void sigterm (int sig);
 
@@ -86,24 +86,16 @@ class ACMBlobProducer : public tool::Tool {
     private:
 
         static bool data_available;                                     ///> flag to exit application; set via signals so static.
-
-        static constexpr long ilogsize = 1048576 * 5;                   ///> The size of a single information log; these rotate.
-        static constexpr long elogsize = 1048576 * 2;                   ///> The size of a single error log; these rotate.
         
         // If this buffer size is too small then an entire record will not be processed and things will FAIL!
         // buffer for the ASN1 stuff.
         static constexpr std::size_t BUFSIZE = 1<<12;                   ///> 4k
         uint8_t buf[BUFSIZE];
 
-        static constexpr int ilognum = 5;                               ///> The number of information logs to rotate.
-        static constexpr int elognum = 2;                               ///> The number of error logs to rotate.
-
         // counters.
         uint64_t msg_send_count;                                            ///> Counter for the number of BSMs published.
-        uint64_t msg_send_bytes;                                         ///> Counter for the nubmer of BSM bytes published.
-
-        spdlog::level::level_enum iloglevel;                            ///> Log level for the information log.
-        spdlog::level::level_enum eloglevel;                            ///> Log level for the error log.
+        uint64_t msg_send_bytes;                                         ///> Counter for the number of BSM bytes published.
+        
         std::string debug;
         std::string input_file;
         std::size_t block_size;

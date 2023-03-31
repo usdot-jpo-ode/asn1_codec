@@ -60,9 +60,10 @@
 #include "Ieee1609Dot2Data.h"
 #include "AdvisorySituationData.h"
 #include "tool.hpp"
-#include "spdlog/spdlog.h"
-#include "rdkafkacpp.h"
+#include "librdkafka/rdkafkacpp.h"
 #include "pugixml.hpp"
+
+#include "acmLogger.hpp"
 
 #include <deque>
 #include <utility>
@@ -201,8 +202,7 @@ class ASN1_Codec : public tool::Tool {
 
     public:
 
-        std::shared_ptr<spdlog::logger> ilogger;
-        std::shared_ptr<spdlog::logger> elogger;
+        std::shared_ptr<AcmLogger> logger;
 
         static void sigterm (int sig);
 
@@ -218,6 +218,7 @@ class ASN1_Codec : public tool::Tool {
         bool filetest();
         bool file_test(std::string file_path, std::ostream& os, bool encode = true);
         int operator()(void);
+        const char* getEnvironmentVariable(const char* variableName);
 
         /**
          * @brief Create and setup the two loggers used for the ASN1_Codec. The locations and filenames for the logs can be specified
@@ -237,10 +238,6 @@ class ASN1_Codec : public tool::Tool {
         static bool bootstrap;                                          ///> flag indicating we need to bootstrap the consumer and producer
         static bool data_available;                                     ///> flag to exit application; set via signals so static.
 
-        static constexpr long ilogsize = 1048576 * 5;                   ///> The size of a single information log; these rotate.
-        static constexpr long elogsize = 1048576 * 2;                   ///> The size of a single error log; these rotate.
-        static constexpr int ilognum = 5;                               ///> The number of information logs to rotate.
-        static constexpr int elognum = 2;                               ///> The number of error logs to rotate.
         static constexpr std::size_t max_errbuf_size = 128;             ///> The length of error buffers for ASN.1 compiler.
 
         // possible encoding configurations.
@@ -265,8 +262,6 @@ class ASN1_Codec : public tool::Tool {
         uint64_t msg_filt_bytes;                                        ///> Counter for the nubmer of BSM bytes filtered/suppressed.
 
         // Logging.
-        spdlog::level::level_enum iloglevel;                            ///> Log level for the information log.
-        spdlog::level::level_enum eloglevel;                            ///> Log level for the error log.
         std::string mode;
         std::string debug;
 

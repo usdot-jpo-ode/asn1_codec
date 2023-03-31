@@ -1,0 +1,28 @@
+version: '2'
+services:
+  adm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
+      KAFKA_TYPE: ${KAFKA_TYPE}
+      ACM_CONFIG_FILE: adm.properties
+      ACM_LOG_TO_CONSOLE: "true"
+      ACM_LOG_TO_FILE: "false"
+      ACM_LOG_LEVEL: ${ACM_LOG_LEVEL}
+      CONFLUENT_KEY: ${CONFLUENT_KEY}
+      CONFLUENT_SECRET: ${CONFLUENT_SECRET}
+  aem:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
+      KAFKA_TYPE: ${KAFKA_TYPE}
+      ACM_CONFIG_FILE: aem.properties
+      ACM_LOG_TO_CONSOLE: "true"
+      ACM_LOG_TO_FILE: "false"
+      ACM_LOG_LEVEL: ${ACM_LOG_LEVEL}
+      CONFLUENT_KEY: ${CONFLUENT_KEY}
+      CONFLUENT_SECRET: ${CONFLUENT_SECRET}
