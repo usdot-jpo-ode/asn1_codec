@@ -141,28 +141,36 @@ ACMBlobProducer::~ACMBlobProducer()
 
 void ACMBlobProducer::print_configuration() const
 {
-    std::cout << "# Global config" << "\n";
+    logger->info("ACMBlobProducer global configuration settings:");
     std::list<std::string>* conf_list = conf->dump();
 
     int i = 0;
     for ( auto& v : *conf_list ) {
-        if ( i%2==0 ) std::cout << v << " = ";
-        else std::cout << v << '\n';
+        if ( i%2==0 ) {
+            logger->info( v + " = ");
+        }
+        else {
+            logger->info( v );
+        }
         ++i;
     }
 
-    std::cout << "# Topic config" << "\n";
+    logger->info("ACMBlobProducer topic configuration settings:");
     conf_list = tconf->dump();
     i = 0;
     for ( auto& v : *conf_list ) {
-        if ( i%2==0 ) std::cout << v << " = ";
-        else std::cout << v << '\n';
+        if ( i%2==0 ) {
+            logger->info( v + " = ");
+        }
+        else {
+            logger->info( v );
+        }
         ++i;
     }
 
-    std::cout << "# Module Specific config \n";
+    logger->info("ACMBlobProducer module specific configuration settings:");
     for ( const auto& m : mconf ) {
-        std::cout << m.first << " = " << m.second << '\n';
+        logger->info( m.first + " = " + m.second );
     }
 }
 
@@ -391,7 +399,7 @@ bool ACMBlobProducer::make_loggers( bool remove_files )
                                                                                 // some other strange os...
 #endif
         {
-            std::cerr << "Error making the logging directory.\n";
+            std::cerr << "Error making the logging directory." << std::endl; // do not use logger since it is not yet initialized.
             return false;
         }
     }
@@ -406,7 +414,7 @@ bool ACMBlobProducer::make_loggers( bool remove_files )
 
     if ( remove_files && fileExists( logname ) ) {
         if ( std::remove( logname.c_str() ) != 0 ) {
-            std::cerr << "Error removing the previous information log file.\n";
+            std::err << "Error removing the previous information log file." << std::endl; // do not use logger since it is not yet initialized.
             return false;
         }
     }
@@ -475,20 +483,18 @@ int ACMBlobProducer::operator()(void) {
                     logger->trace("Production success of " + std::to_string(bytes_read) + " bytes.");
                 }
 
-
-                std::cerr << "Bytes from file: " << bytes_read << ". Successfully produced to: " << published_topic_name << '\n';
+                logger->trace("Bytes from file: " + std::to_string(bytes_read) + ". Successfully produced to: " + published_topic_name);
             }
         }
 
         fclose( source );
         logger->info( "Finished producing the entire file.");
-        std::cerr << "Sleeping for 5 seconds after file round " << ++file_round << "\n";
+        logger->info("Sleeping for 5 seconds after file round " + std::to_string(++file_round) + "\n");
         std::this_thread::sleep_for( std::chrono::seconds(5) ); 
     }
 
     logger->info("ACMBlobProducer operations complete; shutting down...");
-    logger->info("ACMBlobProducer published : " + std::to_string(msg_send_count) + " blocks and " + std::to_string(msg_send_bytes) + " bytes");
-    std::cerr << "ACMBlobProducer published : " << msg_send_count << " binary blocks of size: " << block_size << " for " << msg_send_bytes << " bytes.\n";
+    logger->info("ACMBlobProducer published : " + std::to_string(msg_send_count) + " binary blocks of size: " + std::to_string(block_size) + " for " + std::to_string(msg_send_bytes) + " bytes.");
     
     // NOTE: good for troubleshooting, but bad for performance.
     logger->flush();
@@ -538,13 +544,11 @@ int main(int argc, char* argv[])
                 acm_blob_producer.print_configuration();
                 std::exit(EXIT_SUCCESS);
             } else {
-                std::cerr << "Current configuration settings do not work.\n";
                 acm_blob_producer.logger->error("current configuration settings do not work; exiting.");
                 std::exit(EXIT_FAILURE);
             }
         } catch (std::exception& e) {
-            std::cerr << "Fatal Exception: " << e.what() << '\n';
-            acm_blob_producer.logger->error(e.what());
+            acm_blob_producer.logger->error("Fatal Exception: " + std::string(e.what()));
             std::exit(EXIT_FAILURE);
         }
     }
