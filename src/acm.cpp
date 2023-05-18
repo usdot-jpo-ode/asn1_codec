@@ -669,7 +669,7 @@ bool ASN1_Codec::make_loggers( bool remove_files ) {
                                                                                 // some other strange os...
 #endif
         {
-            std::cerr << "Error making the logging directory.\n"; // don't use logger since it is not yet initialized.
+            std::cerr << "Error making the logging directory." << std::endl; // don't use logger since it is not yet initialized.
             return false;
         }
     }
@@ -684,7 +684,7 @@ bool ASN1_Codec::make_loggers( bool remove_files ) {
 
     if ( remove_files && fileExists( logname ) ) {
         if ( std::remove( logname.c_str() ) != 0 ) {
-            std::cerr << "Error removing the previous information log file.\n"; // don't use logger since it is not yet initialized.
+            std::cerr << "Error removing the previous information log file." << std::endl; // don't use logger since it is not yet initialized.
             return false;
         }
     }
