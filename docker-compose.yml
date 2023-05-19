@@ -11,7 +11,7 @@ services:
     environment:
       KAFKA_ADVERTISED_HOST_NAME: ${DOCKER_HOST_IP}
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "j2735asn1xer:1:1,j2735asn1per:1:1"
+      KAFKA_CREATE_TOPICS: "j2735asn1xer:1:1,j2735asn1per:1:1,topic.Asn1DecoderInput:1:1, topic.Asn1DecoderOutput:1:1"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   asn1_codec:
@@ -29,6 +29,6 @@ services:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_TYPE: "ON-PREM"
       ACM_CONFIG_FILE: adm.properties
-      ACM_LOG_TO_CONSOLE: "true"
-      ACM_LOG_TO_FILE: "false"
-      ACM_LOG_LEVEL: ${ACM_LOG_LEVEL}
+      ACM_LOG_TO_CONSOLE: "${ACM_LOG_TO_CONSOLE}"
+      ACM_LOG_TO_FILE: "${ACM_LOG_TO_FILE}"
+      ACM_LOG_LEVEL: "${ACM_LOG_LEVEL}"

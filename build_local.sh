@@ -57,6 +57,7 @@ compileSpecAndBuildLibrary(){
 buildACM(){
     # Build the ACM
     echo "${GREEN}Building ACM${NC}"
+    rm -r build
     mkdir build
     cd build
     cmake ..
