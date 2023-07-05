@@ -1,7 +1,26 @@
 asn1_codec Release Notes
 ----------------------------
 
-Version 1.0.0, released Mar 30th 2023
+Version 1.4.0, released July 5th 2023
+----------------------------------------
+
+### **Summary**
+The release of asn1_codec version 1.4.0 focuses on making improvements to the logging system. The following changes have been made:
+
+Enhancements in this release:
+- Implemented modifications to ensure that log setup errors are flushed immediately.
+- Added some files to the `.gitignore` file to exclude them from version control.
+- Added an existence check for the build folder before deleting it in `build_local.sh` script.
+  
+Fixes in this release:
+- Minimized the reliance on standard output throughout the code.
+- Reviewed the log levels for each log statement and adjusted as needed.
+
+Known Issues:
+- The do_kafka_test.sh script in the project's root directory is currently not running successfully. The issue is being investigated and will be addressed in a future update.
+- According to Valgrind, a minor memory leak has been detected. The development team is aware of this and is actively working on resolving it.
+
+Version 1.3.0, released Mar 30th 2023
 ----------------------------------------
 
 ### **Summary**
@@ -35,35 +54,3 @@ Fixes in this release:
 Known Issues
 -	The do_kafka_test.sh script in the root directory of the project does not run successfully at this time.
 -	There is a potential minor memory leak, according to Valgrind.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
