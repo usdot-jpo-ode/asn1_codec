@@ -1,6 +1,5 @@
 *.c
 *.h
-*.asn
 *.o
 Makefile*
 

@@ -57,6 +57,10 @@ compileSpecAndBuildLibrary(){
 buildACM(){
     # Build the ACM
     echo "${GREEN}Building ACM${NC}"
+    if [ -d "./build" ]; then
+        echo "${INFO} Removing build directory"
+        rm -r build
+    fi
     mkdir build
     cd build
     cmake ..
