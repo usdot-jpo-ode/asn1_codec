@@ -14,12 +14,9 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
     bash \
     automake \
     libtool \
-    autoconf
-
-# add librdkafka from edge branch
-RUN sed -i -e 's/v3\.4/edge/g' /etc/apk/repositories \
-    && apk upgrade --update-cache --available \
-    && apk add --no-cache librdkafka librdkafka-dev
+    autoconf \
+    librdkafka \
+    librdkafka-dev
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
@@ -55,12 +52,9 @@ WORKDIR /asn1_codec
 
 # add runtime dependencies
 RUN apk add --upgrade --no-cache \
-    bash
-
-# add librdkafka from edge branch
-RUN sed -i -e 's/v3\.4/edge/g' /etc/apk/repositories \
-    && apk upgrade --update-cache --available \
-    && apk add --no-cache librdkafka librdkafka-dev
+    bash \
+    librdkafka \
+    librdkafka-dev
 
 # copy the built files from the builder
 COPY --from=builder /asn1_codec /asn1_codec

@@ -15,12 +15,9 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
     bash \
     automake \
     libtool \
-    autoconf
-
-# add librdkafka from edge branch
-RUN sed -i -e 's/v3\.4/edge/g' /etc/apk/repositories \
-    && apk upgrade --update-cache --available \
-    && apk add --no-cache librdkafka librdkafka-dev
+    autoconf \
+    librdkafka \
+    librdkafka-dev
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
@@ -62,12 +59,9 @@ VOLUME ["/asn1_codec_share"]
 
 # add runtime dependencies
 RUN apk add --upgrade --no-cache \
-    bash
-
-# add librdkafka from edge branch
-RUN sed -i -e 's/v3\.4/edge/g' /etc/apk/repositories \
-    && apk upgrade --update-cache --available \
-    && apk add --no-cache librdkafka
+    bash \
+    librdkafka \
+    librdkafka-dev
 
 # install editors vim and nano
 RUN apk update && apk add vim nano
