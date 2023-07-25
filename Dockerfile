@@ -9,19 +9,9 @@ RUN apk update
 
 # add build dependencies
 RUN apk add --upgrade --no-cache --virtual .build-deps \
-    build-base \
     cmake \
-    git \
-    wget \
-    gcc \
     g++ \
-    linux-headers \
     make \
-    musl-dev \
-    openssl-dev \
-    protobuf-dev \
-    protobuf-c-dev \
-    sudo \
     bash \
     automake \
     libtool \
@@ -72,11 +62,7 @@ VOLUME ["/asn1_codec_share"]
 
 # add runtime dependencies
 RUN apk add --upgrade --no-cache \
-    bash \
-    libstdc++ \
-    libgcc \
-    libprotobuf \
-    protobuf
+    bash
 
 # add librdkafka from edge branch
 RUN sed -i -e 's/v3\.4/edge/g' /etc/apk/repositories \
