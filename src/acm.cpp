@@ -438,9 +438,9 @@ bool ASN1_Codec::configure() {
         if ("TRACE" == optString('v')) {
             logger->set_level(spdlog::level::trace);
         } else if ("DEBUG" == optString('v')) {
-            logger->set_level(spdlog::level::trace);
+            logger->set_level(spdlog::level::debug);
         } else if ("INFO" == optString('v')) {
-            logger->set_level(spdlog::level::trace);
+            logger->set_level(spdlog::level::info);
         } else if ("WARNING" == optString('v')) {
             logger->set_level(spdlog::level::warn);
         } else if ("ERROR" == optString('v')) {
