@@ -309,11 +309,11 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
 
     } else if ( err == RdKafka::ERR__TRANSPORT) {
         logger->error("cannot retrieve consumer metadata: Broker Transport Failure ");
-        logger->error("Container Exiting...will try restarting");
+        logger->error("Container Exiting...");
         std::exit(EXIT_FAILURE);
     } else {
         logger->error("cannot retrieve consumer metadata with error: " + err2str(err));
-        logger->error("Container Exiting...will try restarting");
+        logger->error("Container Exiting...");
         std::exit(EXIT_FAILURE);
     }
 
