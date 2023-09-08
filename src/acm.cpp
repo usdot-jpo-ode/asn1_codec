@@ -290,7 +290,6 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
 
     RdKafka::Metadata* md; // must be freed if allocated
     RdKafka::ErrorCode err = consumer_ptr->metadata( true, nullptr, &md, 5000 );
-    // TODO: Will throw a broker transport error (ERR__TRANSPORT = -195) if the broker is not available.
 
     if ( err == RdKafka::ERR_NO_ERROR ) {
         RdKafka::Metadata::TopicMetadataIterator it = md->topics()->begin();
@@ -308,8 +307,14 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
             logger->warn("Metadata did not contain topic: " + topic);
         }
 
+    } else if ( err == RdKafka::ERR__TRANSPORT) {
+        logger->error("cannot retrieve consumer metadata: Broker Transport Failure ");
+        logger->error("Container Exiting...");
+        std::exit(EXIT_FAILURE);
     } else {
         logger->error("cannot retrieve consumer metadata with error: " + err2str(err));
+        logger->error("Container Exiting...");
+        std::exit(EXIT_FAILURE);
     }
 
     if (md) {
