@@ -131,7 +131,16 @@ jobs:
           sonar.organization=usdot-jpo-ode-1
           sonar.sources=src,kafka-test/src,include
           sonar.cfamily.build-wrapper-output=bw-output
-          sonar.cfamily.gcov.reportsPath=/__w/asn1-codec/asn
+          sonar.cfamily.gcov.reportsPath=/__w/asn1-codec/asn1-codec/coverage/
+          sonar.sonar.projectBaseDir=/home/runner/work/asn1-codec/asn1-codec/
+          sonar.exclusions=**/*.java
+          sonar.coverage.exclusions=**/*.java
+          sonar.exclusions=pugixml/tests/data/**
+          # Set Git as SCM sensor
+          sonar.scm.disabled=true
+          sonar.scm.provider=git
+          sonar.sourceEncoding=UTF-8
+          EOF
       - name:  SonarScanner
         uses: usdot-fhwa-stol/actions/sonar-scanner@main
         with:
