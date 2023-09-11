@@ -67,9 +67,6 @@ RUN apk add --upgrade --no-cache \
 COPY --from=builder /asn1_codec /asn1_codec
 COPY --from=builder /build /build
 
-# Add test data. This changes frequently so keep it low in the file.
-ADD ./docker-test /asn1_codec/docker-test
-
 # run ACM
 RUN chmod 7777 /asn1_codec/run_acm.sh
 CMD ["/asn1_codec/run_acm.sh"]
