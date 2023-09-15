@@ -1,0 +1,149 @@
+name: asn1-codec
+
+on: [pull_request, push]
+    # Trigger this workflow on code pushes and pull requests
+
+jobs:
+  asn1-codec:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:jammy-20230126
+      env:
+        working-directory: /asn1_codec
+        BUILD_WRAPPER_OUT_DIR: "$GITHUB_WORKSPACE/bw-output"
+      options: "--user root"
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+        # Checkout the code from the repository
+
+      - name: Install necessary dependencies
+        run: |
+          apt update
+          apt-get -y install sudo wget curl gnupg lsb-release gcovr unzip gcc-multilib libasan*
+          sudo apt-get -y install software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          sudo apt-get -y update
+          sudo apt-get -y install docker-ce
+        working-directory: ${{ env.working-directory }}
+        
+      - name: Install g++ and related dependencies
+        run: |
+          sudo apt-get -y install build-essential
+          sudo apt -y install cmake g++ libprotobuf-dev protobuf-compiler
+          sudo apt -y install apt-transport-https ca-certificates curl software-properties-common
+          export CXX="g++"
+          sudo apt install -y gcc-12 g++-12
+          sudo apt -y install libpng-dev libgraphicsmagick1-dev libcairo2-dev
+        working-directory: ${{ env.working-directory }}
+
+      - name: Install librdkafka
+        run: |
+          sudo apt-get -y update && sudo apt-get -y upgrade
+          sudo apt-get -y install automake flex bison
+          sudo apt-get -y install build-essential
+          sudo apt -y install cmake g++ libprotobuf-dev protobuf-compiler
+          sudo apt-get install autotools-dev
+          sudo apt -y install apt-transport-https ca-certificates curl software-properties-common
+          git clone --depth 1 https://github.com/confluentinc/librdkafka.git librdkafka
+          cd librdkafka
+          cmake -H. -B_cmake_build
+          cmake --build _cmake_build
+          cmake --build _cmake_build --target install
+        working-directory: ${{ env.working-directory }}
+
+      - name: Install pugixml
+        run: |
+          git clone https://github.com/vlm/asn1c.git
+          git clone https://github.com/zeux/pugixml.git
+          cd ./pugixml && mkdir -p build && cd build && cmake .. && make && make install
+        working-directory: ${{ env.working-directory }}
+
+      - name: Build and install asn1c submodule
+        run: |
+          sudo apt-get -y install libtool autoconf
+          cd ./asn1c && aclocal && test -f configure || autoreconf -iv && ./configure && make && make install
+        working-directory: ${{ env.working-directory }}
+
+      - name: Generate ASN.1 API.
+        run: |
+          export LD_LIBRARY_PATH=/usr/local/lib
+          git clone https://github.com/usdot-jpo-ode/scms-asn1.git
+          cd ./asn1c_combined && bash doIt.sh
+        working-directory: ${{ env.working-directory }}
+
+      - name: Export environment variables
+        run: |
+          echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.profile
+          echo "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.bashrc
+          echo "export CC=gcc" >> ~/.profile
+          echo "export CC=gcc" >> ~/.bashrc
+        working-directory: ${{ env.working-directory }}
+
+      - name: Install sonar-scanner and build-wrapper
+        uses: SonarSource/sonarcloud-github-c-cpp@v1
+        # Install SonarScanner and build-wrapper for code analysis
+
+      - name: Build and Generate test coverage
+        run: |
+          sudo su - root
+          sudo chmod o+w /root
+          sudo chmod 755 -R /__w/asn1_codec/asn1_codec/
+          export BUILD_WRAPPER_OUT_DIR=$GITHUB_WORKSPACE/bw-output
+          build-wrapper-linux-x86-64 --out-dir $GITHUB_WORKSPACE/bw-output ./build.sh
+          mkdir coverage
+          cd coverage
+          gcov $GITHUB_WORKSPACE/kafka-test/src/*.cpp --object-directory /__w/asn1-codec/asn1-codec/build/kafka-test/CMakeFiles/Kafka-TestLib.dir/src/
+          gcov $GITHUB_WORKSPACE/src/*.cpp --object-directory /__w/asn1-codec/asn1-codec/build/CMakeFiles/ppm_tests.dir/src/
+        working-directory: ${{ env.working-directory }}
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: asn1-codec
+          path: /__w/asn1-codec/asn1-codec/coverage/
+        # Archive code coverage results for later reference
+
+      - name: Archive buildwrapper output
+        uses: actions/upload-artifact@v3
+        with:
+          name: asn1-codec
+          path: /home/runner/work/asn1-codec/asn1-codec/bw-output
+        # Archive build-wrapper output
+
+      - name: Setup SonarScanner
+        uses: warchant/setup-sonar-scanner@v4
+        with:
+          version: 4.8.0.2856
+        # Set up SonarScanner for code analysis
+
+      - name: Generate sonar properties file
+        run: |
+          # Generate SonarScanner properties file
+          cat <<EOF > /tmp/sonar-scanner.properties
+          sonar.host.url=https://sonarcloud.io
+          sonar.projectName=asn1-codec
+          sonar.projectVersion=1.0
+          sonar.projectKey=usdot-jpo-ode-1_asn1-codec
+          sonar.organization=usdot-jpo-ode-1
+          sonar.sources=src,kafka-test/src,include
+          sonar.cfamily.build-wrapper-output=bw-output
+          sonar.cfamily.gcov.reportsPath=/__w/asn1-codec/asn1-codec/coverage/
+          sonar.sonar.projectBaseDir=/home/runner/work/asn1-codec/asn1-codec/
+          sonar.exclusions=**/*.java
+          sonar.coverage.exclusions=**/*.java
+          sonar.exclusions=pugixml/tests/data/**
+          # Set Git as SCM sensor
+          sonar.scm.disabled=true
+          sonar.scm.provider=git
+          sonar.sourceEncoding=UTF-8
+          EOF
+      - name:  SonarScanner
+        uses: usdot-fhwa-stol/actions/sonar-scanner@main
+        with:
+          sonar-properties-path: /tmp/sonar-scanner.properties
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          working-dir: $GITHUB_WORKSPACE   
