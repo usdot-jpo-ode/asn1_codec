@@ -127,8 +127,8 @@ jobs:
           sonar.host.url=https://sonarcloud.io
           sonar.projectName=asn1-codec
           sonar.projectVersion=1.0
-          sonar.projectKey=usdot-jpo-ode-1_asn1-codec
-          sonar.organization=usdot-jpo-ode-1
+          sonar.projectKey=usdot-jpo-ode_asn1-codec
+          sonar.organization=usdot-jpo-ode
           sonar.sources=src,kafka-test/src,include
           sonar.cfamily.build-wrapper-output=bw-output
           sonar.cfamily.gcov.reportsPath=/__w/asn1-codec/asn1-codec/coverage/
