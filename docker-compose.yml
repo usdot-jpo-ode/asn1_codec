@@ -32,3 +32,4 @@ services:
       ACM_LOG_TO_CONSOLE: "${ACM_LOG_TO_CONSOLE}"
       ACM_LOG_TO_FILE: "${ACM_LOG_TO_FILE}"
       ACM_LOG_LEVEL: "${ACM_LOG_LEVEL}"
+    restart: on-failure
