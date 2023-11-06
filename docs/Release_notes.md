@@ -1,6 +1,24 @@
 asn1_codec Release Notes
 ----------------------------
 
+Version 1.5.0, released November 2023
+----------------------------------------
+
+### **Summary**
+The changes for the asn1_codec 1.5.0 include improved compatibility, a new build script, enhanced code analysis, uniform logging levels, auto-restart for Docker-compose, a default logging level change, and graceful shutdown for ACM in response to errors.
+- The catch dependency has been updated to a more recent version to ensure compatibility and reliability.
+- Added `build.sh script`
+- A new sonar configuration has been included to enhance code analysis capabilities.
+- The logging level strings have been converted to uppercase to match those in other submodules.
+- Docker-compose.yml files have been modified to automatically restart in case of failure.
+- The default logging level has been changed from TRACE to ERROR.
+- ACM will now gracefully shut down when it encounters a transport error or an unrecognized Kafka error.
+
+Known Issues:
+1.	 The do_kafka_test.sh script in the project's root directory is currently not running successfully. The issue is being investigated and will be addressed in a future update.
+2.	According to Valgrind, a minor memory leak has been detected. The development team is aware of this and is actively working on resolving it.
+
+
 Version 1.4.0, released July 5th 2023
 ----------------------------------------
 
