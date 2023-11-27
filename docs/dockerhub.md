@@ -4,7 +4,7 @@
 https://github.com/usdot-jpo-ode/asn1_codec
 
 ## Purpose
-The purpose of the asn1_codec submodule is to encode and decode streams of connected vehicle messages to and from the Asn.1 format.
+The purpose of the asn1_codec submodule is to encode and decode streams of connected vehicle messages to and from the ASN.1 format.
 
 ## How to pull the latest image
 The latest image can be pulled using the following command:
