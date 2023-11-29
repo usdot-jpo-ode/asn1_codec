@@ -13,6 +13,7 @@ services:
       ACM_LOG_LEVEL: ${ACM_LOG_LEVEL}
       CONFLUENT_KEY: ${CONFLUENT_KEY}
       CONFLUENT_SECRET: ${CONFLUENT_SECRET}
+    restart: on-failure
   aem:
     build:
       context: .
@@ -26,3 +27,4 @@ services:
       ACM_LOG_LEVEL: ${ACM_LOG_LEVEL}
       CONFLUENT_KEY: ${CONFLUENT_KEY}
       CONFLUENT_SECRET: ${CONFLUENT_SECRET}
+    restart: on-failure

@@ -290,7 +290,6 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
 
     RdKafka::Metadata* md; // must be freed if allocated
     RdKafka::ErrorCode err = consumer_ptr->metadata( true, nullptr, &md, 5000 );
-    // TODO: Will throw a broker transport error (ERR__TRANSPORT = -195) if the broker is not available.
 
     if ( err == RdKafka::ERR_NO_ERROR ) {
         RdKafka::Metadata::TopicMetadataIterator it = md->topics()->begin();
@@ -308,8 +307,14 @@ bool ASN1_Codec::topic_available( const std::string& topic ) {
             logger->warn("Metadata did not contain topic: " + topic);
         }
 
+    } else if ( err == RdKafka::ERR__TRANSPORT) {
+        logger->error("cannot retrieve consumer metadata: Broker Transport Failure ");
+        logger->error("Container Exiting...");
+        std::exit(EXIT_FAILURE);
     } else {
         logger->error("cannot retrieve consumer metadata with error: " + err2str(err));
+        logger->error("Container Exiting...");
+        std::exit(EXIT_FAILURE);
     }
 
     if (md) {
@@ -430,19 +435,19 @@ bool ASN1_Codec::configure() {
     } 
     
     if (optIsSet('v')) {
-        if ("trace" == optString('v')) {
+        if ("TRACE" == optString('v')) {
             logger->set_level(spdlog::level::trace);
-        } else if ("debug" == optString('v')) {
-            logger->set_level(spdlog::level::trace);
-        } else if ("info" == optString('v')) {
-            logger->set_level(spdlog::level::trace);
-        } else if ("warning" == optString('v')) {
+        } else if ("DEBUG" == optString('v')) {
+            logger->set_level(spdlog::level::debug);
+        } else if ("INFO" == optString('v')) {
+            logger->set_level(spdlog::level::info);
+        } else if ("WARNING" == optString('v')) {
             logger->set_level(spdlog::level::warn);
-        } else if ("error" == optString('v')) {
+        } else if ("ERROR" == optString('v')) {
             logger->set_level(spdlog::level::err);
-        } else if ("critical" == optString('v')) {
+        } else if ("CRITICAL" == optString('v')) {
             logger->set_level(spdlog::level::critical);
-        } else if ("off" == optString('v')) {
+        } else if ("OFF" == optString('v')) {
             logger->set_level(spdlog::level::off);
         } else {
             logger->warn("information logger level was configured but unreadable; using default.");
