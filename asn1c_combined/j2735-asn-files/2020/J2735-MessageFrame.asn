@@ -1,0 +1,309 @@
+/*Terms and Conditions and User License Agreement – Download and Use of ASN File
+
+Copyright: Each ASN File contained herein (“File”) is copyrighted and all 
+rights, title, and interest in and to each File are owned by SAE. The license 
+contained herein applies to each File and each reference in this license to 
+“the File” or “this File” shall be construed to include each and any ASN File 
+contained herein. No rights therein are granted except as set forth in this 
+License. Any copying, transmission, modification or reproduction of the File or 
+the copyrighted material within it, in part or in whole, except as herein 
+permitted is cause for revocation of this License.
+License: SAE International (“SAE”) hereby grants to you, as an individual or as 
+a single corporate entity, a limited nonexclusive, nontransferable right to 
+download this File in an electronic format for your individual use or use by a 
+single corporate entity on one computer. One hard copy of the File can also be 
+printed for individual use or use by a single corporate entity. SAE also hereby 
+grants to you the nonexclusive, nontransferable right to use this File and 
+create derivative works using this File for your own or your own corporate 
+entity’s research purposes and in the design, creation, manufacture, 
+distribution,and use of your own products. For purposes of clarification, 
+derivative works permitted under this license include derivative works or 
+source code that do not include or incorporate this File. The derivative work 
+may use the File to create source code and corresponding software programs.  
+Notwithstanding the foregoing, you agree that you must obtain a license from 
+SAE to create any derivative works which incorporate this File or its contents. 
+SAE also hereby grants to you the nonexclusive, nontransferable right to copy, 
+reproduce, distribute to others the derivative works from the use of the 
+content of this File or portions thereof in or as part of your company’s 
+products. You must only license, and not otherwise sell or transfer, the 
+products, software, and software documentation that incorporates content from 
+this File, and you must prohibit any licensees or others from transferring, 
+copying, or extracting the contents of this File thereof for use in their own 
+or others’ software or products.
+
+Other than as expressly permitted herein, this File may not be copied in whole 
+in any form for distribution to other users or other computers, including 
+without limitation to other individuals or users within your own corporate 
+entity or outside your corporate entity.  This license prohibits the end user 
+from posting or distributing content via any public forum or as open access 
+content.  If other individuals in or outside your corporate entity or different 
+cooperate entities, whether related or not to your corporate entity, wish to 
+download or copy this File, they must purchase a separate individual license to 
+do so. 
+
+This File is licensed “AS IS” to you and you do hereby hold SAE harmless from 
+your use of the File or the creative or use of derivative works thereof, and 
+you agree to indemnify SAE from any and all claims or damages caused by your 
+use, reproduction, distribution to others, or application of this File or any 
+derivative works therefrom.  SAE may amend the terms of and conditions of this 
+License or cancel this License at any time in its sole discretion and for any 
+reason by reasonable notice, including without limitation by posting revised 
+terms on its website.  
+
+General: Files that have been successfully downloaded cannot be returned for 
+refund or credit. This Agreement is the complete and exclusive statement of the 
+agreement between you and SAE and supersedes any and all prior agreements or 
+understandings, either written or oral, concerning the subject of this 
+Agreement. Any modifications must be in writing and signed by the parties.
+ 
+Notice to Resellers: Authorized resellers of SAE Files may download this File 
+on behalf of their customers and forward it directly, unopened, to their 
+customers provided their customers agree to abide by the terms of this License. 
+Resellers may not otherwise copy, transmit, modify or reproduce this File.
+
+This license will remain in effect for the life of the standards associated 
+with the File unless otherwise amended or cancelled by SAE in its sole 
+discretion. In the event that the associated standard is cancelled or recalled 
+due to interest of public safety, the aforementioned License will be rescinded 
+as well. This License shall terminate upon violation of any of its terms.
+
+(C)2019 SAE International.  All rights reserved.  SAE International retains the 
+right to entertain or negotiate requests for customized distribution agreements 
+for multi-user or corporate use and / or distribution. Requests should be 
+submitted to customerservice@sae.org.
+*/
+
+MessageFrame
+{joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+j2735 (2735) part-0 (0) asn1-module (1) messageFrame (1) version-1 (1)}
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS 
+	BasicSafetyMessage
+		FROM BasicSafetyMessage {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) basicSafetyMessage (7) version-1 (1)}
+	MapData
+		FROM MapData {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) mapData (8) version-1 (1)}
+	SPAT
+		FROM SPAT {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) signalPhaseAndTimingMessage (9) version-1 (1)}
+	CommonSafetyRequest
+		FROM CommonSafetyRequest {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) commonSafetyRequest (10) version-1 (1)}
+	EmergencyVehicleAlert
+		FROM EmergencyVehicleAlert {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) emergencyVehicleAlert (11) version-1 (1)}
+	IntersectionCollision
+		FROM IntersectionCollision {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) intersectionCollision (12) version-1 (1)}
+	NMEAcorrections
+		FROM NMEAcorrections {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) nmeaCorrections (13) version-1 (1)}
+	ProbeDataManagement
+		FROM ProbeDataManagement {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) probeDataManagement (14) version-1 (1)}
+	ProbeVehicleData
+		FROM ProbeVehicleData {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) probeVehicleData (15) version-1 (1)}
+	RoadSideAlert
+		FROM RoadSideAlert {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) roadSideAlert (16) version-1 (1)}
+	RTCMcorrections
+		FROM RTCMcorrections {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) rtcmCorrections (17) version-1 (1)}
+	SignalRequestMessage
+		FROM SignalRequestMessage {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) signalRequestMessage (18) version-1 (1)}
+	SignalStatusMessage
+		FROM SignalStatusMessage {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) signalStatusMessage (19) version-1 (1)}
+	TravelerInformation
+		FROM TravelerInformation {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) travelerInformation (20) version-1 (1)}
+	PersonalSafetyMessage
+		FROM PersonalSafetyMessage {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) personalSafetyMessage (21) version-1 (1)}
+	TestMessage00
+		FROM TestMessage00 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage00 (22) version-1 (1)}
+	TestMessage01
+		FROM TestMessage01 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage01 (23) version-1 (1)}
+	TestMessage02
+		FROM TestMessage02 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage02 (24) version-1 (1)}
+	TestMessage03
+		FROM TestMessage03 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage03 (25) version-1 (1)}
+	TestMessage04
+		FROM TestMessage04 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage04 (26) version-1 (1)}
+	TestMessage05
+		FROM TestMessage05 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage05 (27) version-1 (1)}
+	TestMessage06
+		FROM TestMessage06 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage06 (28) version-1 (1)}
+	TestMessage07
+		FROM TestMessage07 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage07 (29) version-1 (1)}
+	TestMessage08
+		FROM TestMessage08 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage08 (30) version-1 (1)}
+	TestMessage09
+		FROM TestMessage09 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage09 (31) version-1 (1)}
+	TestMessage10
+		FROM TestMessage10 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage10 (32) version-1 (1)}
+	TestMessage11
+		FROM TestMessage11 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage11 (33) version-1 (1)}
+	TestMessage12
+		FROM TestMessage12 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage12 (34) version-1 (1)}
+	TestMessage13
+		FROM TestMessage13 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage13 (35) version-1 (1)}
+	TestMessage14
+		FROM TestMessage14 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage14 (36) version-1 (1)}
+	TestMessage15
+		FROM TestMessage15 {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) testMessage15 (37) version-1 (1)};
+ 
+
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+-- 
+-- Start of entries from table Messages...
+-- This table typically contains message entries.
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+-- 
+
+MessageFrame ::= SEQUENCE {
+   messageId   MESSAGE-ID-AND-TYPE.&id({MessageTypes}),
+   value       MESSAGE-ID-AND-TYPE.&Type({MessageTypes}{@.messageId}),
+   ...
+   }
+
+MESSAGE-ID-AND-TYPE ::= CLASS {
+   &id    DSRCmsgID UNIQUE,
+   &Type
+   } WITH SYNTAX {&Type IDENTIFIED BY &id}
+
+MessageTypes MESSAGE-ID-AND-TYPE ::= {
+   { BasicSafetyMessage    IDENTIFIED BY basicSafetyMessage    } |       
+   { MapData               IDENTIFIED BY mapData               } |          
+   { SPAT                  IDENTIFIED BY signalPhaseAndTimingMessage } | 
+   { CommonSafetyRequest   IDENTIFIED BY commonSafetyRequest   } |  
+   { EmergencyVehicleAlert IDENTIFIED BY emergencyVehicleAlert } |  
+      { IntersectionCollision IDENTIFIED BY intersectionCollision } |  
+   { NMEAcorrections       IDENTIFIED BY nmeaCorrections       } |  
+   { ProbeDataManagement   IDENTIFIED BY probeDataManagement   } |
+   { ProbeVehicleData      IDENTIFIED BY probeVehicleData      } |  
+   { RoadSideAlert         IDENTIFIED BY roadSideAlert         } |      
+   { RTCMcorrections       IDENTIFIED BY rtcmCorrections       } |       
+   { SignalRequestMessage  IDENTIFIED BY signalRequestMessage  } |    
+   { SignalStatusMessage   IDENTIFIED BY signalStatusMessage   } |  
+   { TravelerInformation   IDENTIFIED BY travelerInformation   } |  
+   { PersonalSafetyMessage IDENTIFIED BY personalSafetyMessage } |  
+   { TestMessage00         IDENTIFIED BY testMessage00 } |
+   { TestMessage01         IDENTIFIED BY testMessage01 } | 
+   { TestMessage02         IDENTIFIED BY testMessage02 } |  
+   { TestMessage03         IDENTIFIED BY testMessage03 } | 
+   { TestMessage04         IDENTIFIED BY testMessage04 } |     
+   { TestMessage05         IDENTIFIED BY testMessage05 } | 
+   { TestMessage06         IDENTIFIED BY testMessage06 } |   
+   { TestMessage07         IDENTIFIED BY testMessage07 } |    
+   { TestMessage08         IDENTIFIED BY testMessage08 } |   
+   { TestMessage09         IDENTIFIED BY testMessage09 } |  
+   { TestMessage10         IDENTIFIED BY testMessage10 } |
+   { TestMessage11         IDENTIFIED BY testMessage11 } | 
+   { TestMessage12         IDENTIFIED BY testMessage12 } | 
+   { TestMessage13         IDENTIFIED BY testMessage13 } |
+   { TestMessage14         IDENTIFIED BY testMessage14 } |  
+   { TestMessage15         IDENTIFIED BY testMessage15 } ,
+   ... -- Expansion to be used only by the SAE V2X Core TC
+   }
+
+DSRCmsgID ::= INTEGER (0..32767)
+   
+   --
+   -- UPER forms
+   --
+   mapData                           DSRCmsgID ::=   18 -- MAP, intersections 
+   signalPhaseAndTimingMessage       DSRCmsgID ::=   19 -- SPAT
+   -- Above two entries were adopted in the 2015-04 edition
+   -- Message assignments added in 2015 follow below   
+   basicSafetyMessage                DSRCmsgID ::=   20 -- BSM, heartbeat msg
+   commonSafetyRequest               DSRCmsgID ::=   21 -- CSR
+   emergencyVehicleAlert             DSRCmsgID ::=   22 -- EVA
+   intersectionCollision             DSRCmsgID ::=   23 -- ICA
+   nmeaCorrections                   DSRCmsgID ::=   24 -- NMEA
+   probeDataManagement               DSRCmsgID ::=   25 -- PDM
+   probeVehicleData                  DSRCmsgID ::=   26 -- PVD
+   roadSideAlert                     DSRCmsgID ::=   27 -- RSA
+   rtcmCorrections                   DSRCmsgID ::=   28 -- RTCM
+   signalRequestMessage              DSRCmsgID ::=   29 -- SRM
+   signalStatusMessage               DSRCmsgID ::=   30 -- SSM
+   travelerInformation               DSRCmsgID ::=   31 -- TIM
+   personalSafetyMessage             DSRCmsgID ::=   32 -- PSM
+                     
+   --
+   -- The Below values are reserved for local message testing use
+   -- 
+   testMessage00                     DSRCmsgID ::=  240 -- Hex 0xF0 
+   testMessage01                     DSRCmsgID ::=  241  
+   testMessage02                     DSRCmsgID ::=  242  
+   testMessage03                     DSRCmsgID ::=  243  
+   testMessage04                     DSRCmsgID ::=  244   
+   testMessage05                     DSRCmsgID ::=  245  
+   testMessage06                     DSRCmsgID ::=  246  
+   testMessage07                     DSRCmsgID ::=  247  
+   testMessage08                     DSRCmsgID ::=  248  
+   testMessage09                     DSRCmsgID ::=  249  
+   testMessage10                     DSRCmsgID ::=  250 
+   testMessage11                     DSRCmsgID ::=  251  
+   testMessage12                     DSRCmsgID ::=  252  
+   testMessage13                     DSRCmsgID ::=  253  
+   testMessage14                     DSRCmsgID ::=  254  
+   testMessage15                     DSRCmsgID ::=  255-- Hex 0xFF  
+   --
+   -- All other values are reserved for std use
+   --
+END
+

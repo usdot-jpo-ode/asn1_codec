@@ -1,0 +1,440 @@
+/*Terms and Conditions and User License Agreement – Download and Use of ASN File
+
+Copyright: Each ASN File contained herein (“File”) is copyrighted and all 
+rights, title, and interest in and to each File are owned by SAE. The license 
+contained herein applies to each File and each reference in this license to 
+“the File” or “this File” shall be construed to include each and any ASN File 
+contained herein. No rights therein are granted except as set forth in this 
+License. Any copying, transmission, modification or reproduction of the File or 
+the copyrighted material within it, in part or in whole, except as herein 
+permitted is cause for revocation of this License.
+License: SAE International (“SAE”) hereby grants to you, as an individual or as 
+a single corporate entity, a limited nonexclusive, nontransferable right to 
+download this File in an electronic format for your individual use or use by a 
+single corporate entity on one computer. One hard copy of the File can also be 
+printed for individual use or use by a single corporate entity. SAE also hereby 
+grants to you the nonexclusive, nontransferable right to use this File and 
+create derivative works using this File for your own or your own corporate 
+entity’s research purposes and in the design, creation, manufacture, 
+distribution,and use of your own products. For purposes of clarification, 
+derivative works permitted under this license include derivative works or 
+source code that do not include or incorporate this File. The derivative work 
+may use the File to create source code and corresponding software programs.  
+Notwithstanding the foregoing, you agree that you must obtain a license from 
+SAE to create any derivative works which incorporate this File or its contents. 
+SAE also hereby grants to you the nonexclusive, nontransferable right to copy, 
+reproduce, distribute to others the derivative works from the use of the 
+content of this File or portions thereof in or as part of your company’s 
+products. You must only license, and not otherwise sell or transfer, the 
+products, software, and software documentation that incorporates content from 
+this File, and you must prohibit any licensees or others from transferring, 
+copying, or extracting the contents of this File thereof for use in their own 
+or others’ software or products.
+
+Other than as expressly permitted herein, this File may not be copied in whole 
+in any form for distribution to other users or other computers, including 
+without limitation to other individuals or users within your own corporate 
+entity or outside your corporate entity.  This license prohibits the end user 
+from posting or distributing content via any public forum or as open access 
+content.  If other individuals in or outside your corporate entity or different 
+cooperate entities, whether related or not to your corporate entity, wish to 
+download or copy this File, they must purchase a separate individual license to 
+do so. 
+
+This File is licensed “AS IS” to you and you do hereby hold SAE harmless from 
+your use of the File or the creative or use of derivative works thereof, and 
+you agree to indemnify SAE from any and all claims or damages caused by your 
+use, reproduction, distribution to others, or application of this File or any 
+derivative works therefrom.  SAE may amend the terms of and conditions of this 
+License or cancel this License at any time in its sole discretion and for any 
+reason by reasonable notice, including without limitation by posting revised 
+terms on its website.  
+
+General: Files that have been successfully downloaded cannot be returned for 
+refund or credit. This Agreement is the complete and exclusive statement of the 
+agreement between you and SAE and supersedes any and all prior agreements or 
+understandings, either written or oral, concerning the subject of this 
+Agreement. Any modifications must be in writing and signed by the parties.
+ 
+Notice to Resellers: Authorized resellers of SAE Files may download this File 
+on behalf of their customers and forward it directly, unopened, to their 
+customers provided their customers agree to abide by the terms of this License. 
+Resellers may not otherwise copy, transmit, modify or reproduce this File.
+
+This license will remain in effect for the life of the standards associated 
+with the File unless otherwise amended or cancelled by SAE in its sole 
+discretion. In the event that the associated standard is cancelled or recalled 
+due to interest of public safety, the aforementioned License will be rescinded 
+as well. This License shall terminate upon violation of any of its terms.
+
+(C)2019 SAE International.  All rights reserved.  SAE International retains the 
+right to entertain or negotiate requests for customized distribution agreements 
+for multi-user or corporate use and / or distribution. Requests should be 
+submitted to customerservice@sae.org.
+*/
+
+BasicSafetyMessage
+{joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+j2735 (2735) part-0 (0) asn1-module (1) basicSafetyMessage (7) version-1 (1)}
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS 
+	Reg-BasicSafetyMessage, 
+	Reg-EventDescription, 
+	Reg-SupplementalVehicleExtensions
+		FROM REGION {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) region (2) version-1 (1)}
+	EssPrecipYesNo, 
+	EssPrecipRate, 
+	EssPrecipSituation, 
+	EssSolarRadiation, 
+	EssMobileFriction
+		FROM NTCIP {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) ntcip (5) version-1 (1)}
+	ITIScodes, 
+	GenericLocations
+		FROM ITIS {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) itis (6) version-1 (1)}
+	BSMcoreData, 
+	RegionalExtension, 
+	VehicleSafetyExtensions, 
+	Priority, 
+	HeadingSlice, 
+	Extent, 
+	ObstacleDistance, 
+	DDateTime, 
+	VerticalAccelerationThreshold, 
+	Offset-B11, 
+	Angle, 
+	RTCMheader, 
+	RTCMmessageList, 
+	EmergencyDetails, 
+	BasicVehicleClass, 
+	VehicleClassification, 
+	SSPindex, 
+	TimeOffset, 
+	Node-XY-24b, 
+	CoarseHeading, 
+	VehicleWidth, 
+	VehicleLength, 
+	VehicleHeight, 
+	BumperHeights, 
+	Offset-B12, 
+	VehicleMass, 
+	TrailerWeight, 
+	AmbientAirTemperature, 
+	AmbientAirPressure, 
+	WiperSet, 
+	CoefficientOfFriction, 
+	GrossSpeed
+		FROM Common {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) common (38) version-1 (1)};
+
+
+   
+   
+   
+BasicSafetyMessage ::= SEQUENCE {
+   -- Part I, Sent at all times with each message
+   coreData      BSMcoreData,   
+
+   -- Part II Content
+   partII        SEQUENCE (SIZE(1..8)) OF 
+                 PartIIcontent {{ BSMpartIIExtension }} OPTIONAL,
+   
+   regional      SEQUENCE (SIZE(1..4)) OF 
+                 RegionalExtension {{Reg-BasicSafetyMessage}} OPTIONAL,
+   ...
+   }
+
+-- BSM Part II content support
+PARTII-EXT-ID-AND-TYPE ::= CLASS {
+   &id     PartII-Id UNIQUE,
+   &Type
+   } WITH SYNTAX {&Type IDENTIFIED BY &id}
+
+PartIIcontent  { PARTII-EXT-ID-AND-TYPE: Set} ::= SEQUENCE {
+   partII-Id     PARTII-EXT-ID-AND-TYPE.&id( {Set} ),
+   partII-Value  PARTII-EXT-ID-AND-TYPE.&Type( {Set}{@partII-Id} )
+   }
+
+PartII-Id ::= INTEGER (0..63)
+   vehicleSafetyExt       PartII-Id::= 0  -- VehicleSafetyExtensions
+   specialVehicleExt      PartII-Id::= 1  -- SpecialVehicleExtensions
+   supplementalVehicleExt PartII-Id::= 2  -- SupplementalVehicleExtensions
+   -- NOTE: new registered Part II content IDs will be denoted here
+
+-- In a given message there may be multiple extensions present 
+-- but at most one instance of each extension type.
+BSMpartIIExtension  PARTII-EXT-ID-AND-TYPE ::= { 
+   { VehicleSafetyExtensions       IDENTIFIED BY vehicleSafetyExt} |
+   { SpecialVehicleExtensions      IDENTIFIED BY specialVehicleExt} |
+   { SupplementalVehicleExtensions IDENTIFIED BY supplementalVehicleExt} ,
+   ... 
+   }
+
+
+DisabledVehicle ::= SEQUENCE {
+   statusDetails     ITIScodes(523..541),   
+                     -- Codes 532 to 541, as taken from J2540:
+                     -- Disabled, etc.
+                       -- stalled-vehicle (532),
+                       -- abandoned-vehicle (533),
+                       -- disabled-vehicle (534),
+                       -- disabled-truck (535),
+                       -- disabled-semi-trailer (536), -^- Alt: disabled
+                     -- tractor-trailer
+                       -- disabled-bus (537),
+                       -- disabled-train (538),
+                       -- vehicle-spun-out (539),
+                       -- vehicle-on-fire (540),
+                       -- vehicle-in-water (541),
+   locationDetails   GenericLocations   OPTIONAL, 
+   ...       
+   }
+
+
+EventDescription ::= SEQUENCE {
+   typeEvent     ITIScodes,
+                 -- A category and an item from that category 
+                 -- all ITS stds use the same types here
+                 -- to explain the type of  the 
+                 -- alert / danger / hazard involved
+   description   SEQUENCE (SIZE(1..8)) OF ITIScodes OPTIONAL,
+                 -- Up to eight ITIS code set entries to further
+                 -- describe the event, give advice, or any 
+                 -- other ITIS codes
+   priority      Priority OPTIONAL,  
+                 -- The urgency of this message, a relative
+                 -- degree of merit compared with other 
+                 -- similar messages for this type (not other
+                 -- messages being sent by the device), nor  
+                 -- is it a priority of display urgency
+   heading       HeadingSlice  OPTIONAL,       
+                 -- Applicable headings/direction
+   extent        Extent OPTIONAL,  
+                 -- The spatial distance over which this
+                 -- message applies and should be presented to the driver
+   regional      SEQUENCE (SIZE(1..4)) OF 
+                 RegionalExtension {{Reg-EventDescription}} OPTIONAL,
+   ...
+   }
+
+
+ObstacleDetection ::= SEQUENCE {  
+   obDist          ObstacleDistance,        -- Obstacle Distance        
+   obDirect        ObstacleDirection,       -- Obstacle Direction
+   description     ITIScodes(523..541) OPTIONAL, 
+                                            -- Uses a limited set of ITIS codes        
+   locationDetails GenericLocations OPTIONAL,        
+   dateTime        DDateTime,               -- Time detected
+   vertEvent       VerticalAccelerationThreshold OPTIONAL, 
+                                            -- Any wheels which have 
+                                            -- exceeded the acceleration point
+   ...
+   }
+
+
+PivotPointDescription ::= SEQUENCE {
+   pivotOffset  Offset-B11,   
+                -- This gives a +- 10m range from the edge of the outline
+                -- measured from the edge of the length of this unit
+                -- a negative value is offset to inside the units
+                -- a positive value is offset beyond the unit
+   pivotAngle   Angle,
+                -- Measured between the center-line of this unit 
+                -- and the unit ahead which is pulling it.
+                -- This value is required to project the units relative position
+   pivots       PivotingAllowed,
+                -- true if this unit can rotate about the pivot connection point
+   ...
+   }
+
+RTCMPackage ::= SEQUENCE {  
+   -- precise antenna position and noise data for a rover
+   rtcmHeader  RTCMheader OPTIONAL,  
+                    
+   -- one or more RTCM messages
+   msgs        RTCMmessageList,
+   ...  
+   }
+
+
+SpecialVehicleExtensions ::= SEQUENCE {
+   -- The entire EVA message has been reduced to these items
+   vehicleAlerts  EmergencyDetails OPTIONAL,
+   -- Description or Direction from an emergency vehicle
+   description    EventDescription  OPTIONAL, -- short ITIS description
+   
+   -- Trailers for both passenger vehicles and heavy trucks
+   trailers       TrailerData OPTIONAL,
+
+   -- HAZMAT and Cargo details to be added in a future revision
+
+   -- Wideload, oversized load to be added in a future revision
+
+   ...
+   }
+
+
+SpeedProfileMeasurementList ::= SEQUENCE (SIZE(1..20)) OF SpeedProfileMeasurement
+
+SpeedProfile ::= SEQUENCE {
+   -- Composed of set of measured average speeds
+   speedReports SpeedProfileMeasurementList,  
+   ...
+   }
+
+
+SupplementalVehicleExtensions ::= SEQUENCE {
+   -- Note that VehicleEventFlags, ExteriorLights, 
+   -- PathHistory, and PathPrediction are in VehicleSafetyExtensions 
+
+   -- Vehicle Type Classification Data
+   classification   BasicVehicleClass        OPTIONAL,
+                    -- May be required to be present for non passenger vehicles
+   classDetails     VehicleClassification    OPTIONAL,
+   vehicleData      VehicleData              OPTIONAL,
+
+   -- Various V2V Probe Data
+   weatherReport    WeatherReport            OPTIONAL, 
+   weatherProbe     WeatherProbe             OPTIONAL, 
+
+   -- Detected Obstacle data
+   obstacle         ObstacleDetection        OPTIONAL,
+
+   -- Disabled Vehicle Report
+   status           DisabledVehicle          OPTIONAL,
+   
+   -- Oncoming lane speed reporting
+   speedProfile     SpeedProfile             OPTIONAL, 
+
+   -- Raw GNSS measurements
+   theRTCM          RTCMPackage              OPTIONAL, 
+
+   regional  SEQUENCE (SIZE(1..4)) OF 
+             RegionalExtension {{Reg-SupplementalVehicleExtensions}} OPTIONAL,
+   ...
+
+   }
+
+
+TrailerData ::= SEQUENCE {
+   notUsed   SSPindex,  
+        -- always set to 0 and carries no meaning;
+        -- legacy field maintained for backward compatibility
+   -- Offset connection point details from the 
+   -- hauling vehicle to the first trailer unit
+   connection  PivotPointDescription,
+
+   -- One of more Trailer or Dolly Descriptions 
+   -- (each called a unit)
+   units       TrailerUnitDescriptionList,
+
+   ...
+   }
+
+TrailerHistoryPointList ::= SEQUENCE (SIZE(1..23)) OF TrailerHistoryPoint
+
+TrailerHistoryPoint ::= SEQUENCE {
+   pivotAngle       Angle,
+                    -- angle with respect to the lead unit
+   timeOffset       TimeOffset,
+                    -- offset backwards in time 
+   -- Position relative to the hauling Vehicle
+   positionOffset   Node-XY-24b, 
+   elevationOffset  VertOffset-B07 OPTIONAL,   
+   heading          CoarseHeading OPTIONAL, 
+                    -- overall heading 
+   ...
+   }
+
+
+TrailerUnitDescriptionList ::= SEQUENCE (SIZE(1..8)) OF TrailerUnitDescription
+
+
+TrailerUnitDescription ::= SEQUENCE {
+   isDolly          IsDolly, -- if false this is a trailer
+   width            VehicleWidth,   
+   length           VehicleLength,  
+   height           VehicleHeight OPTIONAL,
+   mass             TrailerMass   OPTIONAL,
+   bumperHeights    BumperHeights OPTIONAL,
+   centerOfGravity  VehicleHeight OPTIONAL,
+   -- The front pivot point of the unit
+   frontPivot       PivotPointDescription,
+   -- The rear pivot point connecting to the next element, 
+   -- if present and used (implies another unit is connected)
+   rearPivot        PivotPointDescription OPTIONAL,
+
+   -- Rear wheel pivot point center-line offset
+   -- measured from the rear of the above length
+   rearWheelOffset  Offset-B12 OPTIONAL,   
+                    -- the effective center-line of the wheel set
+
+   -- Current Position relative to the hauling Vehicle
+   positionOffset   Node-XY-24b, 
+   elevationOffset  VertOffset-B07 OPTIONAL,   
+   
+   -- Past Position history relative to the hauling Vehicle
+   crumbData  	    TrailerHistoryPointList OPTIONAL, 
+   ...
+   }
+
+
+VehicleData ::= SEQUENCE {    
+   -- Values for width and length are sent in BSM part I 
+   height        VehicleHeight   OPTIONAL,
+   bumpers       BumperHeights   OPTIONAL,
+   mass          VehicleMass     OPTIONAL,
+   trailerWeight TrailerWeight   OPTIONAL,
+   ...
+   }
+
+
+WeatherProbe ::= SEQUENCE {
+   airTemp      AmbientAirTemperature  OPTIONAL,
+   airPressure  AmbientAirPressure     OPTIONAL,
+   rainRates    WiperSet               OPTIONAL,
+   ...
+   }
+
+
+WeatherReport ::= SEQUENCE {    
+   isRaining        EssPrecipYesNo,
+   rainRate         EssPrecipRate       OPTIONAL,
+   precipSituation  EssPrecipSituation  OPTIONAL,
+   solarRadiation   EssSolarRadiation   OPTIONAL,
+   friction         EssMobileFriction   OPTIONAL,
+   roadFriction     CoefficientOfFriction     OPTIONAL,   
+   ... 
+   }
+
+IsDolly ::= BOOLEAN -- When false indicates a trailer unit
+
+ObstacleDirection ::= Angle
+
+PivotingAllowed ::= BOOLEAN
+
+SpeedProfileMeasurement ::= GrossSpeed
+
+TrailerMass ::= INTEGER (0..255) 
+   -- object mass with LSB steps of 500 kg (~1100 lbs)
+   -- the value zero shall be uaed for an unknown mass value
+   -- the value 255 shall be used any mass larger than 127,500kg
+   -- a useful range of 0~127.5 metric tons.
+
+VertOffset-B07 ::= INTEGER (-64..63)  
+   -- LSB units of of 10 cm
+   -- with a range of +- 6.3 meters vertical 
+   -- value  63 to be used for  63 or greater
+   -- value -63 to be used for -63 or greater
+   -- value -64 to be unavailable
+END
+

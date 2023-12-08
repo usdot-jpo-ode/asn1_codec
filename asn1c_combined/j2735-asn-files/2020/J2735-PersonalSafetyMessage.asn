@@ -1,0 +1,327 @@
+/*Terms and Conditions and User License Agreement – Download and Use of ASN File
+
+Copyright: Each ASN File contained herein (“File”) is copyrighted and all 
+rights, title, and interest in and to each File are owned by SAE. The license 
+contained herein applies to each File and each reference in this license to 
+“the File” or “this File” shall be construed to include each and any ASN File 
+contained herein. No rights therein are granted except as set forth in this 
+License. Any copying, transmission, modification or reproduction of the File or 
+the copyrighted material within it, in part or in whole, except as herein 
+permitted is cause for revocation of this License.
+License: SAE International (“SAE”) hereby grants to you, as an individual or as 
+a single corporate entity, a limited nonexclusive, nontransferable right to 
+download this File in an electronic format for your individual use or use by a 
+single corporate entity on one computer. One hard copy of the File can also be 
+printed for individual use or use by a single corporate entity. SAE also hereby 
+grants to you the nonexclusive, nontransferable right to use this File and 
+create derivative works using this File for your own or your own corporate 
+entity’s research purposes and in the design, creation, manufacture, 
+distribution,and use of your own products. For purposes of clarification, 
+derivative works permitted under this license include derivative works or 
+source code that do not include or incorporate this File. The derivative work 
+may use the File to create source code and corresponding software programs.  
+Notwithstanding the foregoing, you agree that you must obtain a license from 
+SAE to create any derivative works which incorporate this File or its contents. 
+SAE also hereby grants to you the nonexclusive, nontransferable right to copy, 
+reproduce, distribute to others the derivative works from the use of the 
+content of this File or portions thereof in or as part of your company’s 
+products. You must only license, and not otherwise sell or transfer, the 
+products, software, and software documentation that incorporates content from 
+this File, and you must prohibit any licensees or others from transferring, 
+copying, or extracting the contents of this File thereof for use in their own 
+or others’ software or products.
+
+Other than as expressly permitted herein, this File may not be copied in whole 
+in any form for distribution to other users or other computers, including 
+without limitation to other individuals or users within your own corporate 
+entity or outside your corporate entity.  This license prohibits the end user 
+from posting or distributing content via any public forum or as open access 
+content.  If other individuals in or outside your corporate entity or different 
+cooperate entities, whether related or not to your corporate entity, wish to 
+download or copy this File, they must purchase a separate individual license to 
+do so. 
+
+This File is licensed “AS IS” to you and you do hereby hold SAE harmless from 
+your use of the File or the creative or use of derivative works thereof, and 
+you agree to indemnify SAE from any and all claims or damages caused by your 
+use, reproduction, distribution to others, or application of this File or any 
+derivative works therefrom.  SAE may amend the terms of and conditions of this 
+License or cancel this License at any time in its sole discretion and for any 
+reason by reasonable notice, including without limitation by posting revised 
+terms on its website.  
+
+General: Files that have been successfully downloaded cannot be returned for 
+refund or credit. This Agreement is the complete and exclusive statement of the 
+agreement between you and SAE and supersedes any and all prior agreements or 
+understandings, either written or oral, concerning the subject of this 
+Agreement. Any modifications must be in writing and signed by the parties.
+ 
+Notice to Resellers: Authorized resellers of SAE Files may download this File 
+on behalf of their customers and forward it directly, unopened, to their 
+customers provided their customers agree to abide by the terms of this License. 
+Resellers may not otherwise copy, transmit, modify or reproduce this File.
+
+This license will remain in effect for the life of the standards associated 
+with the File unless otherwise amended or cancelled by SAE in its sole 
+discretion. In the event that the associated standard is cancelled or recalled 
+due to interest of public safety, the aforementioned License will be rescinded 
+as well. This License shall terminate upon violation of any of its terms.
+
+(C)2019 SAE International.  All rights reserved.  SAE International retains the 
+right to entertain or negotiate requests for customized distribution agreements 
+for multi-user or corporate use and / or distribution. Requests should be 
+submitted to customerservice@sae.org.
+*/
+
+PersonalSafetyMessage
+{joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+j2735 (2735) part-0 (0) asn1-module (1) personalSafetyMessage (21) version-1 (1)}
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS 
+	Reg-PersonalSafetyMessage
+		FROM REGION {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) region (2) version-1 (1)}
+	DSecond, 
+	MsgCount, 
+	TemporaryID, 
+	Position3D, 
+	PositionalAccuracy, 
+	Velocity, 
+	Heading, 
+	AccelerationSet4Way, 
+	PathHistory, 
+	PathPrediction, 
+	RegionalExtension
+		FROM Common {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+		v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+		j2735 (2735) part-0 (0) asn1-module (1) common (38) version-1 (1)};
+
+
+
+
+
+PersonalSafetyMessage ::= SEQUENCE {
+   basicType           PersonalDeviceUserType,  
+   secMark             DSecond,  
+   msgCnt              MsgCount,  
+   id                  TemporaryID,
+   position            Position3D, --  Lat, Long, Elevation     
+   accuracy            PositionalAccuracy,  
+   speed               Velocity,
+   heading             Heading,               
+   accelSet            AccelerationSet4Way        OPTIONAL,  
+   pathHistory         PathHistory                OPTIONAL, 
+   pathPrediction      PathPrediction             OPTIONAL,
+   propulsion          PropelledInformation       OPTIONAL,
+   useState            PersonalDeviceUsageState   OPTIONAL,
+   crossRequest        PersonalCrossingRequest    OPTIONAL,
+   crossState          PersonalCrossingInProgress OPTIONAL,
+   clusterSize         NumberOfParticipantsInCluster        OPTIONAL,
+   clusterRadius       PersonalClusterRadius      OPTIONAL,
+   eventResponderType  PublicSafetyEventResponderWorkerType OPTIONAL,
+   activityType        PublicSafetyAndRoadWorkerActivity    OPTIONAL,
+   activitySubType     PublicSafetyDirectingTrafficSubType  OPTIONAL,
+   assistType          PersonalAssistive          OPTIONAL,
+   sizing              UserSizeAndBehaviour       OPTIONAL, 
+   attachment          Attachment                 OPTIONAL,
+   attachmentRadius    AttachmentRadius           OPTIONAL,
+   animalType          AnimalType                 OPTIONAL,
+
+   regional SEQUENCE (SIZE(1..4)) OF 
+            RegionalExtension {{Reg-PersonalSafetyMessage}} OPTIONAL,
+   ...
+   }
+
+
+PropelledInformation ::= CHOICE {
+   human   HumanPropelledType, -- PersonalDeviceUserType would be a aPEDESTRIAN
+   animal  AnimalPropelledType,
+   motor   MotorizedPropelledType,
+   ...
+}
+
+AnimalPropelledType ::= ENUMERATED {   
+   unavailable         (0),
+   otherTypes          (1), -- any method not listed below
+   animalMounted       (2), -- as in horseback          
+   animalDrawnCarriage (3),
+   ...
+}
+
+AnimalType ::= ENUMERATED { 
+   unavailable    (0), 
+   serviceUse     (1),  -- Includes guide or police animals
+   pet            (2),
+   farm           (3),
+   ...
+   }
+
+Attachment ::= ENUMERATED { 
+   unavailable                  (0), -- has some unknown attachment type
+   stroller                     (1),
+   bicycleTrailer               (2),
+   cart                         (3),
+   wheelchair                   (4), 
+   otherWalkAssistAttachments   (5),
+   pet                          (6),
+   ...
+   }
+
+AttachmentRadius ::= INTEGER (0..200) -- In LSB units of one decimeter
+
+MotorizedPropelledType ::= ENUMERATED {   
+   unavailable         (0),
+   otherTypes          (1), -- any method not listed below
+   wheelChair          (2),
+   bicycle             (3),
+   scooter             (4),
+   selfBalancingDevice (5), -- such as Segway
+   ...
+}
+
+NumberOfParticipantsInCluster ::= ENUMERATED { 
+   unavailable  (0),
+   small        (1),   -- 2-5
+   medium       (2),   -- 6-10
+   large        (3),   -- >10
+   ...
+   }
+
+HumanPropelledType ::= ENUMERATED {   
+   unavailable        (0),
+   otherTypes         (1), -- any method not listed below
+   onFoot             (2),
+   skateboard         (3),
+   pushOrKickScooter  (4),
+   wheelchair         (5), -- implies manually powered
+   ...
+}
+
+PersonalAssistive::= BIT STRING {
+   unavailable    (0),
+   otherType      (1),
+   vision         (2),
+   hearing        (3),
+   movement       (4),
+   cognition      (5)
+   } (SIZE (6, ...))
+
+PersonalClusterRadius ::= INTEGER (0..100) -- units of meters
+
+PersonalCrossingInProgress ::= BOOLEAN -- Use:
+   -- True  = Yes, is in maneuver
+   -- False = No
+
+PersonalCrossingRequest ::= BOOLEAN 
+   -- Use:
+   -- True  = On  (request crossing)
+   -- False = Off (no request)
+
+PersonalDeviceUsageState ::= BIT STRING {  
+   unavailable      (0), -- Not specified
+   other            (1), -- Used for states not defined below
+   idle             (2), -- Human is not interacting with device  
+   listeningToAudio (3), -- Any audio source other then calling 
+   typing           (4), -- Including texting, entering addresses 
+                         -- and other manual input activity 
+   calling          (5),   
+   playingGames     (6),   
+   reading          (7),   
+   viewing          (8)  -- Watching dynamic content, including following 
+                         -- navigation prompts, viewing videos or other 
+                         -- visual contents that are not static
+   } (SIZE (9, ...))
+   -- All bits shall be set to zero when unknown state
+
+PersonalDeviceUserType ::= ENUMERATED { 
+   unavailable           (0),
+   aPEDESTRIAN           (1), -- Further details may be provided elsewhere
+   aPEDALCYCLIST         (2), -- Presumed to be human propelled, 
+                              -- unless PropelledInformation indicates motorized
+   aPUBLICSAFETYWORKER   (3),
+   anANIMAL              (4),
+   ...
+   }
+
+PublicSafetyAndRoadWorkerActivity ::= BIT STRING {
+   unavailable          (0), -- Not specified
+   workingOnRoad        (1), -- Road workers on foot, in or out of 
+                             -- a closure, performing activities like: 
+                             -- construction, land surveying, 
+                             -- trash removal, or site inspection.
+   settingUpClosures    (2), -- Road workers on foot performing
+                             -- activities like: setting up signs, 
+                             -- placing cones/barrels/pylons, or placing 
+                             -- flares.  Note: People are in the road 
+                             -- redirecting traffic, but the closure is 
+                             -- not complete, so utmost care is required 
+                             -- to determine the allowed path to take to 
+                             -- avoid entering the work zone and/or 
+                             -- harming the workers.
+   respondingToEvents   (3), -- Public safety or other road workers on
+                             -- foot performing activities like: treating 
+                             -- injured people, putting out fires, 
+                             -- cleaning chemical spills, aiding disabled 
+                             -- vehicles, criminal investigations, 
+                             -- or animal control.  Note: These events tend 
+                             -- to be more dynamic than workingOnRoad
+   directingTraffic     (4), -- Public safety or other road workers on
+                             -- foot directing traffic in situations like: 
+                             -- a traffic signal out of operation, 
+                             -- a construction or crash site with a short 
+                             -- term lane closure, a single lane flagging 
+                             -- operation, or ingress/egress to a special event.
+   otherActivities      (5)  -- Designated by regional authorities  
+   } (SIZE (6, ...))
+
+PublicSafetyDirectingTrafficSubType ::= BIT STRING {
+   unavailable                        (0),
+      -- Default.  
+      -- to be used if unknown or if the worker type is not otherwise identified
+   policeAndTrafficOfficers           (1), 
+      -- Law enforcement officers, including traffic control officers,
+      -- and adult school crossing guards.
+   trafficControlPersons              (2), 
+     -- Road workers with special equipment for directing traffic.
+   railroadCrossingGuards             (3), 
+     -- Railroad crossing guards who notify motorists of approaching trains 
+     -- at locations like private roads or driveways crossing train tracks 
+     -- and where automated equipment is disabled or not present. 
+   civilDefenseNationalGuardMilitaryPolice (4),
+        -- while performing their regular duties or during National
+     -- or local emergencies
+   emergencyOrganizationPersonnel     (5),
+      -- Personnel belonging to emergency response organizations such as
+      -- fire departments, hospitals, river rescue, or associated with
+      -- emergency vehicles including ambulances as designated by the 
+      -- regional authority (relating to designation of emergency vehicles)
+      -- while performing their duties.
+   highwayServiceVehiclePersonnel     (6)
+      -- Associated with tow trucks and road service vehicles.
+   } (SIZE (7, ...))
+
+PublicSafetyEventResponderWorkerType ::= ENUMERATED { 
+   unavailable               (0),
+   towOperater               (1),
+   fireAndEMSWorker          (2),
+   aDOTWorker                (3),
+   lawEnforcement            (4),
+   hazmatResponder           (5), -- also any toxicSubstanceCleanupCrew
+   animalControlWorker       (6),
+   otherPersonnel            (7),
+   ...
+   }
+
+UserSizeAndBehaviour ::= BIT STRING { 
+   unavailable                     (0),
+   smallStature                    (1), -- less than 150 cm high
+   largeStature                    (2),
+   erraticMoving                   (3), 
+   slowMoving                      (4)  -- those who move a bit slowly
+   } (SIZE (5, ...))
+END
+
