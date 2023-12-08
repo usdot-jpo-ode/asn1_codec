@@ -36,7 +36,7 @@
             <urlB>null</urlB>
             <dataFrames>
               <TravelerDataFrame>
-                <sspTimRights>0</sspTimRights>
+                <notUsed>0</notUsed>
                 <frameType>
                   <advisory/>
                 </frameType>
@@ -56,9 +56,9 @@
                 </msgId>
                 <startYear>2017</startYear>
                 <startTime>308065</startTime>
-                <duratonTime>1</duratonTime>
+                <durationTime>1</durationTime>
                 <priority>0</priority>
-                <sspLocationRights>3</sspLocationRights>
+                <notUsed1>0</notUsed1>
                 <regions>
                   <GeographicalPath>
                     <name>Testing TIM</name>
@@ -132,8 +132,8 @@
                     </description>
                   </GeographicalPath>
                 </regions>
-                <sspMsgRights1>2</sspMsgRights1>
-                <sspMsgRights2>3</sspMsgRights2>
+                <notUsed2>0</notUsed2>
+                <notUsed3>0</notUsed3>
                 <content>
                   <advisory>
                     <SEQUENCE>
