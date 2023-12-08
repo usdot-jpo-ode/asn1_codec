@@ -10,7 +10,7 @@ else
     year=$J2735_YEAR
 fi
 
-asn1c -pdu=MessageFrame -fcompound-names -fincludes-quoted -no-gen-JER \
+asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
     ../scms-asn1/1609dot2-asn/1609dot2-base-types.asn \
     ../scms-asn1/1609dot2-asn/1609dot2-schema.asn \
     ./j2735-asn-files/$year/*.asn \
