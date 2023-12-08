@@ -488,6 +488,10 @@ bool ASN1_Codec::configure() {
 
     // confluent cloud integration
     std::string kafkaType = getEnvironmentVariable("KAFKA_TYPE");
+    if (kafkaType == "") {
+        logger->warn(fnname + ": KAFKA_TYPE environment variable not set. A local kafka broker will be targeted.");
+    }
+    
     if (kafkaType == "CONFLUENT") {
         // get username and password
         std::string username = getEnvironmentVariable("CONFLUENT_KEY");
@@ -930,11 +934,11 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
     switch (message->err()) {
 
         case RdKafka::ERR__TIMED_OUT:
-            logger->info(fnname + ": Waiting for more BSMs.");
+            logger->info(fnname + ": Waiting for more messages.");
             break;
 
         case RdKafka::ERR__MSG_TIMED_OUT:
-            logger->info(fnname + ": Waiting for more BSMs from the ODE producer.");
+            logger->info(fnname + ": Waiting for more messages from the ODE producer.");
             break;
 
         case RdKafka::ERR_NO_ERROR:
@@ -1887,7 +1891,6 @@ int ASN1_Codec::operator()(void) {
 const char* ASN1_Codec::getEnvironmentVariable(const char* variableName) {
     const char* toReturn = std::getenv(variableName);
     if (!toReturn) {
-        logger->error("Something went wrong attempting to retrieve the environment variable " + std::string(variableName));
         toReturn = "";
     }
     return toReturn;
