@@ -58,7 +58,6 @@
 
 #include "MessageFrame.h"
 #include "Ieee1609Dot2Data.h"
-#include "AdvisorySituationData.h"
 #include "tool.hpp"
 #include "librdkafka/rdkafkacpp.h"
 #include "pugixml.hpp"

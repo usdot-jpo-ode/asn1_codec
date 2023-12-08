@@ -1441,10 +1441,6 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
             data_struct = &asn_DEF_Ieee1609Dot2Data;
 
             break;
-        case ASDFRAME:
-            data_struct = &asn_DEF_AdvisorySituationData;
-
-            break;
         default:
             // TODO internal err
             break;
