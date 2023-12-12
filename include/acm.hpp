@@ -58,6 +58,7 @@
 
 #include "MessageFrame.h"
 #include "Ieee1609Dot2Data.h"
+// #include "AdvisorySituationData.h" // // SEMI file was removed in December 2023, so this is no longer supported
 #include "tool.hpp"
 #include "librdkafka/rdkafkacpp.h"
 #include "pugixml.hpp"
@@ -231,6 +232,7 @@ class ASN1_Codec : public tool::Tool {
          * @return true upon success; false if some failure occurred during logger setup.
          */
         bool make_loggers( bool remove_files );
+        bool make_loggers_testing();
 
     private:
 

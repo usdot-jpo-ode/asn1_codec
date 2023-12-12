@@ -703,6 +703,11 @@ bool ASN1_Codec::make_loggers( bool remove_files ) {
     return true;
 }
 
+bool ASN1_Codec::make_loggers_testing() {
+    logger = std::make_shared<AcmLogger>("testlog");
+    return true;
+}
+
     /**
      * Update the error information in the doc provided. The doc will have to conform to the schema below or this method
      * will not do anything.
