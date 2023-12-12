@@ -14,6 +14,7 @@ asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
     ../scms-asn1/1609dot2-asn/1609dot2-base-types.asn \
     ../scms-asn1/1609dot2-asn/1609dot2-schema.asn \
     ./j2735-asn-files/$year/*.asn \
+    ./SEMI_v2.4.0_121223_j2020.asn \
     2>&1 | tee compile.out
 
 # if 2020, copy overrides

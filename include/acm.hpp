@@ -58,7 +58,7 @@
 
 #include "MessageFrame.h"
 #include "Ieee1609Dot2Data.h"
-// #include "AdvisorySituationData.h" // // SEMI file was removed in December 2023, so this is no longer supported
+#include "AdvisorySituationData.h"
 #include "tool.hpp"
 #include "librdkafka/rdkafkacpp.h"
 #include "pugixml.hpp"

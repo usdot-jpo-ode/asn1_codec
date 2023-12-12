@@ -1451,14 +1451,11 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
 
             break;
         case ASDFRAME:
-            // SEMI asn file was removed in December 2023
-            erroross.str("");
-            erroross << "Operation ASDFRAME is not supported for encoding.";
-            throw Asn1CodecError{ erroross.str() };
+            data_struct = &asn_DEF_AdvisorySituationData;
+
+            break;
         default:
-            erroross.str("");
-            erroross << "Unrecognized operation type for encoding.";
-            throw Asn1CodecError{ erroross.str() };
+            // TODO internal err
             break;
     }
 
