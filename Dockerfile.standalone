@@ -49,6 +49,7 @@ ADD ./include /asn1_codec/include
 ADD ./src /asn1_codec/src
 ADD ./kafka-test /asn1_codec/kafka-test
 ADD ./unit-test-data /asn1_codec/unit-test-data
+ADD ./data /asn1_codec/data
 ADD ./run_acm.sh /asn1_codec
 
 # Build acm.
