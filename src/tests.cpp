@@ -186,4 +186,14 @@ TEST_CASE("Encode TIM", "[encoding]") {
 
 // TODO check oracles with decoder
 
-// TODO: add test case for decoding BSM
+TEST_CASE("Decode BSM", "[decoding]") {
+    // prepare
+    asn1_codec.make_loggers_testing();
+
+    std::stringstream out9;
+    CHECK(asn1_codec.file_test("data/InputData.decoding.bsm.xml", out9, false) == EXIT_SUCCESS);
+    parse_result = output_doc.load(out9, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+}
