@@ -160,4 +160,18 @@ TEST_CASE("Encode 1609_BSM", "[encoding]") {
 //     CHECK(std::strcmp(byte_node.text().get(), ASD_ONE609_HEX) == 0);
 // }
 
+TEST_CASE("Encode TIM", "[encoding]") {
+    // prepare
+    asn1_codec.make_loggers_testing();
+
+    std::stringstream out8;
+    CHECK(asn1_codec.file_test("data/InputData.encoding.tim.xml", out8) == EXIT_SUCCESS);
+    parse_result = output_doc.load(out8, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+}
+
 // TODO check oracles with decoder
+
+// TODO: add test case for decoding BSM
