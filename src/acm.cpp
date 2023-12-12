@@ -1445,6 +1445,11 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
         case J2735MESSAGEFRAME:
             data_struct = &asn_DEF_MessageFrame;
 
+            // check that data conforms to the J2735 2020 standard
+            if ( !j2735_conformance_check( data_as_xml ) ) {
+                throw Asn1CodecError{"J2735 conformance check failed."};
+            }
+
             break;
         case IEEE1609DOT2:
             data_struct = &asn_DEF_Ieee1609Dot2Data;
@@ -1514,6 +1519,36 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
     }
 
     std::free( static_cast<void *>(buffer.buffer) );
+}
+
+/**
+ * This method assumes that the data being checked is a J2735 MessageFrame.
+ */
+bool ASN1_Codec::j2735_conformance_check(const std::string& messageFrameXml) {
+    const std::string fnname = "j2735_conformance_check()";
+    // list of outdated elements (list of strings)
+    const std::vector<std::string> outdated_elements = {
+        "sspTimRights",
+        "duratonTime",
+        "sspLocationRights",
+        "sspMsgRights1",
+        "sspMsgRights2"
+    };
+
+    if (messageFrameXml.empty()) {
+        logger->error(fnname + ": empty data_as_xml string");
+        return false;
+    }
+
+    // if outdated elements are found in string, return false
+    for (const auto& element : outdated_elements) {
+        if (messageFrameXml.find(element) != std::string::npos) {
+            logger->error(fnname + ": outdated element found: " + element);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
