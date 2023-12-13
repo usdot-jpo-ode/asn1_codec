@@ -57,6 +57,8 @@ const char *ASD_ONE609_HEX = "44400000000084782786283B90A7148D2B0A89C49F8A85A776
 // }
 
 TEST_CASE("Encode ASD", "[encoding]" ) {
+    std::cout << "=== Encode ASD ===" << std::endl;
+
     // prepare
     asn1_codec.make_loggers_testing();
 
@@ -93,6 +95,8 @@ TEST_CASE("Encode ASD", "[encoding]" ) {
 // }
 
 TEST_CASE("Encode 1609", "[encoding]" ) {
+    std::cout << "=== Encode 1609 ===" << std::endl;
+    
     // prepare
     asn1_codec.make_loggers_testing();
 
@@ -108,6 +112,8 @@ TEST_CASE("Encode 1609", "[encoding]" ) {
 }
 
 TEST_CASE("Encode ASD_1609", "[encoding]" ) {
+    std::cout << "=== Encode ASD_1609 ===" << std::endl;
+
     // prepare
     asn1_codec.make_loggers_testing();
 
@@ -172,12 +178,28 @@ TEST_CASE("Encode ASD_1609", "[encoding]" ) {
 //     CHECK(std::strcmp(byte_node.text().get(), ASD_ONE609_HEX) == 0);
 // }
 
-TEST_CASE("Encode TIM", "[encoding]") {
+TEST_CASE("Encode TIM with payload type 'OdeTimPayload'", "[encoding][odetimpayload]") {
+    std::cout << "=== Encode TIM with payload type 'OdeTimPayload' ===" << std::endl;
+
     // prepare
     asn1_codec.make_loggers_testing();
 
     std::stringstream out8;
-    CHECK(asn1_codec.file_test("data/InputData.encoding.tim.xml", out8) == EXIT_SUCCESS);
+    CHECK(asn1_codec.file_test("data/InputData.encoding.tim.odetimpayload.xml", out8) == EXIT_SUCCESS);
+    parse_result = output_doc.load(out8, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+}
+
+TEST_CASE("Encode TIM with payload type 'OdeAsdPayload'", "[encoding][odeasdpayload]") {
+    std::cout << "=== Encode TIM with payload type 'OdeAsdPayload' ===" << std::endl;
+
+    // prepare
+    asn1_codec.make_loggers_testing();
+
+    std::stringstream out8;
+    CHECK(asn1_codec.file_test("data/InputData.encoding.tim.odeasdpayload.xml", out8) == EXIT_SUCCESS);
     parse_result = output_doc.load(out8, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
     CHECK(parse_result);
     payload_node = ode_payload_query.evaluate_node(output_doc).node();
@@ -187,6 +209,8 @@ TEST_CASE("Encode TIM", "[encoding]") {
 // TODO check oracles with decoder
 
 TEST_CASE("Decode BSM", "[decoding]") {
+    std::cout << "=== Decode BSM ===" << std::endl;
+
     // prepare
     asn1_codec.make_loggers_testing();
 
