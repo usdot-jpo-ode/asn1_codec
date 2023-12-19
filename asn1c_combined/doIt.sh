@@ -11,8 +11,7 @@ else
 fi
 
 asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
-    ../scms-asn1/1609dot2-asn/1609dot2-base-types.asn \
-    ../scms-asn1/1609dot2-asn/1609dot2-schema.asn \
+    ./scms-asn-files/*.asn \
     ./j2735-asn-files/$year/*.asn \
     ./SEMI_v2.4.0_121223_j2020.asn \
     2>&1 | tee compile.out
@@ -21,7 +20,6 @@ asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
 if [ "$year" == "2020" ]; then
     echo "Copying overrides for $year"
     cp ./j2735-asn-files/$year/overrides/*.h .
-    cp ./j2735-asn-files/$year/overrides/*.c .
 fi
 
 sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' converter-example.mk
