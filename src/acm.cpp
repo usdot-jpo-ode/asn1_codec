@@ -1446,8 +1446,8 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
             data_struct = &asn_DEF_MessageFrame;
 
             // check that data conforms to the J2735 2020 standard
-            if ( !j2735_conformance_check( data_as_xml ) ) {
-                throw Asn1CodecError{"J2735 conformance check failed."};
+            if ( !j2735_2020_conformance_check( data_as_xml ) ) {
+                throw Asn1CodecError{"J2735 2020 conformance check failed."};
             }
 
             break;
@@ -1524,8 +1524,8 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
 /**
  * This method assumes that the data being checked is a J2735 MessageFrame.
  */
-bool ASN1_Codec::j2735_conformance_check(const std::string& messageFrameXml) {
-    const std::string fnname = "j2735_conformance_check()";
+bool ASN1_Codec::j2735_2020_conformance_check(const std::string& messageFrameXml) {
+    const std::string fnname = "j2735_2020_conformance_check()";
     // list of outdated elements (list of strings)
     const std::vector<std::string> outdated_elements = {
         "sspTimRights",

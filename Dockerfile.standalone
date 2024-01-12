@@ -16,7 +16,9 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
     libtool \
     autoconf \
     librdkafka \
-    librdkafka-dev
+    librdkafka-dev \
+    flex \
+    bison
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
@@ -24,12 +26,6 @@ RUN cd /asn1_codec/pugixml && mkdir -p build && cd build && cmake .. && make && 
 
 # Build and install asn1c submodule
 ADD ./asn1c /asn1_codec/asn1c
-RUN apt-get -y install automake libtool flex
-RUN wget http://launchpadlibrarian.net/140087283/libbison-dev_2.7.1.dfsg-1_amd64.deb
-RUN wget http://launchpadlibrarian.net/140087282/bison_2.7.1.dfsg-1_amd64.deb
-RUN dpkg -i libbison-dev_2.7.1.dfsg-1_amd64.deb
-RUN dpkg -i bison_2.7.1.dfsg-1_amd64.deb
-RUN apt-mark hold libbison-dev bison
 RUN cd asn1c && test -f configure || autoreconf -iv && ./configure && make && make install
 
 # Generate ASN.1 API.
