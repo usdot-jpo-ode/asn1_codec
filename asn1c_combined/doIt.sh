@@ -21,7 +21,6 @@ asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
 if [ "$year" == "2020" ]; then
     echo "Copying overrides for $year"
     cp ./j2735-asn-files/$year/overrides/*.h .
-    cp ./j2735-asn-files/$year/overrides/*.c .
 fi
 
 sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' converter-example.mk
