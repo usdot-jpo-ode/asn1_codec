@@ -232,6 +232,7 @@ class ASN1_Codec : public tool::Tool {
          * @return true upon success; false if some failure occurred during logger setup.
          */
         bool make_loggers( bool remove_files );
+        bool make_loggers_testing();
 
     private:
 
@@ -334,6 +335,7 @@ class ASN1_Codec : public tool::Tool {
 
         bool encode_message( std::stringstream& output_message_stream );
         void encode_frame_data(const std::string& data_as_xml, std::string& hex_string);
+        bool j2735_2020_conformance_check(const std::string& messageFrameXml);
         void encode_node_as_hex_string(bool replace = true);
         void encode_for_protocol();
 

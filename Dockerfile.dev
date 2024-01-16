@@ -17,7 +17,9 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
     libtool \
     autoconf \
     librdkafka \
-    librdkafka-dev
+    librdkafka-dev \
+    flex \
+    bison
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
@@ -25,7 +27,7 @@ RUN cd /asn1_codec/pugixml && mkdir -p build && cd build && cmake .. && make && 
 
 # Build and install asn1c submodule
 ADD ./asn1c /asn1_codec/asn1c
-RUN cd /asn1_codec/asn1c && aclocal && test -f configure || autoreconf -iv && ./configure && make && make install
+RUN cd asn1c && test -f configure || autoreconf -iv && ./configure && make && make install
 
 # Generate ASN.1 API.
 RUN export LD_LIBRARY_PATH=/usr/local/lib
@@ -40,6 +42,7 @@ ADD ./include /asn1_codec/include
 ADD ./src /asn1_codec/src
 ADD ./kafka-test /asn1_codec/kafka-test
 ADD ./unit-test-data /asn1_codec/unit-test-data
+ADD ./data /asn1_codec/data
 ADD ./run_acm.sh /asn1_codec
 ADD ./data /asn1_codec/data
 
