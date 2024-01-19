@@ -117,3 +117,8 @@ There is a provided docker-compose file (docker-compose-confluent-cloud.yml) tha
 
 ## Note
 This has only been tested with Confluent Cloud but technically all SASL authenticated Kafka brokers can be reached using this method.
+
+# Generating C Files from ASN.1 Definitions
+Check here for instructions on how to generate C files from ASN.1 definitions: [ASN.1 C File Generation](asn1c_combined/README.md)
+
+This should only be necessary if the ASN.1 definitions change. The generated files are already included in the repository.
