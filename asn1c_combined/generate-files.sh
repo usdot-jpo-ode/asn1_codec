@@ -25,8 +25,7 @@ if [ ! -d "./generated-files/$year" ]; then
 fi
 
 asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
-    ../scms-asn1/1609dot2-asn/1609dot2-base-types.asn \
-    ../scms-asn1/1609dot2-asn/1609dot2-schema.asn \
+    ./scms-asn-files/*.asn \
     ./j2735-asn-files/$year/*.asn \
     ./semi-asn-files/$year/SEMI*.asn \
     -D ./generated-files/$year \
