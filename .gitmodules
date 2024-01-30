@@ -1,9 +1,6 @@
 [submodule "pugixml"]
 	path = pugixml
 	url = https://github.com/zeux/pugixml.git
-[submodule "scms-asn1"]
-	path = scms-asn1
-	url = https://github.com/usdot-jpo-ode/scms-asn1.git
 [submodule "asn1c"]
 	path = asn1c
 	url = https://github.com/mouse07410/asn1c

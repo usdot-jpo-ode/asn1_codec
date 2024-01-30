@@ -32,12 +32,12 @@ RUN cd asn1c && test -f configure || autoreconf -iv && ./configure && make && ma
 # Make generated files available to the build & compile example
 RUN export LD_LIBRARY_PATH=/usr/local/lib
 ADD ./asn1c_combined /asn1_codec/asn1c_combined
-ADD ./scms-asn1 /asn1_codec/scms-asn1
 RUN cd /asn1_codec/asn1c_combined && bash doIt.sh
 
 # Remove any lingering .asn files
 RUN rm -rf /asn1c_codec/asn1c_combined/j2735-asn-files
 RUN rm -rf /asn1c_codec/asn1c_combined/semi-asn-files
+RUN rm -rf /asn1c_codec/asn1c_combined/scms-asn-files
 
 # Remove duplicate files
 RUN rm -rf /asn1c_codec/asn1c_combined/generated-files
