@@ -488,10 +488,6 @@ bool ASN1_Codec::configure() {
 
     // confluent cloud integration
     std::string kafkaType = getEnvironmentVariable("KAFKA_TYPE");
-    if (kafkaType == "") {
-        logger->warn(fnname + ": KAFKA_TYPE environment variable not set. A local kafka broker will be targeted.");
-    }
-    
     if (kafkaType == "CONFLUENT") {
         // get username and password
         std::string username = getEnvironmentVariable("CONFLUENT_KEY");
@@ -506,6 +502,9 @@ bool ASN1_Codec::configure() {
         conf->set("api.version.request", "true", error_string);
         conf->set("api.version.fallback.ms", "0", error_string);
         conf->set("broker.version.fallback", "0.10.0.0", error_string);
+    }
+    else {
+        logger->warn(fnname + ": KAFKA_TYPE environment variable not set to 'CONFLUENT'. A local kafka broker will be targeted.");
     }
     // end of confluent cloud integration
 
