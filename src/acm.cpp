@@ -654,7 +654,7 @@ bool ASN1_Codec::launch_consumer(){
     return true;
 }
 
-bool ASN1_Codec::make_loggers( bool remove_files ) {    
+bool ASN1_Codec::setup_logger( bool remove_files ) {    
     // defaults.
     std::string path{ "logs/" };
     std::string logname{ "log.info" };
@@ -702,8 +702,12 @@ bool ASN1_Codec::make_loggers( bool remove_files ) {
     return true;
 }
 
-bool ASN1_Codec::make_loggers_testing() {
-    logger = std::make_shared<AcmLogger>("testlog");
+/**
+ * @brief This method is used to setup the logger for testing purposes.
+ */
+bool ASN1_Codec::setup_logger_for_testing() {
+    std::string TEST_LOGGER_FILE_NAME = "test_logger_file.log";
+    logger = std::make_shared<AcmLogger>(TEST_LOGGER_FILE_NAME);
     return true;
 }
 
@@ -1970,7 +1974,7 @@ int main( int argc, char* argv[] )
     }
 
     // can set levels if needed here.
-    if ( !asn1_codec.make_loggers( asn1_codec.optIsSet('R') )) {
+    if ( !asn1_codec.setup_logger( asn1_codec.optIsSet('R') )) {
         std::exit( EXIT_FAILURE );
     }
 

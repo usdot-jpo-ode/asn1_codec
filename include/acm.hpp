@@ -221,7 +221,7 @@ class ASN1_Codec : public tool::Tool {
         const char* getEnvironmentVariable(const char* variableName);
 
         /**
-         * @brief Create and setup the two loggers used for the ASN1_Codec. The locations and filenames for the logs can be specified
+         * @brief Create and setup the logger used for the ASN1_Codec. The locations and filenames for the logs can be specified
          * using command line parameters. The CANNOT be set via the configuration file, since these loggers are setup
          * prior to the configuration file being read.
          *
@@ -231,8 +231,12 @@ class ASN1_Codec : public tool::Tool {
          *
          * @return true upon success; false if some failure occurred during logger setup.
          */
-        bool make_loggers( bool remove_files );
-        bool make_loggers_testing();
+        bool setup_logger( bool remove_files );
+
+        /**
+         * @brief Set up the logger for testing
+         */
+        bool setup_logger_for_testing();
 
     private:
 
