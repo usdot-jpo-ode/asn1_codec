@@ -43,7 +43,7 @@ const char *ASD_ONE609_HEX = "44400000000084782786283B90A7148D2B0A89C49F8A85A776
  */
 // TEST_CASE("Encode BSM", "[encoding]" ) { // TODO: fix test case failing
 //     // prepare
-//     asn1_codec.make_loggers_testing();
+//     asn1_codec.setup_logger_for_testing();
 
 //     std::stringstream out1;
 //     CHECK(asn1_codec.file_test("unit-test-data/BSM.xml", out1) == EXIT_SUCCESS);
@@ -60,7 +60,7 @@ TEST_CASE("Encode ASD", "[encoding]" ) {
     std::cout << "=== Encode ASD ===" << std::endl;
 
     // prepare
-    asn1_codec.make_loggers_testing();
+    asn1_codec.setup_logger_for_testing();
 
     std::stringstream out2;
     CHECK(asn1_codec.file_test("unit-test-data/ASD.xml", out2) == EXIT_SUCCESS);
@@ -79,7 +79,7 @@ TEST_CASE("Encode ASD", "[encoding]" ) {
  */
 // TEST_CASE("Encode ASD_BSM", "[encoding]" ) { // TODO: fix test case failing
 //     // prepare
-//     asn1_codec.make_loggers_testing();
+//     asn1_codec.setup_logger_for_testing();
 //     std::stringstream out3;
 //     CHECK(asn1_codec.file_test("unit-test-data/ASD_BSM.xml", out3) == EXIT_SUCCESS);
 //     parse_result = output_doc.load(out3, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
@@ -98,7 +98,7 @@ TEST_CASE("Encode 1609", "[encoding]" ) {
     std::cout << "=== Encode 1609 ===" << std::endl;
     
     // prepare
-    asn1_codec.make_loggers_testing();
+    asn1_codec.setup_logger_for_testing();
 
     std::stringstream out4;
     CHECK(asn1_codec.file_test("unit-test-data/1609.xml", out4) == EXIT_SUCCESS);
@@ -115,7 +115,7 @@ TEST_CASE("Encode ASD_1609", "[encoding]" ) {
     std::cout << "=== Encode ASD_1609 ===" << std::endl;
 
     // prepare
-    asn1_codec.make_loggers_testing();
+    asn1_codec.setup_logger_for_testing();
 
     std::stringstream out5;
     CHECK(asn1_codec.file_test("unit-test-data/ASD_1609.xml", out5) == EXIT_SUCCESS);
@@ -137,7 +137,7 @@ TEST_CASE("Encode ASD_1609", "[encoding]" ) {
  */
 // TEST_CASE("Encode 1609_BSM", "[encoding]") { // TODO: fix test case failing
 //     // prepare
-//     asn1_codec.make_loggers_testing();
+//     asn1_codec.setup_logger_for_testing();
 
 //     std::stringstream out6;
 //     CHECK(asn1_codec.file_test("unit-test-data/1609_BSM.xml", out6) == EXIT_SUCCESS);
@@ -159,7 +159,7 @@ TEST_CASE("Encode ASD_1609", "[encoding]" ) {
  */
 // TEST_CASE("Encode ASD_1609_BSM", "[encoding]") { // TODO: fix test case failing
 //     // prepare
-//     asn1_codec.make_loggers_testing();
+//     asn1_codec.setup_logger_for_testing();
     
 //     std::stringstream out7;
 //     CHECK(asn1_codec.file_test("unit-test-data/ASD_1609_BSM.xml", out7) == EXIT_SUCCESS);
@@ -182,7 +182,7 @@ TEST_CASE("Encode TIM with payload type 'OdeTimPayload'", "[encoding][odetimpayl
     std::cout << "=== Encode TIM with payload type 'OdeTimPayload' ===" << std::endl;
 
     // prepare
-    asn1_codec.make_loggers_testing();
+    asn1_codec.setup_logger_for_testing();
 
     std::stringstream out8;
     CHECK(asn1_codec.file_test("data/InputData.encoding.tim.odetimpayload.xml", out8) == EXIT_SUCCESS);
@@ -196,7 +196,7 @@ TEST_CASE("Encode TIM with payload type 'OdeAsdPayload'", "[encoding][odeasdpayl
     std::cout << "=== Encode TIM with payload type 'OdeAsdPayload' ===" << std::endl;
 
     // prepare
-    asn1_codec.make_loggers_testing();
+    asn1_codec.setup_logger_for_testing();
 
     std::stringstream out8;
     CHECK(asn1_codec.file_test("data/InputData.encoding.tim.odeasdpayload.xml", out8) == EXIT_SUCCESS);
@@ -212,7 +212,7 @@ TEST_CASE("Decode BSM", "[decoding]") {
     std::cout << "=== Decode BSM ===" << std::endl;
 
     // prepare
-    asn1_codec.make_loggers_testing();
+    asn1_codec.setup_logger_for_testing();
 
     std::stringstream out9;
     CHECK(asn1_codec.file_test("data/InputData.decoding.bsm.xml", out9, false) == EXIT_SUCCESS);

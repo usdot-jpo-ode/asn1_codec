@@ -3,9 +3,6 @@ FROM alpine:3.12 as builder
 USER root
 WORKDIR /asn1_codec
 
-# update the package manager
-RUN apk update
-
 # add build dependencies
 RUN apk add --upgrade --no-cache --virtual .build-deps \
     cmake \
