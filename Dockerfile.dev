@@ -4,9 +4,6 @@ USER root
 WORKDIR /asn1_codec
 VOLUME ["/asn1_codec_share"]
 
-# update the package manager
-RUN apk update
-
 # add build dependencies
 RUN apk add --upgrade --no-cache --virtual .build-deps \
     cmake \
