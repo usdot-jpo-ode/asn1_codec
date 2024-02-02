@@ -1,15 +1,28 @@
 #!/bin/bash
 
+# This script assumes that the J2735 files have already been generated.
+# To generate the J2735 files, run generate-files.sh with asn1c installed.
+
 export LD_LIBRARY_PATH=/usr/local/lib
 export CC=gcc
 
-asn1c -fcompound-names -gen-PER -gen-OER -pdu=all \
-    ../scms-asn1/1609dot2-asn/1609dot2-base-types.asn \
-    ../scms-asn1/1609dot2-asn/1609dot2-schema.asn \
-    J2735_201603DA.ASN \
-    SEMI_v2.3.0_070616.asn \
-    2>&1 | tee compile.out
+# if J2735_YEAR is not set, default to 2020
+if [ -z "$J2735_YEAR" ]; then
+    year="2020"
+else
+    year=$J2735_YEAR
+fi
 
-sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' converter-example.mk
+# Copy generated files to for specified year to asn1c_combined & extract
+echo "Extracting & copying generated files for $year"
+tar -xzf ./generated-files/$year.tar.gz
+cp ./generated-files/$year/* .
 
-make -f converter-example.mk
+# Compile example
+echo "Compiling example"
+sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' ./converter-example.mk
+make -f ./converter-example.mk
+
+# Clean up
+echo "Cleaning up"
+rm -rf ./generated-files/$year

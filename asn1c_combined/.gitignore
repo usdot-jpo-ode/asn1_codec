@@ -1,5 +1,5 @@
-*.c
-*.h
-*.o
-Makefile*
+./*.c
+./*.h
+./*.o
+./Makefile*
 

@@ -114,11 +114,13 @@ jobs:
           path: /home/runner/work/asn1-codec/asn1-codec/bw-output
         # Archive build-wrapper output
 
-      - name: Setup SonarScanner
-        uses: warchant/setup-sonar-scanner@v4
+      - uses: actions/setup-java@v3
         with:
-          version: 4.8.0.2856
-        # Set up SonarScanner for code analysis
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup SonarScanner
+        uses: warchant/setup-sonar-scanner@v7
 
       - name: Generate sonar properties file
         run: |
