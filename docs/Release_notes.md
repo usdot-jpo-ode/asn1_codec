@@ -19,6 +19,9 @@ Known Issues:
 - The do_kafka_test.sh script in the project's root directory is currently not running successfully. The issue is being investigated and will be addressed in a future update.
 - According to Valgrind, a minor memory leak has been detected. The development team is aware of this and is actively working on resolving it.
 
+Breaking Changes
+- Users should note that due to the switch to J2735 2020, TIMs conforming to J2735 2016 will no longer be encoded/decoded correctly. This is due to the fact that the J2735 2020 standard has renamed some fields for TIMs. Users should ensure that their TIMs are updated to conform to the J2735 2020 standard.
+
 
 Version 1.5.0, released November 2023
 ----------------------------------------
