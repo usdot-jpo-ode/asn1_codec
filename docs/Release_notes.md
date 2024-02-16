@@ -20,7 +20,12 @@ Known Issues:
 - According to Valgrind, a minor memory leak has been detected. The development team is aware of this and is actively working on resolving it.
 
 Breaking Changes
-- Users should note that due to the switch to J2735 2020, TIMs conforming to J2735 2016 will no longer be processed successfully. This is due to the fact that the J2735 2020 standard has renamed some fields for TIMs. The corresponding updates in the 1.6.0 update for the ODE handles these changes for incoming 2016 TIMs, but any outside applications will need to update their systems to handle these changes prior to forwarding 2016 TIMs to the ACM.
+- Users should note that due to the switch to J2735 2020, TIMs conforming to J2735 2016 will no longer be processed successfully. This is due to the fact that the J2735 2020 standard has renamed some fields for TIMs. The corresponding updates in the 1.6.0 update for the ODE handles these changes for incoming 2016 TIMs, but any outside applications will need to update their systems to handle these changes prior to forwarding 2016 TIMs to the ACM. The TIM changes in J2735 2020 include the following field renamings:
+    - `sspTimRights` -> `notUsed`
+    - `sspLocationRights` -> `notUsed1`
+    - `sspMsgRights1` -> `notUsed2`
+    - `sspMsgRights2` -> `notUsed3`
+    - `duratonTime` -> `durationTime`
 
 
 Version 1.5.0, released November 2023
