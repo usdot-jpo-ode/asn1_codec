@@ -1,6 +1,33 @@
 asn1_codec Release Notes
 ----------------------------
 
+Version 2.0.0, released February 2024
+----------------------------------------
+
+### **Summary**
+The changes for the asn1_codec 2.0.0 release include dockerfile optimizations, a transition to J2735 2020, dockerhub image documentation, a move to including the generated header/implementation files in tracked files as tarballs and updated SCMS files.
+
+Enhancements in this release:
+- CDOT PR 14: Optimized dockerfiles for smaller & faster deployments by switching over to using alpine as the base image
+- CDOT PR 18: Allowed 'doIt.sh' to target directories instead of a single file
+- CDOT PR 19: Transitioned to using the ASN files for J2735 2020.
+- CDOT PR 17: Added dockerhub image documentation
+- CDOT PR 21: Included generated header/implementation files in tracked files as tarballs
+- CDOT PR 20: Updated SCMS files
+
+Known Issues:
+- The do_kafka_test.sh script in the project's root directory is currently not running successfully. The issue is being investigated and will be addressed in a future update.
+- According to Valgrind, a minor memory leak has been detected. The development team is aware of this and is actively working on resolving it.
+
+Breaking Changes
+- Users should note that due to the switch to J2735 2020, TIMs conforming to J2735 2016 will no longer be processed successfully. This is due to the fact that the J2735 2020 standard has renamed some fields for TIMs. The corresponding updates in the 2.0.0 release for the ODE handles these changes for incoming 2016 TIMs, but any outside applications will need to update their systems to handle these changes prior to forwarding 2016 TIMs to the ACM. The TIM changes in J2735 2020 include the following field renamings:
+    - `sspTimRights` -> `notUsed`
+    - `sspLocationRights` -> `notUsed1`
+    - `sspMsgRights1` -> `notUsed2`
+    - `sspMsgRights2` -> `notUsed3`
+    - `duratonTime` -> `durationTime`
+
+
 Version 1.5.0, released November 2023
 ----------------------------------------
 

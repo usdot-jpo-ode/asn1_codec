@@ -81,7 +81,7 @@ class ACMBlobProducer : public tool::Tool {
          *
          * @return true upon success; false if some failure occurred during logger setup.
          */
-        bool make_loggers( bool remove_files );
+        bool setup_logger( bool remove_files );
 
     private:
 

@@ -375,7 +375,7 @@ bool ACMBlobProducer::launch_producer()
     return true;
 }
 
-bool ACMBlobProducer::make_loggers( bool remove_files )
+bool ACMBlobProducer::setup_logger( bool remove_files )
 {
     // defaults.
     std::string path{ "logs/" };
@@ -533,7 +533,7 @@ int main(int argc, char* argv[])
     }
 
     // can set levels if needed here.
-    if (!acm_blob_producer.make_loggers((acm_blob_producer.optIsSet('R')))) {
+    if (!acm_blob_producer.setup_logger((acm_blob_producer.optIsSet('R')))) {
         std::exit(EXIT_FAILURE);
     }
 

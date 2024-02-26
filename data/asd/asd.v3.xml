@@ -129,8 +129,8 @@
 												<direction>1010101010101010</direction>
 											</GeographicalPath>
 										</regions>
-										<sspMsgRights1>2</sspMsgRights1>
-										<sspMsgRights2>3</sspMsgRights2>
+										<notUsed2>0</notUsed2>
+										<notUsed3>0</notUsed3>
 										<startYear>2017</startYear>
 										<msgId>
 											<roadSignID>
@@ -148,8 +148,8 @@
 										</msgId>
 										<priority>0</priority>
 										<url>null</url>
-										<sspTimRights>0</sspTimRights>
-										<sspLocationRights>3</sspLocationRights>
+										<notUsed>0</notUsed>
+										<notUsed1>0</notUsed1>
 										<frameType>
 											<unknown></unknown>
 										</frameType>
