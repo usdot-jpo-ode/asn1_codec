@@ -47,7 +47,17 @@ $ docker info
 ```
 
 ### 2. Configure environment variables
-Configure the environment variables for the ACM to communicate with the Kafka instance. See the [configuration.md](configuration.md) file for more information.
+Configure the environment variables for the ACM to communicate with the Kafka instance. Copy or rename the `sample.env` file to `.env`.
+
+```bash
+$ cp sample.env .env
+```
+
+Edit the `.env` file to include the necessary information.
+
+```bash
+$ vi .env
+```
 
 ### 3. Spin up Kafka & the ACM in Docker
 To spin up the ACM and Kafka in Docker, use the following commands:
