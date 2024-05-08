@@ -84,7 +84,7 @@ can handle:
 
 \* Denotes the message should already contain hex data, according the the ASN.1 specification for that message.
 For instance, IEEE 1609.2 must contain hex data in its `unsecuredData` tag. If the hex data is missing or invalid, 
-the ACM with likely generate an error when doing constraint checking.
+the ACM will likely generate an error when doing constraint checking.
 
 - After ENCODING this text is changed to: `us.dot.its.jpo.ode.model.OdeHexByteArray`
 - After DECODING this text is changed to: `us.dot.its.jpo.ode.model.OdeXml`
@@ -198,16 +198,14 @@ The details of the settings and how they affect the function of the ACM follow:
 
 There are four steps that need to be started / run as separate processes.
 
-1. Start the `kafka-docker` container to provide the basic kafka data streaming services.
-
-```bash
-$ docker-compose up --no-recreate -d
+1. Start the Kafka & ACM services via the provided `docker-compose.yml` file.
+```
+$ docker compose up --build -d
 ```
 
-1. Start the ACM (here we are starting a decoder).
-
-```bash
-$ ./acm -c config/example.properties -T decode
+1. Exec into the Kafka container to gain access to the Kafka command line tools.
+```
+$ docker exec -it asn1_codec_kafka_1 /bin/bash
 ```
 
 1. Use the provided `kafka-console-producer.sh` script (provided with the Apache Kafka installation) to send XML
@@ -225,4 +223,9 @@ $ ./bin/kafka-console-consumer.sh --bootstrap-server ${SERVER_IP} --topic ${ACM_
 ```
 
 The log files will provide more information about the details of the processing that is taking place and document any
-errors.
+errors. To view log files, exec into the ACM container and use the `tail` command to view the log file.
+
+```bash
+$ docker exec -it asn1_codec_acm_1 /bin/bash
+$ tail -f logs/log
+```
