@@ -23,8 +23,8 @@ is subsequently *encoded into ASN.1 binary data*.
 1. [Release Notes](#release-notes)
 1. [Getting Involved](#getting-involved)
 1. [Documentation](#documentation)
-1. [Confluent Cloud Integration](#confluent-cloud-integration)
 1. [Generating C Files from ASN.1 Definitions](#generating-c-files-from-asn1-definitions)
+1. [Confluent Cloud Integration](#confluent-cloud-integration)
 
 **Other Documents**
 1. [Installation](docs/installation.md)
@@ -94,6 +94,11 @@ $ doxygen
 The documentation is in HTML and is written to the `<install root>/asn1_codec/docs/html` directory. Open `index.html` in a
 browser.
 
+## Generating C Files from ASN.1 Definitions
+Check here for instructions on how to generate C files from ASN.1 definitions: [ASN.1 C File Generation](asn1c_combined/README.md)
+
+This should only be necessary if the ASN.1 definitions change. The generated files are already included in the repository.
+
 ## Confluent Cloud Integration
 Rather than using a local kafka instance, the ACM can utilize an instance of kafka hosted by Confluent Cloud via SASL.
 
@@ -114,8 +119,3 @@ There is a provided docker-compose file (docker-compose-confluent-cloud.yml) tha
 
 ### Note
 This has only been tested with Confluent Cloud but technically all SASL authenticated Kafka brokers can be reached using this method.
-
-## Generating C Files from ASN.1 Definitions
-Check here for instructions on how to generate C files from ASN.1 definitions: [ASN.1 C File Generation](asn1c_combined/README.md)
-
-This should only be necessary if the ASN.1 definitions change. The generated files are already included in the repository.
