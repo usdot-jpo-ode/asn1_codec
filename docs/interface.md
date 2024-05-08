@@ -23,7 +23,7 @@
     - Currently, the SAE J2735 MessageFrame is encoded by the ODE using XER
       rules. UPER rules are used to encode these payload for transmission to the CV environment.
 
-# Instructions to the ACM
+## Instructions to the ACM
 - The ACM does not maintain any state with regard to a particular message; each message is handled based on the information provided in the XML input.
 - The ACM handles XML messages whose root node is named `<OdeAsn1Data>`.
 - The root node has two child element nodes: `<metadata>` and `<payload>`.
@@ -54,7 +54,7 @@
     - If the path is not found or another error occurs, an XML document will be returned that describes the error and where it occured.
     - `<encodingRule>` will indicate the encoding/decoding rule to use.
 
-# ASN.1 Specification Type Names
+## ASN.1 Specification Type Names
 - [asn1c](https://github.com/vlm/asn1c) generates a `pdu_collection.c` file when you compile your ASN.1 specification files.
   It defines the various types of encodings that can be made when using the compiled ASN.1 specification files. This file 
   also contains an array of pointers to these structures. The structures contain two useful fields for the purpose of discovering
@@ -70,10 +70,9 @@
     - It would be nice for the name of the mangled name of the structure to be included in the structure, possibly the name string, but this
       may create other unknown problems in asn1c.
 
-# Produced Encodings and Decodings
+## Produced Encodings and Decodings
 - When the ACM completes its task, it will produce the result as an XML document containing the same elements as it was sent with the following exceptions:
     - When a message is encoded, the XML will be encoded into binary, transformed into a hex string and written to the `<payload>` `<data>` child element.
     - When a message is encoded, the `<payload>` `<dataType>` element will be changed to: `us.dot.its.jpo.ode.model.OdeHexByteArray`
     - When a message is decoded, the hex string will be converted into binary, decoded, and the XER (XML) written to the `<payload>` `<data>` child element.
     - When a message is decoded, the `<payload>` `<dataType>` element will be changed to the name of the decoded data element, e.g., `MessageFrame`
-
