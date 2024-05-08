@@ -17,22 +17,26 @@ is subsequently *encoded into ASN.1 binary data*.
 
 ![ASN.1 Codec Operations](docs/graphics/asn1codec-operations.png)
 
-# Table of Contents
+## Table of Contents
 
+**README.md**
 1. [Release Notes](#release-notes)
 1. [Getting Involved](#getting-involved)
 1. [Documentation](#documentation)
+1. [Project Management](#project-management)
+1. [Confluent Cloud Integration](#confluent-cloud-integration)
+1. [Generating C Files from ASN.1 Definitions](#generating-c-files-from-asn1-definitions)
+
+**Other Documents**
 1. [Installation](docs/installation.md)
 1. [Configuration and Operation](docs/configuration.md)
 1. [Interface](docs/interface.md)
 1. [Testing](docs/testing.md)
-1. [Project Management](#project-management)
-1. [Confluent Cloud Integration](#confluent-cloud-integration)
 
 ## Release Notes
 The current version and release history of the asn1_codec: [asn1_codec Release Notes](<docs/Release_notes.md>)
 
-# Getting Involved
+## Getting Involved
 
 This project is sponsored by the U.S. Department of Transportation and supports Operational Data Environment data type
 conversions. Here are some ways you can start getting involved in this project:
@@ -42,7 +46,7 @@ conversions. Here are some ways you can start getting involved in this project:
 - If you would like to improve this code base or the documentation, [fork the project](https://github.com/usdot-jpo-ode/asn1_codec#fork-destination-box) and submit a pull request.
 - If you find a problem with the code or the documentation, please submit an [issue](https://github.com/usdot-jpo-ode/asn1_codec/issues/new).
 
-## Introduction
+### Introduction
 
 This project uses the [Pull Request Model](https://help.github.com/articles/using-pull-requests). This involves the following project components:
 
@@ -56,7 +60,7 @@ request to the organization asn1_codec project. One the project's main developer
 or, if there are issues, discuss them with the submitter. This will ensure that the developers have a better
 understanding of the code base *and* we catch problems before they enter `master`. The following process should be followed:
 
-## Initial Setup
+### Initial Setup
 
 1. If you do not have one yet, create a personal (or organization) account on GitHub (assume your account name is `<your-github-account-name>`).
 1. Log into your personal (or organization) account.
@@ -66,19 +70,19 @@ understanding of the code base *and* we catch problems before they enter `master
 $ git clone https://github.com/<your-github-account-name>/asn1_codec.git
 ```
 
-## Additional Resources for Initial Setup
+### Additional Resources for Initial Setup
   
 - [About Git Version Control](http://git-scm.com/book/en/v2/Getting-Started-About-Version-Control)
 - [First-Time Git Setup](http://git-scm.com/book/en/Getting-Started-First-Time-Git-Setup)
 - [Article on Forking](https://help.github.com/articles/fork-a-repo)
 
-# Documentation
+## Documentation
 
 This documentation is in the `README.md` file. Additional information can be found using the links in the [Table of
 Contents](#table-of-contents).  All stakeholders are invited to provide input to these documents. Stakeholders should
 direct all input on this document to the JPO Product Owner at DOT, FHWA, or JPO. 
 
-## Code Documentation
+### Code Documentation
 
 Code documentation can be generated using [Doxygen](https://www.doxygen.org) by following the commands below:
 
@@ -97,28 +101,28 @@ This project is managed using the Jira tool.
 
 - [Jira Project Portal](https://usdotjpoode.atlassian.net/secure/Dashboard.jsp)
 
-# Confluent Cloud Integration
+## Confluent Cloud Integration
 Rather than using a local kafka instance, the ACM can utilize an instance of kafka hosted by Confluent Cloud via SASL.
 
-## Environment variables
-### Purpose & Usage
+### Environment variables
+#### Purpose & Usage
 - The DOCKER_HOST_IP environment variable is used to communicate with the bootstrap server that the instance of Kafka is running on.
 - The KAFKA_TYPE environment variable specifies what type of kafka connection will be attempted and is used to check if Confluent should be utilized.
 - The CONFLUENT_KEY and CONFLUENT_SECRET environment variables are used to authenticate with the bootstrap server.
 
-### Values
+#### Values
 - DOCKER_HOST_IP must be set to the bootstrap server address (excluding the port)
 - KAFKA_TYPE must be set to "CONFLUENT"
 - CONFLUENT_KEY must be set to the API key being utilized for CC
 - CONFLUENT_SECRET must be set to the API secret being utilized for CC
 
-## CC Docker Compose File
+### CC Docker Compose File
 There is a provided docker-compose file (docker-compose-confluent-cloud.yml) that passes the above environment variables into the container that gets created. Further, this file doesn't spin up a local kafka instance since it is not required.
 
-## Note
+### Note
 This has only been tested with Confluent Cloud but technically all SASL authenticated Kafka brokers can be reached using this method.
 
-# Generating C Files from ASN.1 Definitions
+## Generating C Files from ASN.1 Definitions
 Check here for instructions on how to generate C files from ASN.1 definitions: [ASN.1 C File Generation](asn1c_combined/README.md)
 
 This should only be necessary if the ASN.1 definitions change. The generated files are already included in the repository.
