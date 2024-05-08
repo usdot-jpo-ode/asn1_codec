@@ -23,7 +23,6 @@ is subsequently *encoded into ASN.1 binary data*.
 1. [Release Notes](#release-notes)
 1. [Getting Involved](#getting-involved)
 1. [Documentation](#documentation)
-1. [Project Management](#project-management)
 1. [Confluent Cloud Integration](#confluent-cloud-integration)
 1. [Generating C Files from ASN.1 Definitions](#generating-c-files-from-asn1-definitions)
 
@@ -93,13 +92,7 @@ $ doxygen
 ```
 
 The documentation is in HTML and is written to the `<install root>/asn1_codec/docs/html` directory. Open `index.html` in a
-browser.  
-
-## Project Management
-
-This project is managed using the Jira tool.
-
-- [Jira Project Portal](https://usdotjpoode.atlassian.net/secure/Dashboard.jsp)
+browser.
 
 ## Confluent Cloud Integration
 Rather than using a local kafka instance, the ACM can utilize an instance of kafka hosted by Confluent Cloud via SASL.
