@@ -30,7 +30,7 @@
 - The `<payload>` node contains the data to encode or decode.
 - The `<metadata>` node provides instructions to the ACM.
     - In the `<metadata>` node, the child element `<encodings>` specifies how encodings/decodings will be performed and in which order.
-      The following example should explain the heirarchy:
+      The following example should explain the hierarchy:
         ```xml
         <encodings>
         <encodings>
