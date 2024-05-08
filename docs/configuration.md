@@ -6,7 +6,7 @@ one of two functions depending on how it is started:
 
 1. **Decode**: This function is used to process messages *from* the connected
 vehicle environment *to* ODE subscribers. Specifically, the ACM extacts binary
-data from consumed messages (ODE Metatdata Messages) and decodes the binary
+data from consumed messages (ODE Metadata Messages) and decodes the binary
 ASN.1 data into a structure that is subsequently encoded into an alternative
 format more suitable for ODE subscribers (currently XML using XER).
 
