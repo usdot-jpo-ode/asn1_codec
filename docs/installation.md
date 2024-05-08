@@ -1,8 +1,97 @@
 # Installation and Setup
 
 ## Table of Contents
-1. [Manual Installation](#manual-installation)
 1. [Docker Installation](#docker-installation)
+1. [Manual Installation](#manual-installation)
+
+## Docker Installation
+
+### 1. Install [Docker](https://www.docker.com)
+
+- When following the website instructions, setup the Docker repos and follow the Linux post-install instructions.
+- The CE version seems to work fine.
+- [Docker installation instructions](https://docs.docker.com/engine/installation/linux/ubuntu/#install-using-the-repository)
+- *ORNL specific, but may apply to others with organizational security*
+    - Correct for internal Google DNS blocking
+    - As root (`$ sudo su`), create a `daemon.json` file in the `/etc/docker` directory that contains the following information:
+```bash
+          {
+              "debug": true,
+              "default-runtime": "runc",
+              "dns": ["160.91.126.23","160.91.126.28"],
+              "icc": true,
+              "insecure-registries": [],
+              "ip": "0.0.0.0",
+              "log-driver": "json-file",
+              "log-level": "info",
+              "max-concurrent-downloads": 3,
+              "max-concurrent-uploads": 5,
+              "oom-score-adjust": -500
+          }
+```
+- NOTE: The DNS IP addresses are ORNL specific.
+
+### 2. Restart the docker daemon to consume the new configuration file.
+
+```bash
+$ service docker stop
+$ service docker start
+```
+
+### 3. Check the configuration using the command below to confirm the updates above are taken if needed:
+
+```bash
+$ docker info
+```
+
+### 4. Install Docker Compose
+- Comprehensive instructions can be found on this [website](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-16-04)
+- Follow steps 1 and 2.
+
+### 5. Install [`kafka-docker`](https://github.com/wurstmeister/kafka-docker) so kafka and zookeeper can run in a separate container.
+
+- Get your host IP address. The address is usually listed under an ethernet adapter, e.g., `en<number>`.
+
+```bash
+$ ifconfig
+$ export DOCKER_HOST_IP=<HOST IP>
+$ export ASN1_CODEC_HOME=${GIT_REPOS}/asn1_codec
+```
+- Get the kafka and zookeeper images.
+
+```bash
+$ cd $GIT_REPOS
+$ git clone https://github.com/wurstmeister/kafka-docker.git
+$ cd kafka-docker
+$ vim docker-compose.yml	                        // Set karka: ports: to 9092:9092
+```
+- The `docker-compose.yml` file may need to be changed; the ports for kafka should be 9092:9092.
+- Startup the kafka and zookeeper containers and make sure they are running.
+
+```bash
+$ docker-compose up --no-recreate -d
+$ docker-compose ps
+```
+- **When you want to stop kafka and zookeeper, execute the following commands.**
+
+```bash
+$ cd $GIT_REPOS/kafka-docker
+$ docker-compose down
+```
+
+### 6. Download and install the Kafka **binary**.
+
+-  The Kafka binary provides a producer and consumer tool that can act as surrogates for the ODE (among other items).
+-  [Kafka Binary](https://kafka.apache.org/downloads)
+-  [Kafka Quickstart](https://kafka.apache.org/quickstart) is a very useful reference.
+-  Move and unpack the Kafka code as follows:
+
+```bash
+$ cd $GIT_REPOS
+$ wget http://apache.claz.org/kafka/0.10.2.1/kafka_2.12-0.10.2.1.tgz   // mirror and kafka version may change; check website.
+$ tar -xzf kafka_2.12-0.10.2.1.tgz			                           // the kafka version may be different.
+$ mv kafka_2.12-0.10.2.1 kafka
+```
 
 ## Manual Installation
 The ACM can be executed after following these high-level steps:
@@ -184,96 +273,3 @@ ACM repository. You can pull fresh headers from the following locations:
 - The ACM uses [spdlog](https://github.com/gabime/spdlog) for logging; it is a header-only library and the headers are included in the repository.
 - The ACM uses [Catch](https://github.com/philsquared/Catch) for unit testing, but it is a header-only library included in the repository.
 - Currently, the ACM does not use [RapidJSON](https://github.com/miloyip/rapidjson), but this header-only library may be used in the future.
-
-## Docker Installation
-
-### 1. Install [Docker](https://www.docker.com)
-
-- When following the website instructions, setup the Docker repos and follow the Linux post-install instructions.
-- The CE version seems to work fine.
-- [Docker installation instructions](https://docs.docker.com/engine/installation/linux/ubuntu/#install-using-the-repository)
-- *ORNL specific, but may apply to others with organizational security*
-    - Correct for internal Google DNS blocking
-    - As root (`$ sudo su`), create a `daemon.json` file in the `/etc/docker` directory that contains the following information:
-```bash
-          {
-              "debug": true,
-              "default-runtime": "runc",
-              "dns": ["160.91.126.23","160.91.126.28"],
-              "icc": true,
-              "insecure-registries": [],
-              "ip": "0.0.0.0",
-              "log-driver": "json-file",
-              "log-level": "info",
-              "max-concurrent-downloads": 3,
-              "max-concurrent-uploads": 5,
-              "oom-score-adjust": -500
-          }
-```
-- NOTE: The DNS IP addresses are ORNL specific.
-
-### 2. Restart the docker daemon to consume the new configuration file.
-
-```bash
-$ service docker stop
-$ service docker start
-```
-
-### 3. Check the configuration using the command below to confirm the updates above are taken if needed:
-
-```bash
-$ docker info
-```
-
-### 4. Install Docker Compose
-- Comprehensive instructions can be found on this [website](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-16-04)
-- Follow steps 1 and 2.
-
-### 5. Install [`kafka-docker`](https://github.com/wurstmeister/kafka-docker) so kafka and zookeeper can run in a separate container.
-
-- Get your host IP address. The address is usually listed under an ethernet adapter, e.g., `en<number>`.
-
-```bash
-$ ifconfig
-$ export DOCKER_HOST_IP=<HOST IP>
-$ export ASN1_CODEC_HOME=${GIT_REPOS}/asn1_codec
-```
-- Get the kafka and zookeeper images.
-
-```bash
-$ cd $GIT_REPOS
-$ git clone https://github.com/wurstmeister/kafka-docker.git
-$ cd kafka-docker
-$ vim docker-compose.yml	                        // Set karka: ports: to 9092:9092
-```
-- The `docker-compose.yml` file may need to be changed; the ports for kafka should be 9092:9092.
-- Startup the kafka and zookeeper containers and make sure they are running.
-
-```bash
-$ docker-compose up --no-recreate -d
-$ docker-compose ps
-```
-- **When you want to stop kafka and zookeeper, execute the following commands.**
-
-```bash
-$ cd $GIT_REPOS/kafka-docker
-$ docker-compose down
-```
-
-### 6. Download and install the Kafka **binary**.
-
--  The Kafka binary provides a producer and consumer tool that can act as surrogates for the ODE (among other items).
--  [Kafka Binary](https://kafka.apache.org/downloads)
--  [Kafka Quickstart](https://kafka.apache.org/quickstart) is a very useful reference.
--  Move and unpack the Kafka code as follows:
-
-```bash
-$ cd $GIT_REPOS
-$ wget http://apache.claz.org/kafka/0.10.2.1/kafka_2.12-0.10.2.1.tgz   // mirror and kafka version may change; check website.
-$ tar -xzf kafka_2.12-0.10.2.1.tgz			                           // the kafka version may be different.
-$ mv kafka_2.12-0.10.2.1 kafka
-```
-
-
-
-
