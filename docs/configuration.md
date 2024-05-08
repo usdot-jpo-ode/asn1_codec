@@ -1,4 +1,4 @@
-# ACM Operation
+# ACM Configuration & Operation
 
 The ASN.1 Codec Module (ACM) processes Kafka data streams that preset [ODE
 Metadata](http://github.com/usdot-jpo-ode/jpo-ode/blob/develop/docs/Metadata_v3.md) wrapped ASN.1 data.  It can perform
@@ -15,7 +15,7 @@ the connected vehicle environment. Specifically, the ACM extracts
 human-readable data from ODE Metadata and decodes it into a structure that
 is subsequently *encoded into ASN.1 binary data*.
 
-![ASN.1 Codec Operations](https://github.com/usdot-jpo-ode/asn1_codec/blob/master/docs/graphics/asn1codec-operations.png)
+![ASN.1 Codec Operations](graphics/asn1codec-operations.png)
 
 ## ACM Command Line Options
 
@@ -41,7 +41,7 @@ line options override parameters specified in the configuration file.** The foll
 -v | --log-level       : The info log level [trace,debug,info,warning,error,critical,off]
 ```
 
-# ACM Deployment
+## ACM Deployment
 
 Once the ACM is [installed and configured](installation.md) it operates as a background service.  The ACM can be started
 before or after other services. If started before the other services, it may produce some error messages while it waits
@@ -55,7 +55,7 @@ Multiple ACM processes can be started. Each ACM will use its own configuration f
 deploy a decoder and an encoder, start two separate ACM services with different `-T` options. In this case different
 topics should be specified in the configuration files.
 
-# ACM ASN.1 Data Sources
+## ACM ASN.1 Data Sources
 
 The ACM receives XML data from the ODE; the schema for this XML message is described in
 [Metadata.md](https://github.com/usdot-jpo-ode/jpo-ode/blob/develop/docs/Metadata_v3.md) on the ODE. Currently, the ACM
@@ -92,7 +92,7 @@ the ACM with likely generate an error when doing constraint checking.
 Both the ENCODER and DECODER will check the ASN.1 constraints for the C structures that are built as data passes through
 the module.
 
-# ACM Kafka Limitations
+## ACM Kafka Limitations
 
 With regard to the Apache Kafka architecture, each ACM process does **not** provide a way to take advantage of Kafka's scalable
 architecture. In other words, each ACM process will consume data from a single Kafka topic and a single partition within
@@ -100,7 +100,7 @@ that topic. One way to consume topics with multiple partitions is to launch one 
 configuration file will allow you to designate the partition. In the future, the ACM may be updated to automatically
 handle multiple partitions within a single topic.
 
-# ACM Logging
+## ACM Logging
 
 ACM operations are optionally logged to the console and/or to a file.  The file is a rotating log file, i.e., a set number of log files will
 be used to record the ACM's information. By default, the file is in a `logs` directory from where the ACM is launched and the file is
@@ -136,7 +136,7 @@ preceeded with a date and time stamp and the level of the log message.
 [171011 18:25:55.221442] [trace] ending configure()
 ```
 
-# ACM Configuration
+## ACM Configuration
 
 The ACM configuration file is a text file with a prescribed format. It can be used to configure Kafka as well as the ACM.
 Comments can be added to the configuration file by starting a line with the '#' character. Configuration lines consist
@@ -171,7 +171,7 @@ Example configuration files can be found in the [asn1_codec/config](../config) d
 
 The details of the settings and how they affect the function of the ACM follow:
 
-## ODE Kafka Interface
+### ODE Kafka Interface
 
 - `asn1.topic.producer` : The Kafka topic name where the ACM will write its output. **The name is case sensitive.**
 
@@ -194,7 +194,7 @@ The details of the settings and how they affect the function of the ACM follow:
 
 - `compression.type` : The type of compression to use for writing to Kafka topics. Currently, this should be set to none.
 
-# ACM Testing with Kafka
+## ACM Testing with Kafka
 
 There are four steps that need to be started / run as separate processes.
 
