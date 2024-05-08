@@ -1,13 +1,23 @@
 # Testing the ACM
 
-There is currently two ways to test the capabilities of the ACM.
+There are currently two ways to test the capabilities of the ACM.
 - [Unit Testing](#unit-testing)
 - [Standalone Operation / Testing](#standalone-testing)
 
-## Test Files
+## Unit Testing
 
-Several example JSON message test files are in the [asn1_codec/data](../data) directory.  These files can be edited to generate
-your own test cases.
+Unit tests are built when the ACM is compiled during installation. Those tests can be run using the following command:
+
+```bash
+$ ./acm_tests
+```
+
+If using Docker, exec into the container and run the tests:
+
+```bash
+$ docker exec -it acm /bin/bash
+$ ./acm_tests
+```
 
 ## Standalone Operation / Testing
 
@@ -19,10 +29,7 @@ newlines. The following is an example command:
 $ ./acm -F -c config/example.properties -T decode ../data/InputData.Ieee1609Dot2Data.packed.xml
 ```
 
-## Unit Testing
+### Test Files
 
-Unit tests are built when the ACM is compiled during installation. Those tests can be run using the following command:
-
-```bash
-$ ./acm_tests
-```
+Several example JSON message test files are in the [asn1_codec/data](../data) directory.  These files can be edited to generate
+your own test cases.
