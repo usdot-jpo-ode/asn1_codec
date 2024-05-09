@@ -59,6 +59,8 @@ Edit the `.env` file to include the necessary information.
 $ vi .env
 ```
 
+For more information on the environment variables, see the 'Environment Variables' section in the [configuration.md](configuration.md) file.
+
 ### 3. Spin up Kafka & the ACM in Docker
 To spin up the ACM and Kafka in Docker, use the following commands:
 
