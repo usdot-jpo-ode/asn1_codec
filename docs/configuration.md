@@ -41,6 +41,22 @@ line options override parameters specified in the configuration file.** The foll
 -v | --log-level       : The info log level [trace,debug,info,warning,error,critical,off]
 ```
 
+## Environment Variables
+The following environment variables are used by the ACM:
+
+-------------------
+| Variable | Description |
+| --- | --- |
+| `DOCKER_HOST_IP` | The IP address of the machine running the kafka cluster. |
+| `ACM_LOG_TO_CONSOLE` | Whether or not to log to the console. |
+| `ACM_LOG_TO_FILE` | Whether or not to log to a file. |
+| `ACM_LOG_LEVEL` | The log level to use. Valid values are: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "OFF" |
+| `KAFKA_TYPE` | If unset, a local kafka broker will be targeted. If set to "CONFLUENT", the application will target a Confluent Cloud cluster. |
+| `CONFLUENT_KEY` | Confluent Cloud Integration (if KAFKA_TYPE is set to "CONFLUENT") |
+| `CONFLUENT_SECRET` | Confluent Cloud Integration (if KAFKA_TYPE is set to "CONFLUENT") |
+
+The `sample.env` file contains the default values for some of these environment variables. To use these values, copy the `sample.env` file to `.env` and modify the values as needed.
+
 ## ACM Deployment
 
 Once the ACM is [installed and configured](installation.md) it operates as a background service.  The ACM can be started
