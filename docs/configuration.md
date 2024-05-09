@@ -196,7 +196,7 @@ The details of the settings and how they affect the function of the ACM follow:
 
 ## ACM Testing with Kafka
 
-There are four steps that need to be started / run as separate processes.
+The necessary services for testing the ACM with Kafka are provided in the `docker-compose.yml` file. The following steps will guide you through the process of testing the ACM with Kafka.
 
 1. Start the Kafka & ACM services via the provided `docker-compose.yml` file.
 ```
