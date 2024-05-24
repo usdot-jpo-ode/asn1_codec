@@ -1,6 +1,16 @@
 asn1_codec Release Notes
 ----------------------------
 
+Version 2.1.0, released June 2024
+----------------------------------------
+### **Summary**
+The changes for the asn1_codec 2.1.0 release include revised documentation for accuracy and improved clarity and readability. Additionally, there has been a transition to using `usdot-fhwa-stol/usdot-asn1c` instead of `mouse07410/asn1c` for the ASN.1 Compiler.
+
+Enhancements in this release:
+- CDOT PR 25: Revised documentation for accuracy & improved clarity/readability
+- CDOT PR 26: Transitioned to using `usdot-fhwa-stol/usdot-asn1c` instead of `mouse07410/asn1c` for ASN.1 Compiler
+
+
 Version 2.0.0, released February 2024
 ----------------------------------------
 
