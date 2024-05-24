@@ -1,3 +1,6 @@
 [submodule "pugixml"]
 	path = pugixml
 	url = https://github.com/zeux/pugixml.git
+[submodule "usdot-asn1c"]
+	path = usdot-asn1c
+	url = https://github.com/usdot-fhwa-stol/usdot-asn1c
