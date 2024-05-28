@@ -38,7 +38,7 @@ const char *ONE609_BSM_HEX = "038081B1001480AD562FA8400039E8E717090F9665FE1BACC3
 const char *ASD_ONE609_HEX = "44400000000084782786283B90A7148D2B0A89C49F8A85A7763BF8423C13C2107E1C0C6F7E2C0C6F16A070103620029015AAC5F50800073D1CE2E121F2CCBFC375986FFFFFFFFE0007775FBF43F4200FFFF000000000004042983820082FFFFFFFD049C20147FFFFFFFD128420408FFFFFFFD2454204D480287FFD2BAC2084680BAFFFD4EAC2064580B33FFD5BF42072380D6BFFD6FCC2079681407FFDA424206778115BFFDB34C205D0811CBFFDBC5C2057B8110BFFDBE142001780337FFEFE643FFFF800BBFFF8AB43FFFFFFFFFFFFBA3420080FFFFFFFFC345FFFC00000";
 
 /**
- * After switching to using `mouse07410/asn1c` (a fork of `vlm/asn1c`), this unit test is failing. Note: We are now using the `usdot-fhwa-stol/usdot-asn1c` fork.
+ * This unit test is currently failing with the fork of asn1c that we're using (currently `usdot-fhwa-stol/usdot-asn1c`).
  * Since encoding BSMs is not a desired feature of the ACM, this test case has been commented out.
  */
 // TEST_CASE("Encode BSM", "[encoding]" ) { // TODO: fix test case failing
@@ -74,7 +74,7 @@ TEST_CASE("Encode ASD", "[encoding]" ) {
 }
 
 /**
- * After switching to using `mouse07410/asn1c` (a fork of `vlm/asn1c`), this unit test is failing. Note: We are now using the `usdot-fhwa-stol/usdot-asn1c` fork.
+ * This unit test is currently failing with the fork of asn1c that we're using (currently `usdot-fhwa-stol/usdot-asn1c`).
  * Since encoding BSMs is not a desired feature of the ACM, this test case has been commented out.
  */
 // TEST_CASE("Encode ASD_BSM", "[encoding]" ) { // TODO: fix test case failing
@@ -132,7 +132,7 @@ TEST_CASE("Encode ASD_1609", "[encoding]" ) {
 }
 
 /**
- * After switching to using `mouse07410/asn1c` (a fork of `vlm/asn1c`), this unit test is failing. Note: We are now using the `usdot-fhwa-stol/usdot-asn1c` fork.
+ * This unit test is currently failing with the fork of asn1c that we're using (currently `usdot-fhwa-stol/usdot-asn1c`).
  * Since encoding BSMs is not a desired feature of the ACM, this test case has been commented out.
  */
 // TEST_CASE("Encode 1609_BSM", "[encoding]") { // TODO: fix test case failing
@@ -154,7 +154,7 @@ TEST_CASE("Encode ASD_1609", "[encoding]" ) {
 // }
 
 /**
- * After switching to using `mouse07410/asn1c` (a fork of `vlm/asn1c`), this unit test is failing. Note: We are now using the `usdot-fhwa-stol/usdot-asn1c` fork.
+ * This unit test is currently failing with the fork of asn1c that we're using (currently `usdot-fhwa-stol/usdot-asn1c`).
  * Since encoding BSMs is not a desired feature of the ACM, this test case has been commented out.
  */
 // TEST_CASE("Encode ASD_1609_BSM", "[encoding]") { // TODO: fix test case failing
