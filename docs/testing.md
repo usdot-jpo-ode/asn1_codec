@@ -5,17 +5,32 @@ There are currently two ways to test the capabilities of the ACM.
 - [Standalone Operation / Testing](#standalone-testing)
 
 ## Unit Testing
-
-Unit tests are built when the ACM is compiled during installation. Those tests can be run using the following command:
+### Testing On Local Machine
+The following command can be run to build & run the unit tests:
 
 ```bash
-$ ./acm_tests
+$ ./build_local.sh
 ```
 
-If using Docker, exec into the container and run the tests:
+
+### Testing Using Docker
+Start by building the Docker image:
+
+```bash
+$ docker build -t acm .
+```
+
+Then run the Docker container:
+
+```bash
+$ docker run -it --name acm acm
+```
+
+Exec into the container and run the tests:
 
 ```bash
 $ docker exec -it acm /bin/bash
+$ cd /build
 $ ./acm_tests
 ```
 
