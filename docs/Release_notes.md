@@ -10,6 +10,10 @@ Enhancements in this release:
 - CDOT PR 25: Revised documentation for accuracy & improved clarity/readability
 - CDOT PR 26: Transitioned to using `usdot-fhwa-stol/usdot-asn1c` instead of `mouse07410/asn1c` for ASN.1 Compiler
 
+Known Issues:
+- The do_kafka_test.sh script in the project's root directory is currently not running successfully. The issue is being investigated and will be addressed in a future update.
+- According to Valgrind, a minor memory leak has been detected. The development team is aware of this and is actively working on resolving it.
+
 
 Version 2.0.0, released February 2024
 ----------------------------------------
