@@ -1,4 +1,4 @@
-# ACM Operation
+# ACM Configuration & Operation
 
 The ASN.1 Codec Module (ACM) processes Kafka data streams that preset [ODE
 Metadata](http://github.com/usdot-jpo-ode/jpo-ode/blob/develop/docs/Metadata_v3.md) wrapped ASN.1 data.  It can perform
@@ -6,7 +6,7 @@ one of two functions depending on how it is started:
 
 1. **Decode**: This function is used to process messages *from* the connected
 vehicle environment *to* ODE subscribers. Specifically, the ACM extacts binary
-data from consumed messages (ODE Metatdata Messages) and decodes the binary
+data from consumed messages (ODE Metadata Messages) and decodes the binary
 ASN.1 data into a structure that is subsequently encoded into an alternative
 format more suitable for ODE subscribers (currently XML using XER).
 
@@ -15,7 +15,7 @@ the connected vehicle environment. Specifically, the ACM extracts
 human-readable data from ODE Metadata and decodes it into a structure that
 is subsequently *encoded into ASN.1 binary data*.
 
-![ASN.1 Codec Operations](https://github.com/usdot-jpo-ode/asn1_codec/blob/master/docs/graphics/asn1codec-operations.png)
+![ASN.1 Codec Operations](graphics/asn1codec-operations.png)
 
 ## ACM Command Line Options
 
@@ -41,7 +41,23 @@ line options override parameters specified in the configuration file.** The foll
 -v | --log-level       : The info log level [trace,debug,info,warning,error,critical,off]
 ```
 
-# ACM Deployment
+## Environment Variables
+The following environment variables are used by the ACM:
+
+-------------------
+| Variable | Description |
+| --- | --- |
+| `DOCKER_HOST_IP` | The IP address of the machine running the kafka cluster. |
+| `ACM_LOG_TO_CONSOLE` | Whether or not to log to the console. |
+| `ACM_LOG_TO_FILE` | Whether or not to log to a file. |
+| `ACM_LOG_LEVEL` | The log level to use. Valid values are: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "OFF" |
+| `KAFKA_TYPE` | If unset, a local kafka broker will be targeted. If set to "CONFLUENT", the application will target a Confluent Cloud cluster. |
+| `CONFLUENT_KEY` | Confluent Cloud Integration (if KAFKA_TYPE is set to "CONFLUENT") |
+| `CONFLUENT_SECRET` | Confluent Cloud Integration (if KAFKA_TYPE is set to "CONFLUENT") |
+
+The `sample.env` file contains the default values for some of these environment variables. To use these values, copy the `sample.env` file to `.env` and modify the values as needed.
+
+## ACM Deployment
 
 Once the ACM is [installed and configured](installation.md) it operates as a background service.  The ACM can be started
 before or after other services. If started before the other services, it may produce some error messages while it waits
@@ -55,7 +71,7 @@ Multiple ACM processes can be started. Each ACM will use its own configuration f
 deploy a decoder and an encoder, start two separate ACM services with different `-T` options. In this case different
 topics should be specified in the configuration files.
 
-# ACM ASN.1 Data Sources
+## ACM ASN.1 Data Sources
 
 The ACM receives XML data from the ODE; the schema for this XML message is described in
 [Metadata.md](https://github.com/usdot-jpo-ode/jpo-ode/blob/develop/docs/Metadata_v3.md) on the ODE. Currently, the ACM
@@ -84,7 +100,7 @@ can handle:
 
 \* Denotes the message should already contain hex data, according the the ASN.1 specification for that message.
 For instance, IEEE 1609.2 must contain hex data in its `unsecuredData` tag. If the hex data is missing or invalid, 
-the ACM with likely generate an error when doing constraint checking.
+the ACM will likely generate an error when doing constraint checking.
 
 - After ENCODING this text is changed to: `us.dot.its.jpo.ode.model.OdeHexByteArray`
 - After DECODING this text is changed to: `us.dot.its.jpo.ode.model.OdeXml`
@@ -92,7 +108,7 @@ the ACM with likely generate an error when doing constraint checking.
 Both the ENCODER and DECODER will check the ASN.1 constraints for the C structures that are built as data passes through
 the module.
 
-# ACM Kafka Limitations
+## ACM Kafka Limitations
 
 With regard to the Apache Kafka architecture, each ACM process does **not** provide a way to take advantage of Kafka's scalable
 architecture. In other words, each ACM process will consume data from a single Kafka topic and a single partition within
@@ -100,7 +116,7 @@ that topic. One way to consume topics with multiple partitions is to launch one 
 configuration file will allow you to designate the partition. In the future, the ACM may be updated to automatically
 handle multiple partitions within a single topic.
 
-# ACM Logging
+## ACM Logging
 
 ACM operations are optionally logged to the console and/or to a file.  The file is a rotating log file, i.e., a set number of log files will
 be used to record the ACM's information. By default, the file is in a `logs` directory from where the ACM is launched and the file is
@@ -136,7 +152,7 @@ preceeded with a date and time stamp and the level of the log message.
 [171011 18:25:55.221442] [trace] ending configure()
 ```
 
-# ACM Configuration
+## ACM Configuration
 
 The ACM configuration file is a text file with a prescribed format. It can be used to configure Kafka as well as the ACM.
 Comments can be added to the configuration file by starting a line with the '#' character. Configuration lines consist
@@ -171,7 +187,7 @@ Example configuration files can be found in the [asn1_codec/config](../config) d
 
 The details of the settings and how they affect the function of the ACM follow:
 
-## ODE Kafka Interface
+### ODE Kafka Interface
 
 - `asn1.topic.producer` : The Kafka topic name where the ACM will write its output. **The name is case sensitive.**
 
@@ -194,20 +210,18 @@ The details of the settings and how they affect the function of the ACM follow:
 
 - `compression.type` : The type of compression to use for writing to Kafka topics. Currently, this should be set to none.
 
-# ACM Testing with Kafka
+## ACM Testing with Kafka
 
-There are four steps that need to be started / run as separate processes.
+The necessary services for testing the ACM with Kafka are provided in the `docker-compose.yml` file. The following steps will guide you through the process of testing the ACM with Kafka.
 
-1. Start the `kafka-docker` container to provide the basic kafka data streaming services.
-
-```bash
-$ docker-compose up --no-recreate -d
+1. Start the Kafka & ACM services via the provided `docker-compose.yml` file.
+```
+$ docker compose up --build -d
 ```
 
-1. Start the ACM (here we are starting a decoder).
-
-```bash
-$ ./acm -c config/example.properties -T decode
+1. Exec into the Kafka container to gain access to the Kafka command line tools.
+```
+$ docker exec -it asn1_codec_kafka_1 /bin/bash
 ```
 
 1. Use the provided `kafka-console-producer.sh` script (provided with the Apache Kafka installation) to send XML
@@ -225,4 +239,9 @@ $ ./bin/kafka-console-consumer.sh --bootstrap-server ${SERVER_IP} --topic ${ACM_
 ```
 
 The log files will provide more information about the details of the processing that is taking place and document any
-errors.
+errors. To view log files, exec into the ACM container and use the `tail` command to view the log file.
+
+```bash
+$ docker exec -it asn1_codec_acm_1 /bin/bash
+$ tail -f logs/log
+```
