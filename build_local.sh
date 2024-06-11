@@ -19,9 +19,9 @@ initializeSubmodules(){
 buildAsn1c(){
     # build asn1c
     echo "${GREEN}Building asn1c${NC}"
-    cd ./asn1c
+    cd ./usdot-asn1c
     git reset --hard
-    git pull origin master
+    git pull origin vlm_master
     aclocal
     test -f ./configure || autoreconf -iv
     ./configure
