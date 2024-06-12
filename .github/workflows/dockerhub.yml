@@ -6,6 +6,7 @@ on:
       - "develop"
       - "master"
       - "release/*"
+      - "replace/tags"
 jobs:
   dockerhub-asn1_codec:
     runs-on: ubuntu-latest
