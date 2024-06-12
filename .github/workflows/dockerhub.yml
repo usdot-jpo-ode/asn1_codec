@@ -23,4 +23,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: usdotjpoode/asn1_codec:${{ github.ref_name }}
+          tags: usdotjpoode/asn1_codec:${{ github.ref_name | replace('/', '-') }}
