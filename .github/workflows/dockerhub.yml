@@ -6,7 +6,6 @@ on:
       - "develop"
       - "master"
       - "release/*"
-      - "replace/tags"
 
 jobs:
   dockerhub-asn1_codec:
@@ -26,7 +25,7 @@ jobs:
 
       - name: Replcae Docker tag
         id: set_tag
-        run: echo "TAG=${GITHUB_REF_NAME/\//-}" >> $GITHUB_ENV
+        run: echo "TAG=$(echo ${GITHUB_REF##*/} | sed 's/\//-/g')" >> $GITHUB_ENV
 
       - name: Build
         uses: docker/build-push-action@v3
