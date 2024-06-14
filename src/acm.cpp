@@ -1810,6 +1810,9 @@ bool ASN1_Codec::filetest() {
 
         logger->info(output_msg_stream.str());
 
+        // Send output directly to stdout.
+        std::cout << output_msg_stream.str() << std::endl;
+
     } else {
         logger->trace("Read an empty file.");
     }
