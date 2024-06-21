@@ -86,6 +86,7 @@ run_tests() {
     echo ""
     echo $YELLOW"Running test 1/$numTests"$NC
     echo ""
+    # TODO: fix test 1 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test1_xml.txt encode 0
     if [ $? -eq 0 ]; then
         echo $GREEN"Test 1 passed"$NC
@@ -119,6 +120,7 @@ run_tests() {
     echo ""
     echo $YELLOW"Running test 4/$numTests"$NC
     echo ""
+    # TODO: fix test 4 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test4_xml.txt encode 3
     if [ $? -eq 0 ]; then
         echo $GREEN"Test 4 passed"$NC
@@ -141,6 +143,7 @@ run_tests() {
     echo ""
     echo $YELLOW"Running test 6/$numTests"$NC
     echo ""
+    # TODO: fix test 6 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test6_xml.txt encode 5
     if [ $? -eq 0 ]; then
         echo $GREEN"Test 6 passed"$NC
@@ -152,6 +155,7 @@ run_tests() {
     echo ""
     echo $YELLOW"Running test 7/$numTests"$NC
     echo ""
+    # TODO: fix test 7 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test7_xml.txt encode 6
     if [ $? -eq 0 ]; then
         echo $GREEN"Test 7 passed"$NC
@@ -168,7 +172,6 @@ run_tests() {
         echo $RED"$numFailures/$numTests tests failed"$NC
     fi
     echo ""
-
 }
 
 cleanup() {
