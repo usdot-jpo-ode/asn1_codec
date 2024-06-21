@@ -4,7 +4,49 @@
 # Offset is the offset in the topic that will be consumed and displayed in the
 # output
 # Type is the type of operation (encode or decode)
+
+ACM_CONTAINER_NAME=test_acm_instance
+ACM_IMAGE_TAG=do-kafka-test-acm-image
+ACM_IMAGE_NAME=asn1_codec-acm
+
+startACMContainer() {
+    echo "Starting ACM in a new container"
+    
+    sleep 10
+
+    # make sure ip can be pinged
+    while true; do
+        if ping -c 1 $DOCKER_HOST_IP &> /dev/null; then
+            break
+        else
+            echo "Docker host ip $DOCKER_HOST_IP is not pingable. Exiting."
+            exit 1
+        fi
+    done
+    echo "Starting ACM in new container '$ACM_CONTAINER_NAME'"
+    docker run --name $ACM_CONTAINER_NAME --env ACM_LOG_TO_CONSOLE=true --env ACM_LOG_LEVEL=DEBUG -v /tmp/docker-test/asn1-codec/data:/asn1_codec_data -it --rm -p '8080:8080' -d $ACM_IMAGE_NAME:$ACM_IMAGE_TAG /asn1_codec/docker-test/acm_standalone.sh $TYPE
+
+    echo "Waiting for $ACM_CONTAINER_NAME to spin up"
+    # while num lines of docker logs is less than 100, sleep 1
+    secondsToWait=10
+    sleep $secondsToWait # TODO: use check like log count to determine when to stop waiting
+    echo "$ACM_CONTAINER_NAME is ready after $secondsToWait seconds"
+
+    if [ $(docker ps | grep $ACM_CONTAINER_NAME | wc -l) == "0" ]; then
+        echo "ACM container '$ACM_CONTAINER_NAME' is not running. Exiting."
+        exit 1
+    fi
+}
+
+stopACMContainer() {
+    echo "Stopping and removing existing container if it exists"
+    docker stop $ACM_CONTAINER_NAME > /dev/null
+    docker rm $ACM_CONTAINER_NAME > /dev/null
+}
+
 USAGE="standalone.sh [CONFIG] [TEST_FILE] [TYPE] [OFFSET]"
+
+echo "Executing 'standalone.sh' script"
 
 if [ -z $1 ] || [ ! -f $1 ]; then
     echo "Config file: "$1" not found!"
@@ -41,8 +83,11 @@ fi
 mkdir -p /tmp/docker-test/asn1-codec/data
 
 # Copy the config to the test data.
-# TODO replace map file line: sed -i '/TEXT_TO_BE_REPLACED/c\This line is removed by the admin.' /tmp/foo
 cp $1 /tmp/docker-test/asn1-codec/data/config.properties
+# change metadata.broker.list to value of DOCKER_HOST_IP
+sed -i "s/metadata.broker.list=.*/metadata.broker.list=$DOCKER_HOST_IP:9092/" /tmp/docker-test/asn1-codec/data/config.properties
+# change acm.type to encode or decode depending on the type
+sed -i "s/acm.type=.*/acm.type=$TYPE/" /tmp/docker-test/asn1-codec/data/config.properties
 
 # Copy the data.
 cp $2 /tmp/docker-test/asn1-codec/data/test.data
@@ -51,11 +96,23 @@ echo "**************************"
 echo "Running standalone test with "$1 $2 $3 $4
 echo "**************************"
 
-# Start the PPM in a new container.
-docker run --name acm_kafka -v /tmp/docker-test/asn1-codec/data:/asn1_codec_data -it --rm -p '8080:8080' -d asn1codec_asn1_codec:latest /asn1_codec/docker-test/acm_standalone.sh $TYPE > /dev/null
+# Stop and remove existing container if it exists
+stopACMContainer
 
-sleep 10
+# Start the ACM in a new container.
+startACMContainer
 
-# Produce the test data.
-docker exec acm_kafka /asn1_codec/docker-test/do_test.sh $OFFSET
-docker stop acm_kafka > /dev/null
+# Produce and consume the test data.
+echo "Producing and consuming test data"
+docker exec $ACM_CONTAINER_NAME /asn1_codec/docker-test/do_test.sh $OFFSET $DOCKER_HOST_IP
+
+# return 1 if the test fails
+if [ $? -ne 0 ]; then
+    docker stop $ACM_CONTAINER_NAME > /dev/null
+    exit 1
+fi
+
+docker stop $ACM_CONTAINER_NAME > /dev/null
+
+echo ""
+echo "Done executing 'standalone.sh' script"
