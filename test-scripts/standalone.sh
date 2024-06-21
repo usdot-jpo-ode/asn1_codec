@@ -10,10 +10,6 @@ ACM_IMAGE_TAG=do-kafka-test-acm-image
 ACM_IMAGE_NAME=asn1_codec-acm
 
 startACMContainer() {
-    echo "Starting ACM in a new container"
-    
-    sleep 10
-
     # make sure ip can be pinged
     while true; do
         if ping -c 1 $DOCKER_HOST_IP &> /dev/null; then
@@ -45,8 +41,6 @@ stopACMContainer() {
 }
 
 USAGE="standalone.sh [CONFIG] [TEST_FILE] [TYPE] [OFFSET]"
-
-echo "Executing 'standalone.sh' script"
 
 if [ -z $1 ] || [ ! -f $1 ]; then
     echo "Config file: "$1" not found!"
@@ -103,7 +97,6 @@ stopACMContainer
 startACMContainer
 
 # Produce and consume the test data.
-echo "Producing and consuming test data"
 docker exec $ACM_CONTAINER_NAME /asn1_codec/docker-test/do_test.sh $OFFSET $DOCKER_HOST_IP
 
 # return 1 if the test fails
@@ -115,4 +108,3 @@ fi
 docker stop $ACM_CONTAINER_NAME > /dev/null
 
 echo ""
-echo "Done executing 'standalone.sh' script"

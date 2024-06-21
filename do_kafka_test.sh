@@ -206,9 +206,7 @@ run() {
 }
 
 echo ""
-echo "Executing 'do_kafka_test.sh' script"
 
 run
 
 echo ""
-echo "Finished executing 'do_kafka_test.sh' script"

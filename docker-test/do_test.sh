@@ -2,7 +2,6 @@
 export LD_LIBRARY_PATH=/usr/local/lib
 
 echo ""
-echo "Executing 'do_test.sh' script"
 
 DOCKER_HOST_IP=$2
 
@@ -17,7 +16,12 @@ echo "**************************"
 echo "Producing Data ..."
 echo "**************************"
 # Produce data with test_in.py and pipe it to kafka_tool, which sends the data to the topic.
-cat /asn1_codec_data/test.data | /asn1_codec/docker-test/test_in.py | /build/kafka-test/kafka_tool -P -b $DOCKER_HOST_IP:9092 -p 0 -t topic.Asn1EncoderInput
+cat /asn1_codec_data/test.data | /asn1_codec/docker-test/test_in.py | /build/kafka-test/kafka_tool -P -b $DOCKER_HOST_IP:9092 -p 0 -t topic.Asn1EncoderInput 2> prod.err
+if [ $? -ne 0 ]; then
+    cat prod.err
+    echo "Failed to produce data. Exiting."
+    exit 1
+fi
 
 # Start the DI consumer.
 offset=$1
@@ -28,7 +32,6 @@ echo "**************************"
 
 while true; do
     # Consume data from the topic with kafka_tool and pipe it to test_out.py, then write the output to tmp.out
-    echo "Consuming data from topic.Asn1EncoderOutput ..."
     /build/kafka-test/kafka_tool -C -b $DOCKER_HOST_IP:9092 -p 0 -t topic.Asn1EncoderOutput -e -o $offset 2> con.err | /asn1_codec/docker-test/test_out.py > tmp.out
     if [ $? -ne 0 ]; then
         cat con.err
@@ -51,4 +54,3 @@ while true; do
 done
 
 echo ""
-echo "Done executing 'do_test.sh' script"
