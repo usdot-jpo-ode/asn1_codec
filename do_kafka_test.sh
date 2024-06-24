@@ -14,6 +14,9 @@ ACM_CONTAINER_NAME=test_acm_instance
 ACM_IMAGE_TAG=do-kafka-test-acm-image
 ACM_IMAGE_NAME=asn1_codec-acm
 
+numTests=3
+numFailures=0 # used to keep track of the number of failed tests for the summary
+
 setup() {
     if [ -z $DOCKER_HOST_IP ]
     then
@@ -84,8 +87,6 @@ buildACMImage() {
 run_tests() {
     echo "== Running Tests =="
 
-    numTests=3
-    numFailures=0
     offset=0
 
     echo ""
@@ -124,15 +125,6 @@ run_tests() {
         echo -e $RED"Test 3 failed"$NC
         numFailures=$((numFailures+1))
     fi
-
-    echo ""
-    echo -e $CYAN"== Tests Completed =="$NC
-    if [ $numFailures -eq 0 ]; then
-        echo -e $GREEN"All tests passed"$NC
-    else
-        echo -e $RED"$numFailures/$numTests tests failed"$NC
-    fi
-    echo ""
 }
 
 cleanup() {
@@ -163,7 +155,18 @@ run() {
     echo -e $CYAN"Step 5/$numberOfSteps: Clean up test environment"$NC
     cleanup
 
+    printTestSummary
+}
 
+printTestSummary() {
+    echo ""
+    echo -e $CYAN"== Tests Summary =="$NC
+    if [ $numFailures -eq 0 ]; then
+        echo -e $GREEN"All tests passed"$NC
+    else
+        echo -e $RED"$numFailures/$numTests tests failed"$NC
+    fi
+    echo ""
 }
 
 echo ""
