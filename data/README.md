@@ -42,7 +42,9 @@ The data files in this directory are referenced in the following files:
 | InputData.encoding.tim.odetimpayload.xml | src/tests.cpp  | Encode TIM with payload type 'OdeTimPayload' |
 | InputData.encoding.tim.odeasdpayload.xml | src/tests.cpp  | Encode TIM with payload type 'OdeAsdPayload' |
 | InputData.decoding.bsm.xml | src/tests.cpp  | Decode BSM |
-| producer_test_xml.txt | do_kafka_test.sh | ./test-scripts/standalone.sh config/test/c1.properties data/producer_test_xml.txt encode 0 |
+| producer_test1_xml.txt | do_kafka_test.sh | Encode AdvisorySituationData containing HEX-encoded BSM |
+| producer_test2_xml.txt | do_kafka_test.sh | Encode Ieee1609Dot2Data containing HEX-encoded BSM |
+| producer_test3_xml.txt | do_kafka_test.sh | Encode AdvisorySituationData containing Ieee1609Dot2Data containing HEX-encoded BSM |
 | InputData.Ieee1609Dot2Data.packed.xml | testing.md | Testing Documentation |
 | j2735.MessageFrame.Bsm.xml | data/README.md | Building Test Data Files |
 | j2735.MessageFrame.Bsm.uper | data/README.md | Building Test Data Files |
