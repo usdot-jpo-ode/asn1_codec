@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# There are two input files: CONFIG, TEST_DATA.
-# Offset is the offset in the topic that will be consumed and displayed in the
-# output
-# Type is the type of operation (encode or decode)
+# This script runs the standalone test for the ACM. It starts the ACM in a new container, produces
+# and consumes the test data with `do_test.sh`, and then stops the ACM container. Finally, it
+# reports the result of the test back to the caller.
+
+# This script is used by `do_kafka_test.sh`
 
 ACM_CONTAINER_NAME=test_acm_instance
 ACM_IMAGE_TAG=do-kafka-test-acm-image
@@ -40,6 +41,9 @@ stopACMContainer() {
     docker rm $ACM_CONTAINER_NAME > /dev/null
 }
 
+# There are two input files: CONFIG, TEST_DATA.
+# Offset is the offset in the topic that will be consumed and displayed in the output
+# Type is the type of operation (encode or decode)
 USAGE="standalone.sh [CONFIG] [TEST_FILE] [TYPE] [OFFSET]"
 
 if [ -z $1 ] || [ ! -f $1 ]; then

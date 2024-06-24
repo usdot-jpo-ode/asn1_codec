@@ -1,4 +1,12 @@
 #!/bin/bash
+
+# This script assumes that the ACM is already running in a container and is configured to point to a local Kafka cluster.
+# It processes input data using `test_in.py` & produces test data to the ACM using `kafka_tool`. It consumes the output
+# using `kafka_tool` and processes it using `test_out.py`. If the output does not contain the expected data or if
+# the `kafka_tool` runs into a problem, the script will exit with an error which will be reported back to the caller.
+
+# This script is used by `standalone.sh`
+
 export LD_LIBRARY_PATH=/usr/local/lib
 
 echo ""

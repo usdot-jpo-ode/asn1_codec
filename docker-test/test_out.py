@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# This script reads XML data from stdin, prints the payload data to stdout, and writes any exceptions to stderr.
+
+# This script is used by `do_test.sh` to process the output data and pipe it during data processing.
+
 from __future__ import print_function
 import xml.etree.ElementTree as elementTree
 

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# This script reads XML data from stdin, extracts the encodings from the metadata, and writes the data to stdout.
+
+# This script is used by `do_test.sh` to prepare the input data and pipe it during data processing.
+
 from __future__ import print_function
 import xml.etree.ElementTree as elementTree
 

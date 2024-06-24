@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This script tests the ACM against a kafka cluster. It starts the Kafka cluster with `start_kafka.sh`,
+# ensures that the topics are created, builds the ACM docker image, initiates tests using
+# `test-scripts/standalone.sh`, and then stops the Kafka cluster with `stop_kafka.sh`.
+
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
