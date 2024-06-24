@@ -169,7 +169,7 @@ run_tests() {
     fi
 
     echo ""
-    echo $CYAN"== Tests Completed =="$NC
+    echo -e $CYAN"== Tests Completed =="$NC
     if [ $numFailures -eq 0 ]; then
         echo -e $GREEN"All tests passed"$NC
     else
