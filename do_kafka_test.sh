@@ -88,92 +88,92 @@ run_tests() {
     numFailures=0
 
     echo ""
-    echo $YELLOW"Running test 1/$numTests"$NC
+    echo -e $YELLOW"Running test 1/$numTests"$NC
     echo ""
     # TODO: fix test 1 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test1_xml.txt encode 0
     if [ $? -eq 0 ]; then
-        echo $GREEN"Test 1 passed"$NC
+        echo -e $GREEN"Test 1 passed"$NC
     else
-        echo $RED"Test 1 failed"$NC
+        echo -e $RED"Test 1 failed"$NC
         numFailures=$((numFailures+1))
     fi
 
     echo ""
-    echo $YELLOW"Running test 2/$numTests"$NC
+    echo -e $YELLOW"Running test 2/$numTests"$NC
     echo ""
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test2_xml.txt encode 1
     if [ $? -eq 0 ]; then
-        echo $GREEN"Test 2 passed"$NC
+        echo -e $GREEN"Test 2 passed"$NC
     else
-        echo $RED"Test 2 failed"$NC
+        echo -e $RED"Test 2 failed"$NC
         numFailures=$((numFailures+1))
     fi
 
     echo ""
-    echo $YELLOW"Running test 3/$numTests"$NC
+    echo -e $YELLOW"Running test 3/$numTests"$NC
     echo ""
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test3_xml.txt encode 2
     if [ $? -eq 0 ]; then
-        echo $GREEN"Test 3 passed"$NC
+        echo -e $GREEN"Test 3 passed"$NC
     else
-        echo $RED"Test 3 failed"$NC
+        echo -e $RED"Test 3 failed"$NC
         numFailures=$((numFailures+1))
     fi
 
     echo ""
-    echo $YELLOW"Running test 4/$numTests"$NC
+    echo -e $YELLOW"Running test 4/$numTests"$NC
     echo ""
     # TODO: fix test 4 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test4_xml.txt encode 3
     if [ $? -eq 0 ]; then
-        echo $GREEN"Test 4 passed"$NC
+        echo -e $GREEN"Test 4 passed"$NC
     else
-        echo $RED"Test 4 failed"$NC
+        echo -e $RED"Test 4 failed"$NC
         numFailures=$((numFailures+1))
     fi
 
     echo ""
-    echo $YELLOW"Running test 5/$numTests"$NC
+    echo -e $YELLOW"Running test 5/$numTests"$NC
     echo ""
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test5_xml.txt encode 4
     if [ $? -eq 0 ]; then
-        echo $GREEN"Test 5 passed"$NC
+        echo -e $GREEN"Test 5 passed"$NC
     else
-        echo $RED"Test 5 failed"$NC
+        echo -e $RED"Test 5 failed"$NC
         numFailures=$((numFailures+1))
     fi
 
     echo ""
-    echo $YELLOW"Running test 6/$numTests"$NC
+    echo -e $YELLOW"Running test 6/$numTests"$NC
     echo ""
     # TODO: fix test 6 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test6_xml.txt encode 5
     if [ $? -eq 0 ]; then
-        echo $GREEN"Test 6 passed"$NC
+        echo -e $GREEN"Test 6 passed"$NC
     else
-        echo $RED"Test 6 failed"$NC
+        echo -e $RED"Test 6 failed"$NC
         numFailures=$((numFailures+1))
     fi
 
     echo ""
-    echo $YELLOW"Running test 7/$numTests"$NC
+    echo -e $YELLOW"Running test 7/$numTests"$NC
     echo ""
     # TODO: fix test 7 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test7_xml.txt encode 6
     if [ $? -eq 0 ]; then
-        echo $GREEN"Test 7 passed"$NC
+        echo -e $GREEN"Test 7 passed"$NC
     else
-        echo $RED"Test 7 failed"$NC
+        echo -e $RED"Test 7 failed"$NC
         numFailures=$((numFailures+1))
     fi
 
     echo ""
     echo $CYAN"== Tests Completed =="$NC
     if [ $numFailures -eq 0 ]; then
-        echo $GREEN"All tests passed"$NC
+        echo -e $GREEN"All tests passed"$NC
     else
-        echo $RED"$numFailures/$numTests tests failed"$NC
+        echo -e $RED"$numFailures/$numTests tests failed"$NC
     fi
     echo ""
 }
@@ -187,23 +187,23 @@ cleanup() {
 run() {
     numberOfSteps=5
     echo ""
-    echo $CYAN"Step 1/$numberOfSteps: Set up test environment"$NC
+    echo -e $CYAN"Step 1/$numberOfSteps: Set up test environment"$NC
     setup
 
     echo ""
-    echo $CYAN"Step 2/$numberOfSteps: Wait for Kafka to create topics"$NC
+    echo -e $CYAN"Step 2/$numberOfSteps: Wait for Kafka to create topics"$NC
     waitForKafkaToCreateTopics
 
     echo ""
-    echo $CYAN"Step 3/$numberOfSteps: Build ACM image"$NC
+    echo -e $CYAN"Step 3/$numberOfSteps: Build ACM image"$NC
     buildACMImage
 
     echo ""
-    echo $CYAN"Step 4/$numberOfSteps: Run tests"$NC
+    echo -e $CYAN"Step 4/$numberOfSteps: Run tests"$NC
     run_tests
 
     echo ""
-    echo $CYAN"Step 5/$numberOfSteps: Clean up test environment"$NC
+    echo -e $CYAN"Step 5/$numberOfSteps: Clean up test environment"$NC
     cleanup
 
 
