@@ -88,7 +88,7 @@ run_tests() {
     numFailures=0
 
     echo ""
-    echo -e $YELLOW"Running test 1/$numTests"$NC
+    echo -e $YELLOW"Running test 1/$numTests - Encode MessageFrame containing raw BSM"$NC
     echo ""
     # TODO: fix test 1 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test1_xml.txt encode 0
@@ -100,7 +100,7 @@ run_tests() {
     fi
 
     echo ""
-    echo -e $YELLOW"Running test 2/$numTests"$NC
+    echo -e $YELLOW"Running test 2/$numTests - Encode AdvisorySituationData containing HEX-encoded BSM"$NC
     echo ""
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test2_xml.txt encode 1
     if [ $? -eq 0 ]; then
@@ -111,7 +111,7 @@ run_tests() {
     fi
 
     echo ""
-    echo -e $YELLOW"Running test 3/$numTests"$NC
+    echo -e $YELLOW"Running test 3/$numTests - Encode Ieee1609Dot2Data containing HEX-encoded BSM"$NC
     echo ""
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test3_xml.txt encode 2
     if [ $? -eq 0 ]; then
@@ -122,7 +122,7 @@ run_tests() {
     fi
 
     echo ""
-    echo -e $YELLOW"Running test 4/$numTests"$NC
+    echo -e $YELLOW"Running test 4/$numTests - Encode Ieee1609Dot2Data containing MessageFrame containing raw BSM"$NC
     echo ""
     # TODO: fix test 4 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test4_xml.txt encode 3
@@ -134,7 +134,7 @@ run_tests() {
     fi
 
     echo ""
-    echo -e $YELLOW"Running test 5/$numTests"$NC
+    echo -e $YELLOW"Running test 5/$numTests - Encode AdvisorySituationData containing Ieee1609Dot2Data containing HEX-encoded BSM"$NC
     echo ""
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test5_xml.txt encode 4
     if [ $? -eq 0 ]; then
@@ -145,7 +145,7 @@ run_tests() {
     fi
 
     echo ""
-    echo -e $YELLOW"Running test 6/$numTests"$NC
+    echo -e $YELLOW"Running test 6/$numTests - Encode AdvisorySituationData containing MessageFrame containing raw BSM"$NC
     echo ""
     # TODO: fix test 6 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test6_xml.txt encode 5
@@ -157,7 +157,7 @@ run_tests() {
     fi
 
     echo ""
-    echo -e $YELLOW"Running test 7/$numTests"$NC
+    echo -e $YELLOW"Running test 7/$numTests - Encode AdvisorySituationData containing Ieee1609Dot2Data containing MessageFrame containing raw BSM"$NC
     echo ""
     # TODO: fix test 7 failing due to timeouts
     ./test-scripts/standalone.sh config/test/c1.properties data/producer_test7_xml.txt encode 6
