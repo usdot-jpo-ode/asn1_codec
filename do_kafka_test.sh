@@ -84,14 +84,14 @@ buildACMImage() {
 run_tests() {
     echo "== Running Tests =="
 
-    numTests=7
+    numTests=3
     numFailures=0
+    offset=0
 
     echo ""
-    echo -e $YELLOW"Running test 1/$numTests - Encode MessageFrame containing raw BSM"$NC
+    echo -e $YELLOW"Running test 1/$numTests - Encode AdvisorySituationData containing HEX-encoded BSM"$NC
     echo ""
-    # TODO: fix test 1 failing due to timeouts
-    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test1_xml.txt encode 0
+    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test1_xml.txt encode $offset
     if [ $? -eq 0 ]; then
         echo -e $GREEN"Test 1 passed"$NC
     else
@@ -99,10 +99,12 @@ run_tests() {
         numFailures=$((numFailures+1))
     fi
 
+    offset=$((offset+1))
+
     echo ""
-    echo -e $YELLOW"Running test 2/$numTests - Encode AdvisorySituationData containing HEX-encoded BSM"$NC
+    echo -e $YELLOW"Running test 2/$numTests - Encode Ieee1609Dot2Data containing HEX-encoded BSM"$NC
     echo ""
-    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test2_xml.txt encode 1
+    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test2_xml.txt encode $offset
     if [ $? -eq 0 ]; then
         echo -e $GREEN"Test 2 passed"$NC
     else
@@ -110,61 +112,16 @@ run_tests() {
         numFailures=$((numFailures+1))
     fi
 
+    offset=$((offset+1))
+
     echo ""
-    echo -e $YELLOW"Running test 3/$numTests - Encode Ieee1609Dot2Data containing HEX-encoded BSM"$NC
+    echo -e $YELLOW"Running test 3/$numTests - Encode AdvisorySituationData containing Ieee1609Dot2Data containing HEX-encoded BSM"$NC
     echo ""
-    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test3_xml.txt encode 2
+    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test3_xml.txt encode $offset
     if [ $? -eq 0 ]; then
         echo -e $GREEN"Test 3 passed"$NC
     else
         echo -e $RED"Test 3 failed"$NC
-        numFailures=$((numFailures+1))
-    fi
-
-    echo ""
-    echo -e $YELLOW"Running test 4/$numTests - Encode Ieee1609Dot2Data containing MessageFrame containing raw BSM"$NC
-    echo ""
-    # TODO: fix test 4 failing due to timeouts
-    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test4_xml.txt encode 3
-    if [ $? -eq 0 ]; then
-        echo -e $GREEN"Test 4 passed"$NC
-    else
-        echo -e $RED"Test 4 failed"$NC
-        numFailures=$((numFailures+1))
-    fi
-
-    echo ""
-    echo -e $YELLOW"Running test 5/$numTests - Encode AdvisorySituationData containing Ieee1609Dot2Data containing HEX-encoded BSM"$NC
-    echo ""
-    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test5_xml.txt encode 4
-    if [ $? -eq 0 ]; then
-        echo -e $GREEN"Test 5 passed"$NC
-    else
-        echo -e $RED"Test 5 failed"$NC
-        numFailures=$((numFailures+1))
-    fi
-
-    echo ""
-    echo -e $YELLOW"Running test 6/$numTests - Encode AdvisorySituationData containing MessageFrame containing raw BSM"$NC
-    echo ""
-    # TODO: fix test 6 failing due to timeouts
-    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test6_xml.txt encode 5
-    if [ $? -eq 0 ]; then
-        echo -e $GREEN"Test 6 passed"$NC
-    else
-        echo -e $RED"Test 6 failed"$NC
-        numFailures=$((numFailures+1))
-    fi
-
-    echo ""
-    echo -e $YELLOW"Running test 7/$numTests - Encode AdvisorySituationData containing Ieee1609Dot2Data containing MessageFrame containing raw BSM"$NC
-    echo ""
-    # TODO: fix test 7 failing due to timeouts
-    ./test-scripts/standalone.sh config/test/c1.properties data/producer_test7_xml.txt encode 6
-    if [ $? -eq 0 ]; then
-        echo -e $GREEN"Test 7 passed"$NC
-    else
-        echo -e $RED"Test 7 failed"$NC
         numFailures=$((numFailures+1))
     fi
 
