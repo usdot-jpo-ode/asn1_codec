@@ -82,10 +82,20 @@ mkdir -p /tmp/docker-test/asn1-codec/data
 
 # Copy the config to the test data.
 cp $1 /tmp/docker-test/asn1-codec/data/config.properties
-# change metadata.broker.list to value of DOCKER_HOST_IP
-sed -i "s/metadata.broker.list=.*/metadata.broker.list=$DOCKER_HOST_IP:9092/" /tmp/docker-test/asn1-codec/data/config.properties
-# change acm.type to encode or decode depending on the type
-sed -i "s/acm.type=.*/acm.type=$TYPE/" /tmp/docker-test/asn1-codec/data/config.properties
+
+# identify operating system
+OS=$(uname)
+if [ $OS = "Darwin" ]; then
+    # change metadata.broker.list to value of DOCKER_HOST_IP
+    sed -i '' "s/metadata.broker.list=.*/metadata.broker.list=$DOCKER_HOST_IP:9092/" /tmp/docker-test/asn1-codec/data/config.properties
+    # change acm.type to encode or decode depending on the type
+    sed -i '' "s/acm.type=.*/acm.type=$TYPE/" /tmp/docker-test/asn1-codec/data/config.properties
+else
+    # change metadata.broker.list to value of DOCKER_HOST_IP
+    sed -i "s/metadata.broker.list=.*/metadata.broker.list=$DOCKER_HOST_IP:9092/" /tmp/docker-test/asn1-codec/data/config.properties
+    # change acm.type to encode or decode depending on the type
+    sed -i "s/acm.type=.*/acm.type=$TYPE/" /tmp/docker-test/asn1-codec/data/config.properties
+fi
 
 # Copy the data.
 cp $2 /tmp/docker-test/asn1-codec/data/test.data
