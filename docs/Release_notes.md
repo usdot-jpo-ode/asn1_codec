@@ -1,6 +1,16 @@
 asn1_codec Release Notes
 ----------------------------
 
+Version 2.2.0, released September 2024
+----------------------------------------
+### **Summary**
+The changes for the asn1_codec 2.2.0 release include the addition of encoder topics to KAFKA_CREATE_TOPICS and updates to the `do_kafka_test.sh` script.
+
+Enhancements in this release:
+- CDOT PR 29: Added encoder topics to KAFKA_CREATE_TOPICS
+- CDOT PR 30: Updated `do_kafka_test.sh` script
+
+
 Version 2.1.0, released June 2024
 ----------------------------------------
 ### **Summary**
