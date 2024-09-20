@@ -1,7 +1,8 @@
 # Testing the ACM
 
-There are currently two ways to test the capabilities of the ACM.
+There are currently three ways to test the capabilities of the ACM.
 - [Unit Testing](#unit-testing)
+- [Kafka Test Script](#kafka-test-script)
 - [Standalone Operation / Testing](#standalone-testing)
 
 ## Unit Testing
@@ -33,6 +34,26 @@ $ docker exec -it acm /bin/bash
 $ cd /build
 $ ./acm_tests
 ```
+
+## Kafka Test Script
+The [do_kafka_test.sh](../do_kafka_test.sh) script is designed to perform integration tests on a Kafka instance. To execute the tests, this script relies on the following scripts: standalone.sh, do_test.sh, test_in.py, and test_out.py
+
+To ensure proper execution, it is recommended to run this script outside of the dev container where docker is available. This is because the script will spin up a standalone kafka instance and will not be able to access the docker daemon from within the dev container.
+
+It should be noted that this script and any dependent scripts need to use the LF end-of-line sequence. These include the following:
+- do_kafka_test.sh
+- standalone.sh
+- do_test.sh
+- test_in.py
+- test_out.py
+
+The DOCKER_HOST_IP environment variable must be set to the IP address of the host machine. This is required for the script to function properly. This can be set by using the following command:
+
+```
+export DOCKER_HOST_IP=$(ifconfig | zgrep -m 1 -oP '(?<=inet\s)\d+(\.\d+){3}')
+```
+
+If not set, the script will attempt to resolve the IP address and will exit if it is unable to do so.
 
 ## Standalone Operation / Testing
 

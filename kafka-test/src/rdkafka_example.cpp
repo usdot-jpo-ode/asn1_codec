@@ -113,6 +113,8 @@ static void metadata_print (const std::string &topic,
 
 static bool run = true;
 static bool exit_eof = false;
+static int numTimeouts = 0;
+static int maxTimeouts = 10;
 
 static void sigterm (int sig) {
   run = false;
@@ -182,6 +184,8 @@ class MyHashPartitionerCb : public RdKafka::PartitionerCb {
 void msg_consume(RdKafka::Message* message, void* opaque) {
   switch (message->err()) {
     case RdKafka::ERR__TIMED_OUT:
+      std::cerr << "RdKafka::ERR__TIMED_OUT" << std::endl;
+      numTimeouts++;
       break;
 
     case RdKafka::ERR_NO_ERROR:
@@ -212,6 +216,11 @@ void msg_consume(RdKafka::Message* message, void* opaque) {
       /* Errors */
       std::cerr << "Consume failed: " << message->errstr() << std::endl;
       run = false;
+  }
+
+  if (numTimeouts == maxTimeouts) {
+    std::cerr << "Maximum number of timeouts reached" << std::endl;
+    run = false;
   }
 }
 
