@@ -7,9 +7,9 @@
 export LD_LIBRARY_PATH=/usr/local/lib
 export CC=gcc
 
-# if J2735_YEAR is not set, default to 2020
+# if J2735_YEAR is not set, default to 2024
 if [ -z "$J2735_YEAR" ]; then
-    year="2020"
+    year="2024"
 else
     year=$J2735_YEAR
 fi
@@ -24,6 +24,11 @@ if [ ! -d "./generated-files/$year" ]; then
     mkdir ./generated-files/$year
 fi
 
+# If 2024, apply .ASN file edits
+if [ "$year" == "2024" ]; then
+    
+fi
+
 asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
     ./scms-asn-files/*.asn \
     ./j2735-asn-files/$year/*.asn \
@@ -31,11 +36,13 @@ asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
     -D ./generated-files/$year \
     2>&1 | tee compile.out
     
-# if 2020, copy overrides
-if [ "$year" == "2020" ]; then
+
+# if 2020 or 2024, copy overrides
+if [ "$year" == "2020" ] || [ "$year" = "2024" ]; then
     echo "Copying overrides for $year"
     cp ./j2735-asn-files/$year/overrides/*.h ./generated-files/$year
 fi
+
 
 # tar generated files and delete originals
 echo "Tarring generated files for $year"
