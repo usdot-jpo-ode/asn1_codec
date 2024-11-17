@@ -32,6 +32,7 @@ A table of the ASN files for each year is provided below.
 | ---- | ----------- |
 | 2016 | https://www.sae.org/standards/content/j2735set_201603/ |
 | 2020 | https://www.sae.org/standards/content/j2735set_202007/ |
+| 2024 | https://www.sae.org/standards/content/j2735set_202409/ |
 
 ## Environment Variables
 The `doIt.sh` and `generate-files.sh` scripts uses the following environment variables:

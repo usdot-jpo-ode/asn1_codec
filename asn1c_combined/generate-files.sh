@@ -26,7 +26,7 @@ fi
 
 # If 2024, apply .ASN file edits
 if [ "$year" == "2024" ]; then
-    
+    echo "TODO apply diffs"
 fi
 
 asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
@@ -35,8 +35,9 @@ asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
     ./semi-asn-files/$year/SEMI*.asn \
     -D ./generated-files/$year \
     2>&1 | tee compile.out
-    
 
+   
+   
 # if 2020 or 2024, copy overrides
 if [ "$year" == "2020" ] || [ "$year" = "2024" ]; then
     echo "Copying overrides for $year"
