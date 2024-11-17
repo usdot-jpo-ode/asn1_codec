@@ -23,6 +23,6 @@ echo "Compiling example"
 sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' ./converter-example.mk
 make -f ./converter-example.mk
 
-# # Clean up
-# echo "Cleaning up"
-# rm -rf ./generated-files/$year
+# Clean up
+echo "Cleaning up"
+rm -rf ./generated-files/$year
