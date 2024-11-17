@@ -1,2 +1,3 @@
-*.asn
-*.ASN
+**/*.asn
+**/*.ASN
+**/*.asn.orig
