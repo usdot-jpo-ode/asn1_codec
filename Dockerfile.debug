@@ -1,5 +1,5 @@
 # === BUILDER IMAGE ===
-FROM alpine:3.12 as builder
+FROM alpine:3.18 as builder
 USER root
 WORKDIR /asn1_codec
 VOLUME ["/asn1_codec_share"]
@@ -24,7 +24,7 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
 ADD ./pugixml /asn1_codec/pugixml
 RUN cd /asn1_codec/pugixml && mkdir -p build && cd build && cmake .. && make && make install
 
-# These files are pre-generated manually so it isn't necessary to build asn1c in the container
+# The codec C files are pre-generated manually so it isn't necessary to build asn1c in the container
 # # Build and install asn1c submodule
 # ADD ./usdot-asn1c /asn1_codec/asn1c
 # RUN cd asn1c && test -f configure || autoreconf -iv && ./configure && make && make install
@@ -67,7 +67,7 @@ RUN mkdir -p /build && cd /build && cmake /asn1_codec && make
 
 
 # === RUNTIME IMAGE ===
-FROM alpine:3.12
+FROM alpine:3.18
 USER root
 WORKDIR /asn1_codec
 VOLUME ["/asn1_codec_share"]

@@ -1,5 +1,5 @@
 # === BUILDER IMAGE ===
-FROM alpine:3.12 as builder
+FROM alpine:3.18 as builder
 USER root
 WORKDIR /asn1_codec
 VOLUME ["/asn1_codec_share"]
@@ -60,7 +60,7 @@ RUN echo "export CC=gcc" >> ~/.bashrc
 RUN mkdir -p /build && cd /build && cmake /asn1_codec && make
 
 # === RUNTIME IMAGE ===
-FROM alpine:3.12
+FROM alpine:3.18
 USER root
 WORKDIR /asn1_codec
 VOLUME ["/asn1_codec_share"]
