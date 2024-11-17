@@ -11,19 +11,14 @@
 #include <asn_internal.h>
 #include <GeneralizedTime.h>
 
-/* HACK */
-// #ifdef	__CYGWIN__
-// #include "/usr/include/time.h"
-// #else
-// #include <time.h>
-// #endif	/* __CYGWIN__ */
-/* END HACK */
+#ifdef	__CYGWIN__
+#include "/usr/include/time.h"
+#else
+#include <time.h>
+#endif	/* __CYGWIN__ */
 
 #include <errno.h>
 
-/* HACK for Ubuntu and Alpine Linux */
-#include "/usr/include/time.h"
-/* END HACK */
 
 #if	defined(_WIN32)
 #pragma message( "PLEASE STOP AND READ!")
