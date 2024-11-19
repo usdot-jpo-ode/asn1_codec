@@ -35,7 +35,7 @@ $ cd /build
 $ ./acm_tests
 ```
 
-#### Alternative Testing Method using Docker Compose
+#### Alternative Testing Method Using Docker Compose
 
 As an alternative way to run the tests on Windows, a standalone container with the ACM application can be started up with the command:
 

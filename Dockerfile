@@ -10,13 +10,15 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
     g++ \
     make \
     bash \
-    automake \
-    libtool \
-    autoconf \
     librdkafka \
-    librdkafka-dev \
-    flex \
-    bison
+    librdkafka-dev 
+
+# Dependencies that are not needed if asn1c is not installed in the build container:
+# libtool
+# automake
+# autoconf
+# bison
+# flex
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml

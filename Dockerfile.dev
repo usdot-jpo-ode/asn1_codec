@@ -14,9 +14,7 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
     libtool \
     autoconf \
     librdkafka \
-    librdkafka-dev \
-    flex \
-    bison
+    librdkafka-dev 
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml

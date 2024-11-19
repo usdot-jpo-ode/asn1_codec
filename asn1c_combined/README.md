@@ -8,14 +8,14 @@ The necessary files can be generated using the `generate-files.sh` script. This 
 
 ### Installing asn1c
 
-#### Install Prerequesites
+#### Prerequisites 
 For a WSL Ubuntu environment, install the `asn1c` prerequisites as follows:
 
 ```bash
 sudo apt install build-essential automake autoconf libtool-bin bison flex
 ```
 
-#### Run the asn1c Installation Script
+#### Install
 The `generate-files.sh` script requires the `asn1c` compiler to be installed. The `asn1c` compiler can be installed in WSL using the following commands:
 
 ```bash
