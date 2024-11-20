@@ -30,7 +30,9 @@ sudo make install
 ### J2735 ASN Files
 The 'j2735-asn-files' subdirectory should contain the ASN.1 files for the J2735 standard. These are organized by year.
 
-The `generate-files.sh` script will reference the necessary files from the `j2735-asn-files` directory when generating the C code.
+Place the ASN files in the appropriate subdirectory for the year.  For example, for 2024, place the ASN files in the `j2735-asn-files/2024` subdirectory.
+
+The `generate-files.sh` script will reference the necessary files from the `j2735-asn-files/$year` directory when generating the C code.
 
 #### Obtaining the J2735 ASN Files
 Redistribution of the ASN files is not permitted, so they are not included in this repository. You must obtain them from SAE and place them in the `j2735-asn-files` directory under the appropriate year subdirectory.
