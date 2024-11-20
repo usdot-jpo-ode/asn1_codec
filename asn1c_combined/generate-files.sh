@@ -36,7 +36,24 @@ if [ "$year" == "2024" ]; then
     patch --binary --backup --forward --reject-file="-" \
         ./j2735-asn-files/2024/J3217-TollUsageMsg-2024-rel-v1.1.asn \
         ./j2735-asn-files/2024/asn-edits/TollUsageMessage.patch
+
+    # Verify that the patches were applied correctly
+    if ! grep -q RwmSnapShot ./j2735-asn-files/2024/J2945-3-RoadWeatherMessage-2024-rel-v2.1.asn; then
+        echo "The patch for the Road Weather Message ASN file was not applied correctly."
+        exit 1
+    fi
+    
+    if ! grep -q TumVehicleId ./j2735-asn-files/2024/J3217-R-RoadUserChargingReportMsg-2024-rel-v1.1.asn; then
+        echo "The patch for the Road User Charging Report Message ASN file was not applied correctly."
+        exit 1
+    fi
+
+    if ! grep -q TumVehicleId ./j2735-asn-files/2024/J3217-TollUsageMsg-2024-rel-v1.1.asn; then
+        echo "The patch for the Toll Usage Message ASN file was not applied correctly."
+        exit 1
+    fi
 fi
+
 
 asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
     ./scms-asn-files/*.asn \
