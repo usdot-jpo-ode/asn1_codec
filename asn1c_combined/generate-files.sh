@@ -27,13 +27,13 @@ fi
 # If 2024, apply .ASN file edits
 if [ "$year" == "2024" ]; then
     echo "Applying J2735 ASN Edits"
-    patch --backup --forward --reject-file="-" \
+    patch --binary --backup --forward --reject-file="-" \
         ./j2735-asn-files/2024/J2945-3-RoadWeatherMessage-2024-rel-v2.1.asn \
         ./j2735-asn-files/2024/asn-edits/RoadWeatherMessage.patch
-    patch --backup --forward --reject-file="-" \
+    patch --binary --backup --forward --reject-file="-" \
         ./j2735-asn-files/2024/J3217-R-RoadUserChargingReportMsg-2024-rel-v1.1.asn \
         ./j2735-asn-files/2024/asn-edits/RoadUserChargingReportMessage.patch
-    patch --backup --forward --reject-file="-" \
+    patch --binary --backup --forward --reject-file="-" \
         ./j2735-asn-files/2024/J3217-TollUsageMsg-2024-rel-v1.1.asn \
         ./j2735-asn-files/2024/asn-edits/TollUsageMessage.patch
 fi
