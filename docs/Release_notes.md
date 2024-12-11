@@ -1,6 +1,23 @@
 asn1_codec Release Notes
 ----------------------------
 
+Version 3.0.0, Future Release
+----------------------------------------
+### **Summary**
+Changes include updating the J2735 specification to the 2024 version.
+* CDOT PR 35: Update j2735 version to 2024.  
+
+### Breaking Changes
+In the 2024 TIM message specification the following fields in the `TravelerDataFrame` sequence have again been renamed.  This is a breaking change to the the XML encoding, and will require a corresponding update to the ODE POJOs, although the UPER encoding is independent of these names, so will be backwards compatible.
+
+notUsed -> doNotUse1
+notUsed1 -> doNotUse2
+notUsed2 -> doNotUse3
+notUsed3 -> doNotUse4
+
+As a result of this breaking change, the major version number will be updated to 3.
+
+
 Version 2.2.0, released September 2024
 ----------------------------------------
 ### **Summary**

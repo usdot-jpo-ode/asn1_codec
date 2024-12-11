@@ -35,6 +35,23 @@ $ cd /build
 $ ./acm_tests
 ```
 
+#### Alternative Testing Method Using Docker Compose
+
+As an alternative way to run the tests on Windows, a standalone container with the ACM application can be started up with the command:
+
+```bash
+docker compose -f docker-compose-debug.yml up --build -d
+```
+
+This starts up a container with the ACM application installed, but does not run the application, nor does it attempt to connect to Kafka.
+
+On Windows, one can then select the container in Docker Desktop, select the Exec tab, and run the tests via:
+
+```bash
+cd /build
+./acm_tests
+```
+
 ## Kafka Test Script
 The [do_kafka_test.sh](../do_kafka_test.sh) script is designed to perform integration tests on a Kafka instance. To execute the tests, this script relies on the following scripts: standalone.sh, do_test.sh, test_in.py, and test_out.py
 
