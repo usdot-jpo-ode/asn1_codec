@@ -47,7 +47,7 @@ A table of the ASN files for each year is provided below.
 
 #### Patches to the J2735 ASN files
 
-In the 2024 set of ASN files there are a couple changes that need to be made for them to compile with the current version of asn1c.  These changes are shown in the form of `.patch` files in the `j2735-asn-files/2024/asn-edits` directory.  The `.patch` files contain only the spcific lines in the specific files that need to be changed, due to the aforementioned prohibition on redistributing the ASN files.  The patches were created whith the `diff` command line utility, and are applied automatically by the `generate-files.sh` script before it runs asn1c to compile the ASN files.  The `patch` command line in that script includes the `--forward` option, which prevents the patch from being reversed if the script is run more than onece.
+In the 2024 set of ASN files there are a couple changes that need to be made for them to compile with the current version of asn1c.  These changes are shown in the form of `.patch` files in the `j2735-asn-files/2024/asn-edits` directory.  The `.patch` files contain only the spcific lines in the specific files that need to be changed, due to the aforementioned prohibition on redistributing the ASN files.  The patches were created with the `diff` command line utility, and are applied automatically by the `generate-files.sh` script before it runs asn1c to compile the ASN files.  The `patch` command line in that script includes the `--forward` option, which prevents the patch from being reversed if the script is run more than once.
 
 ## Environment Variables
 The `doIt.sh` and `generate-files.sh` scripts uses the following environment variables:
