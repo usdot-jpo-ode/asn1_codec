@@ -5,9 +5,9 @@ Version 3.0.0, released January 2025
 ----------------------------------------
 ### **Summary**
 The main changes include switching the default configurations to use zstd (ZStandard) compression, updating the J2735 specification to the 2024 version, and updating GitHub Actions workflows with the latest versions of third-party actions from external repositories to remove Node.js and other deprecation warnings.
-- CDOT PR 34: Compression
-- CDOT PR 35: Update j2735 version to 2024.
-- USDOT PR 62: Update GitHub Actions Third-Party Action Versions
+- [CDOT PR 34](https://github.com/CDOT-CV/asn1_codec/pull/34): Compression
+- [CDOT PR 35](https://github.com/CDOT-CV/asn1_codec/pull/35): Update j2735 version to 2024.
+- [USDOT PR 62](https://github.com/usdot-jpo-ode/asn1_codec/pull/62): Update GitHub Actions Third-Party Action Versions
 
 ### Breaking Changes
 In the 2024 TIM message specification, the following fields in the `TravelerDataFrame` sequence have been renamed. This is a breaking change to the XML encoding, requiring an update to the ODE POJOs. However, the UPER encoding remains independent of these names and remains backward compatible.
