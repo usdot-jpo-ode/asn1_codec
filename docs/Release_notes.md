@@ -1,21 +1,23 @@
 asn1_codec Release Notes
 ----------------------------
 
-Version 3.0.0, Future Release
+Version 3.0.0, released January 2025
 ----------------------------------------
 ### **Summary**
-Changes include updating the J2735 specification to the 2024 version.
-* CDOT PR 35: Update j2735 version to 2024.  
+The main changes include switching the default configurations to use zstd (ZStandard) compression, updating the J2735 specification to the 2024 version, and updating GitHub Actions workflows with the latest versions of third-party actions from external repositories to remove Node.js and other deprecation warnings.
+- CDOT PR 34: Compression
+- CDOT PR 35: Update j2735 version to 2024.
+- USDOT PR 62: Update GitHub Actions Third-Party Action Versions
 
 ### Breaking Changes
-In the 2024 TIM message specification the following fields in the `TravelerDataFrame` sequence have again been renamed.  This is a breaking change to the the XML encoding, and will require a corresponding update to the ODE POJOs, although the UPER encoding is independent of these names, so will be backwards compatible.
+In the 2024 TIM message specification, the following fields in the `TravelerDataFrame` sequence have been renamed. This is a breaking change to the XML encoding, requiring an update to the ODE POJOs. However, the UPER encoding remains independent of these names and remains backward compatible.
 
 notUsed -> doNotUse1
 notUsed1 -> doNotUse2
 notUsed2 -> doNotUse3
 notUsed3 -> doNotUse4
 
-As a result of this breaking change, the major version number will be updated to 3.
+As a result of these breaking changes, the major version number has been updated to 3.
 
 
 Version 2.2.0, released September 2024
