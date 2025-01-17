@@ -1,0 +1,1992 @@
+--
+-- Terms and Conditions and User License Agreement - Download and Use of ASN File
+-- 
+-- Copyright: Each ASN File contained herein ("File") is copyrighted and all
+-- rights, title, and interest in and to each File are owned by SAE. The 
+-- license contained herein applies to each File and each reference in this license
+-- to "the File" or "this File" shall be construed to include each and any ASN File
+-- contained herein. No rights therein are granted except as set forth in this
+-- License. Any copying, transmission, modification or reproduction of the File or
+-- the copyrighted material within it, in part or in whole, except as herein
+-- permitted is cause for revocation of this License.
+-- 
+-- License: SAE International ("SAE") hereby grants to you, as an individual or as
+-- a single corporate entity, a limited nonexclusive, nontransferable right to
+-- download this File in an electronic format for your individual use or use by
+-- a single corporate entity on one computer. One hard copy of the File can also
+-- be printed for individual use or use by a single corporate entity. SAE also
+-- hereby grants to you the nonexclusive, nontransferable right to use this File
+-- and create derivative works using this File for your own or your own corporate
+-- entity's research purposes and in the design, creation, manufacture, distribution,
+-- and use of your own products. For purposes of clarification, derivative works
+-- permitted under this license include derivative works or source code that do not
+-- include or incorporate this File. The derivative work may use the File to create
+-- source code and corresponding software programs.  Notwithstanding the foregoing,
+-- you agree that you must obtain a license from SAE to create any derivative works
+-- which incorporate this File or its contents.
+--
+-- SAE also hereby grants to you the nonexclusive, nontransferable right to copy,
+-- reproduce, distribute to others the derivative works from the use of the content
+-- of this File or portions thereof in or as part of your company's products.
+-- You must only license, and not otherwise sell or transfer, the products, software,
+-- and software documentation that incorporates content from this File, and you must
+-- prohibit any licensees or others from transferring, copying, or extracting the
+-- contents of this File thereof for use in their own or others' software or products.
+--
+-- Other than as expressly permitted herein, this File may not be copied in whole in
+-- any form for distribution to other users or other computers, including without
+-- limitation to other individuals or users within your own corporate entity or
+-- outside your corporate entity.  This license prohibits the end user from posting
+-- or distributing content via any public forum or as open access content.  If other
+-- individuals in or outside your corporate entity or different cooperate entities,
+-- whether related or not to your corporate entity, wish to download or copy this
+-- File, they must purchase a separate individual license to do so. 
+-- 
+-- This File is licensed "AS IS" to you and you do hereby hold SAE harmless from your
+-- use of the File or the creative or use of derivative works thereof, and you agree
+-- to indemnify SAE from any and all claims or damages caused by your use,
+-- reproduction, distribution to others, or application of this File or any
+-- derivative works therefrom.  SAE may amend the terms of and conditions of
+-- this License or cancel this License at any time in its sole discretion and
+-- for any reason by reasonable notice, including without limitation by posting
+-- revised terms on its website.  
+--
+-- General: Files that have been successfully downloaded cannot be returned for
+-- refund or credit. This Agreement is the complete and exclusive statement of the
+-- agreement between you and SAE and supersedes any and all prior agreements or
+-- understandings, either written or oral, concerning the subject of this Agreement.
+-- Any modifications must be in writing and signed by the parties.
+-- 
+-- Notice to Resellers: Authorized resellers of SAE Files may download this File on
+-- behalf of their customers and forward it directly, unopened, to their customers
+-- provided their customers agree to abide by the terms of this License. Resellers
+-- may not otherwise copy, transmit, modify or reproduce this File.
+-- 
+-- This license will remain in effect for the life of the standards associated with
+-- the File unless otherwise amended or cancelled by SAE in its sole discretion.
+-- In the event that the associated standard is cancelled or recalled due to interest
+-- of public safety, the aforementioned License will be rescinded as well. This 
+-- License shall terminate upon violation of any of its terms.
+--
+-- (C)2024 SAE International.  All rights reserved.  SAE International retains the
+-- right to entertain or negotiate requests for customized distribution agreements
+-- for multi-user or corporate use and / or distribution. Requests should be submitted
+-- to customerservice@sae.org.
+--
+
+--
+-- Use of this module defined in SAE J2735 
+-- Latest document release for this module is Nov 2022
+-- Filename: J2735-Common-2024-rel-v1.1.1.asn 
+--
+
+Common
+{joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+j2735 (2735) part-0 (0) asn1-module (1) common (38) version-1 (1)  version-minor-1 (1)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS 
+    DSRCmsgID
+        FROM MessageFrame {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+        v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+        j2735 (2735) part-0 (0) asn1-module (1) messageFrame (1) 
+        version-1 (1) version-minor-1 (1)} WITH SUCCESSORS
+    Reg-ComputedLane, 
+    Reg-LaneDataAttribute, 
+    Reg-NodeAttributeSetXY, 
+    Reg-NodeOffsetPointXY, 
+    Reg-Position3D, 
+    Reg-RequestorType, 
+    Reg-VehicleClassification, 
+    Reg-VerticalOffset
+        FROM REGION {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+        v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+        j2735 (2735) part-0 (0) asn1-module (1) region (2) 
+        version-1 (1) version-minor-1 (1)} WITH SUCCESSORS
+    VehicleGroupAffected, 
+    IncidentResponseEquipment, 
+    ResponderGroupAffected
+        FROM ITIS {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+        v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+        j2735 (2735) part-0 (0) asn1-module (1) itis (6) 
+        version-1 (1) version-minor-1 (1)} WITH SUCCESSORS
+    VertOffset-B07,
+    PivotPointDescription, 
+    PARTII-EXT-ID-AND-TYPE
+        FROM BasicSafetyMessage {joint-iso-itu-t (2) country (16) us (840) organization (1) sae (114566)
+        v2x-communications (1) technical-committees (1) v2x-core (5) technical-reports (1)
+        j2735 (2735) part-0 (0) asn1-module (1) basicSafetyMessage (7) 
+        version-1 (1) version-minor-1 (1)} WITH SUCCESSORS;
+
+
+
+-- Regional extensions support
+REG-EXT-ID-AND-TYPE ::= CLASS {
+   &id     RegionId UNIQUE,
+   &Type
+   } WITH SYNTAX {&Type IDENTIFIED BY &id}
+
+RegionalExtension {REG-EXT-ID-AND-TYPE : Set} ::= SEQUENCE {
+   regionId     REG-EXT-ID-AND-TYPE.&id( {Set} ),
+   regExtValue  REG-EXT-ID-AND-TYPE.&Type( {Set}{@regionId} )
+   }
+
+   
+   
+
+
+
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+-- 
+-- Start of entries from table Data_Frames...
+-- This table typically contains data frame entries.
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+-- 
+ 
+
+AccelerationSet4Way ::= SEQUENCE {
+   long Acceleration,          -- Along the Vehicle Longitudinal axis
+   lat  Acceleration,          -- Along the Vehicle Lateral axis
+   vert VerticalAcceleration,  -- Along the Vehicle Vertical axis
+   yaw  YawRate
+}
+
+
+AntennaOffsetSet ::= SEQUENCE { 
+   antOffsetX  Offset-B12, -- a range of +- 20.47 meters
+   antOffsetY  Offset-B09, -- a range of +- 2.55 meters
+   antOffsetZ  Offset-B10  -- a range of +- 5.11 meters
+   }
+
+
+BrakeSystemStatus ::= SEQUENCE { 
+   wheelBrakes        BrakeAppliedStatus,
+   traction           TractionControlStatus,
+   abs                AntiLockBrakeStatus, 
+   scs                StabilityControlStatus,
+   brakeBoost         BrakeBoostApplied, 
+   auxBrakes          AuxiliaryBrakeStatus
+   }
+
+
+BSMcoreData ::= SEQUENCE {   
+   msgCnt        MsgCount,  
+   id            TemporaryID,
+   secMark       DSecond,
+   lat           Latitude,              
+   long          Longitude,             
+   elev          Elevation,             
+   accuracy      PositionalAccuracy,    
+   transmission  TransmissionState,
+   speed         Speed,
+   heading       Heading,               
+   angle         SteeringWheelAngle,    
+   accelSet      AccelerationSet4Way,   
+   brakes        BrakeSystemStatus,     
+   size          VehicleSize          
+   }
+
+
+BumperHeights ::= SEQUENCE {
+   front      BumperHeight, 
+   rear       BumperHeight
+   }
+
+
+ComputedLane ::= SEQUENCE {
+   -- Data needed to created a computed lane
+   referenceLaneId    LaneID,
+                         -- the lane ID upon which this 
+                         -- computed lane will be based 
+   -- Lane Offset in X and Y direction
+   offsetXaxis        CHOICE {
+                         small   DrivenLineOffsetSm, 
+                         large   DrivenLineOffsetLg
+                         },  
+   offsetYaxis        CHOICE {
+                         small   DrivenLineOffsetSm, 
+                         large   DrivenLineOffsetLg
+                         },  
+                         -- A path X offset value for translations of the 
+                         -- path's points when creating translated lanes. 
+                         -- The values found in the reference lane are 
+                         -- all offset based on the X and Y values from 
+                         -- the coordinates of the reference lane's 
+                         -- initial path point.   
+   -- Lane Rotation
+   rotateXY           Angle OPTIONAL, 
+                         -- A path rotation value for the entire lane
+                         -- Observe that this rotates the existing orientation 
+                         -- of the referenced lane, it does not replace it.
+                         -- Rotation occurs about the initial path point.
+   -- Lane Path Scale (zooming)
+   scaleXaxis         Scale-B12 OPTIONAL, 
+   scaleYaxis         Scale-B12 OPTIONAL, 
+                         -- value for translations or zooming of the path's 
+                         -- points. The values found in the reference lane 
+                         -- are all expanded or contracted based on the X 
+                         -- and Y and width values from the coordinates of 
+                         -- the reference lane's initial path point.  
+                         -- The Z axis remains untouched.  
+   regional  SEQUENCE (SIZE(1..4)) OF 
+             RegionalExtension {{Reg-ComputedLane}} OPTIONAL,
+   ... 
+   }
+
+
+DDate ::= SEQUENCE {
+   year    DYear,       
+   month   DMonth,   
+   day     DDay    
+   }
+
+
+DDateTime ::= SEQUENCE {
+   year    DYear    OPTIONAL,    
+   month   DMonth   OPTIONAL,   
+   day     DDay     OPTIONAL,  
+   hour    DHour    OPTIONAL,   
+   minute  DMinute  OPTIONAL,  
+   second  DSecond  OPTIONAL,  
+   offset  DOffset  OPTIONAL -- time zone
+   }
+
+
+DFullTime ::= SEQUENCE {
+   year    DYear,      
+   month   DMonth,      
+   day     DDay,    
+   hour    DHour,  
+   minute  DMinute   
+   }
+
+
+DMonthDay ::= SEQUENCE {
+   month   DMonth,   
+   day     DDay       
+   }
+
+
+DTime ::= SEQUENCE {
+   hour    DHour,        
+   minute  DMinute,         
+   second  DSecond,          
+   offset  DOffset  OPTIONAL -- time zone
+   }
+
+
+DYearMonth ::= SEQUENCE {
+   year    DYear,       
+   month   DMonth         
+   }
+
+
+EmergencyDetails ::= SEQUENCE {
+   doNotUse     SSPindex,  
+   -- always set to 0 and carries no meaning;
+   -- legacy field maintained for backward compatibility
+   sirenUse     SirenInUse,                 
+   lightsUse    LightbarInUse,              
+   multi        MultiVehicleResponse,
+   events       PrivilegedEvents OPTIONAL,
+   responseType ResponseType OPTIONAL,
+   ...
+   }
+
+
+FullPositionVector ::= SEQUENCE {
+   utcTime             DDateTime OPTIONAL,   -- time with mSec precision
+   long                Longitude,            -- 1/10th microdegree
+   lat                 Latitude,             -- 1/10th microdegree
+   elevation           Elevation  OPTIONAL,  -- units of 0.1 m
+   heading             Heading OPTIONAL, 
+   speed               TransmissionAndSpeed OPTIONAL,
+   posAccuracy         PositionalAccuracy OPTIONAL,
+   timeConfidence      TimeConfidence OPTIONAL,
+   posConfidence       PositionConfidenceSet OPTIONAL,
+   speedConfidence     SpeedandHeadingandThrottleConfidence OPTIONAL, 
+   ...  
+   }
+
+
+Header ::= SEQUENCE {
+   -- Basic time and sequence values for the message
+   year              DYear           OPTIONAL,
+   timeStamp         MinuteOfTheYear OPTIONAL, 
+   secMark           DSecond         OPTIONAL, 
+   msgIssueRevision  MsgCount        OPTIONAL,         
+   ...  
+   }
+
+
+IntersectionAccessPoint ::= CHOICE {
+   lane       LaneID,
+   approach   ApproachID,
+   connection LaneConnectionID,
+   ...
+   }
+
+   
+IntersectionReferenceID ::= SEQUENCE {
+   region  RoadRegulatorID OPTIONAL,
+           -- a globally unique regional assignment value
+           -- typical assigned to a regional DOT authority
+           -- the value zero shall be used for testing needs
+   id      IntersectionID
+           -- a unique mapping to the intersection
+           -- in question within the above region of use
+   }
+
+
+LaneDataAttribute ::= CHOICE {
+    -- Segment attribute types and the data needed for each
+    pathEndPointAngle        DeltaAngle,  
+                             -- adjusts final point/width slant
+                             -- of the lane to align with the stop line
+    laneCrownPointCenter     RoadwayCrownAngle,  
+                             -- sets the canter of the road bed      
+                             -- from centerline point
+    laneCrownPointLeft       RoadwayCrownAngle,  
+                             -- sets the canter of the road bed
+                             -- from left edge
+    laneCrownPointRight      RoadwayCrownAngle,  
+                             -- sets the canter of the road bed
+                             -- from right edge
+    laneAngle                MergeDivergeNodeAngle,  
+                             -- the angle or direction of another lane
+                             -- this is required to support Japan style
+                             -- when a merge point angle is required
+    speedLimits              SpeedLimitList,
+                             -- Reference regulatory speed limits
+                             -- used by all segments
+   
+    -- Add others as needed, in regional space
+    regional  SEQUENCE (SIZE(1..4)) OF 
+              RegionalExtension {{Reg-LaneDataAttribute}}, 
+    ...
+    }
+
+
+LaneDataAttributeList ::= SEQUENCE (SIZE(1..8)) OF LaneDataAttribute
+
+
+Node-LLmD-64b ::= SEQUENCE {
+   lon  Longitude,
+   lat  Latitude
+   }
+
+
+Node-XY-20b ::= SEQUENCE {
+   x  Offset-B10,
+   y  Offset-B10
+   }
+
+
+Node-XY-22b ::= SEQUENCE {
+   x  Offset-B11,
+   y  Offset-B11
+   }
+
+
+Node-XY-24b ::= SEQUENCE {
+   x  Offset-B12,
+   y  Offset-B12
+   }
+
+
+Node-XY-26b ::= SEQUENCE {
+   x  Offset-B13,
+   y  Offset-B13
+   }
+
+
+Node-XY-28b ::= SEQUENCE {
+   x  Offset-B14,
+   y  Offset-B14
+   }
+
+
+Node-XY-32b ::= SEQUENCE {
+   x  Offset-B16,
+   y  Offset-B16
+   }
+
+
+NodeAttributeSetXY ::= SEQUENCE {
+   localNode    NodeAttributeXYList OPTIONAL,
+                -- Attribute states which pertain to this node point
+   disabled     SegmentAttributeXYList OPTIONAL,
+                -- Attribute states which are disabled at this node point
+   enabled      SegmentAttributeXYList OPTIONAL,
+                -- Attribute states which are enabled at this node point
+                -- and which remain enabled until disabled or the lane ends
+   data         LaneDataAttributeList OPTIONAL,
+                -- Attributes which require an additional data values
+                -- some of these are local to the node point, while others
+                -- persist with the provided values until changed
+                -- and this is indicated in each entry
+   dWidth       Offset-B10 OPTIONAL,
+                -- A value added to the current lane width
+                -- at this node and from this node onwards, in 1cm steps
+                -- lane width between nodes are a linear taper between pts
+                -- the value of zero shall not be sent here
+   dElevation   Offset-B10 OPTIONAL,
+                -- A value added to the current Elevation 
+                -- at this node from this node onwards, in 10cm steps
+                -- elevations between nodes are a linear taper between pts
+                -- the value of zero shall not be sent here
+   regional     SEQUENCE (SIZE(1..4)) OF 
+                RegionalExtension {{Reg-NodeAttributeSetXY}} OPTIONAL,
+   ...
+   }
+
+
+NodeAttributeXYList ::= SEQUENCE (SIZE(1..8)) OF NodeAttributeXY
+
+
+NodeListXY ::= CHOICE {
+   nodes     NodeSetXY,
+             -- a lane made up of two or more
+             -- XY node points and any attributes 
+             -- defined in those nodes
+   computed  ComputedLane,
+             -- a lane path computed by translating 
+             -- the data defined by another lane
+   ...
+   }
+
+
+NodeOffsetPointXY ::= CHOICE {
+   -- Nodes with X,Y content
+   node-XY1         Node-XY-20b,    -- node is within   5.11m of last node
+   node-XY2         Node-XY-22b,    -- node is within  10.23m of last node
+   node-XY3         Node-XY-24b,    -- node is within  20.47m of last node
+   node-XY4         Node-XY-26b,    -- node is within  40.96m of last node
+   node-XY5         Node-XY-28b,    -- node is within  81.91m of last node
+   node-XY6         Node-XY-32b,    -- node is within 327.67m of last node
+   node-LatLon      Node-LLmD-64b,  -- node is a full 32b Lat/Lon range
+   regional         RegionalExtension {{Reg-NodeOffsetPointXY}}
+                                    -- node which follows is of a 
+                                    -- regional definition type 
+   }
+
+NodeSetXY ::= SEQUENCE (SIZE(2..63)) OF NodeXY
+
+NodeXY ::= SEQUENCE {
+   delta       NodeOffsetPointXY,
+               -- A choice of which X,Y offset value to use  
+               -- this includes various delta values as well a regional choices
+   attributes  NodeAttributeSetXY OPTIONAL,
+               -- Any optional Attributes which are needed
+               -- This includes changes to the current lane width and elevation
+   ... 
+   }
+
+
+PathHistory ::= SEQUENCE {
+   initialPosition  FullPositionVector    OPTIONAL,
+   currGNSSstatus   GNSSstatus            OPTIONAL,   
+   crumbData        PathHistoryPointList,
+   ...
+   }
+
+
+PathHistoryPointList ::= SEQUENCE (SIZE(1..23)) OF PathHistoryPoint
+
+
+PathHistoryPoint ::= SEQUENCE {
+   latOffset       OffsetLL-B18,
+   lonOffset       OffsetLL-B18,
+   elevationOffset VertOffset-B12,  
+   timeOffset      TimeOffset,
+                   -- Offset backwards in time 
+   speed           Speed                 OPTIONAL, 
+                   -- Speed over the reported period
+   posAccuracy     PositionalAccuracy    OPTIONAL, 
+                   -- The accuracy of this value
+   heading         CoarseHeading         OPTIONAL, 
+                   -- overall heading 
+   ...
+   }
+
+
+PathPrediction ::= SEQUENCE {
+   radiusOfCurve RadiusOfCurvature, 
+                 -- LSB units of 10cm
+                 -- straight path to use value of 32767
+   confidence    Confidence, 
+                 -- LSB units of 0.5 percent
+   ...  
+   }
+
+
+Position3D ::= SEQUENCE {
+   lat        Latitude,                -- in 1/10th microdegrees
+   long       Longitude,               -- in 1/10th microdegrees
+   elevation  Elevation  OPTIONAL,     -- in 10 cm units
+   regional   SEQUENCE (SIZE(1..4)) OF 
+              RegionalExtension {{Reg-Position3D}} OPTIONAL,
+   ...
+   }
+
+
+PositionalAccuracy ::= SEQUENCE {
+   -- NMEA-183 values expressed in strict ASN form
+   semiMajor     SemiMajorAxisAccuracy,
+   semiMinor     SemiMinorAxisAccuracy,
+   orientation   SemiMajorAxisOrientation
+   }
+
+
+PositionConfidenceSet ::= SEQUENCE {
+   pos        PositionConfidence, -- for both horizontal directions
+   elevation  ElevationConfidence 
+   }
+
+
+PrivilegedEvents ::= SEQUENCE {
+   doNotUse	SSPindex,  
+        -- always set to 0 and carries no meaning;
+        -- legacy field maintained for backward compatibility
+   -- The active event list
+   event	PrivilegedEventFlags,
+   ...
+   }
+
+
+RegulatorySpeedLimit ::= SEQUENCE {
+   type        SpeedLimitType, 
+               -- The type of regulatory speed which follows
+   speed       Velocity
+               -- The speed in units of 0.02 m/s
+               -- See Section 11 for converting and translating 
+               -- speed expressed in mph into units of m/s
+   }
+
+
+RequestorType ::= SEQUENCE {
+   -- Defines who is requesting
+   role         BasicVehicleRole, -- Basic role of this user at this time
+   subrole      RequestSubRole OPTIONAL, -- A local list with role based items 
+    
+   -- Defines what kind of request (a level of importance in the Priority Scheme)
+   request      RequestImportanceLevel OPTIONAL, -- A local list with request items 
+   
+   -- Additional classification details 
+   iso3883      Iso3833VehicleType OPTIONAL,
+   hpmsType     VehicleType OPTIONAL,  -- HPMS classification types
+
+   regional     RegionalExtension {{Reg-RequestorType}} OPTIONAL,
+   ...
+   }
+
+   
+RoadSegmentReferenceID ::= SEQUENCE {
+   region  RoadRegulatorID OPTIONAL,
+           -- a globally unique regional assignment value
+           -- typically assigned to a regional DOT authority
+           -- the value zero shall be used for testing needs
+   id      RoadSegmentID
+           -- a unique mapping to the road segment
+           -- in question within the above region of use
+           -- during its period of assignment and use
+           -- note that unlike intersectionID values, 
+           -- this value can be reused by the region
+   }
+
+RTCMheader ::= SEQUENCE {
+   status     GNSSstatus,
+   offsetSet  AntennaOffsetSet
+   }
+
+
+RTCMmessageList ::= SEQUENCE (SIZE(1..5)) OF RTCMmessage
+
+
+SegmentAttributeXYList ::= SEQUENCE (SIZE(1..8)) OF SegmentAttributeXY
+
+
+SpeedandHeadingandThrottleConfidence ::= SEQUENCE {
+   heading   HeadingConfidence,    
+   speed     SpeedConfidence,      
+   throttle  ThrottleConfidence    
+   }
+
+
+SpeedLimitList ::= SEQUENCE (SIZE(1..9)) OF RegulatorySpeedLimit
+
+SchoolBusJ2945Slash1C ::= SEQUENCE {
+    flashingAmberLights     BOOLEAN,
+    flashingRedLights       BOOLEAN,
+	-- School bus safety indicators
+    studentsCrossingFront   BOOLEAN OPTIONAL,
+    studentsCrossingBehind  BOOLEAN OPTIONAL,
+	studentsLoading			BOOLEAN OPTIONAL,
+	studentsUnloading		BOOLEAN OPTIONAL,
+	wheelchairLiftInUse		BOOLEAN OPTIONAL,
+	-- Emergency indicators
+    emergencyExitOpen       BOOLEAN OPTIONAL,
+    emergencyRequestMedical BOOLEAN OPTIONAL,
+    emergencyRequestFire    BOOLEAN OPTIONAL,
+    emergencyRequestPolice  BOOLEAN OPTIONAL,
+    ...
+}
+
+TrailersJ2945Slash1B ::= SEQUENCE (SIZE(1..8), ...) OF TrailerUnitDescJ2945Slash1B 
+
+TrailerUnitDescJ2945Slash1B ::= SEQUENCE {
+    width       VehicleWidth,   
+    length      VehicleLength,  
+    height      VehicleHeight           OPTIONAL,
+    weight      TrailerWeight           OPTIONAL,
+    
+    -- The front pivot point of the unit
+    frontPivot  PivotPointDescription,
+    -- The rear pivot point connecting to the next element, 
+    -- if present and used (implies another unit is connected)
+    rearPivot   PivotPointDescription   OPTIONAL,
+    bumpers     BumperHeights           OPTIONAL,
+    axles       Axles                   OPTIONAL,
+    ...
+    }
+
+Axles ::= SEQUENCE {
+    -- In the following, the value 10 indicates 10 or more axles
+    totalAxles  INTEGER (1..10, ...),
+    frontAxles  INTEGER (0..10, ...)    OPTIONAL,
+    rearAxles   INTEGER (0..10, ...)    OPTIONAL,
+    ...
+    }
+
+TransmissionAndSpeed ::= SEQUENCE {
+   transmisson   TransmissionState,
+   speed         Velocity
+   }
+
+
+VehicleClassification ::= SEQUENCE {
+   -- Composed of the following elements:
+
+   -- The 'master' V2X list used when space is limited
+   keyType         BasicVehicleClass OPTIONAL,
+
+   -- Types used in the MAP/SPAT/SSR/SRM exchanges 
+   role            BasicVehicleRole OPTIONAL, -- Basic CERT role at a given time
+   iso3883         Iso3833VehicleType OPTIONAL,
+   hpmsType        VehicleType OPTIONAL,  -- HPMS classification types
+   
+   -- ITIS types for classes of vehicle and agency
+   vehicleType     VehicleGroupAffected OPTIONAL,      
+   responseEquip   IncidentResponseEquipment OPTIONAL, 
+   responderType   ResponderGroupAffected OPTIONAL,    
+
+   -- Fuel types for vehicles
+   fuelType        FuelType OPTIONAL,      
+
+   regional        SEQUENCE (SIZE(1..4)) OF 
+                   RegionalExtension {{Reg-VehicleClassification}} OPTIONAL,
+   ...
+   }
+
+
+VehicleID ::= CHOICE {
+   entityID     TemporaryID,
+   stationID    StationID
+   }
+
+
+VehicleSafetyExtensions ::= SEQUENCE {
+   events             VehicleEventFlags     OPTIONAL,
+   pathHistory        PathHistory           OPTIONAL, 
+   pathPrediction     PathPrediction        OPTIONAL,
+   lights             ExteriorLights        OPTIONAL,                       
+   ...
+   }
+
+
+VehicleSize ::= SEQUENCE {
+   width     VehicleWidth,
+   length    VehicleLength
+   }
+
+
+VerticalOffset ::= CHOICE {
+   -- Vertical Offset
+   -- All below in steps of 10cm above or below the reference ellipsoid
+   offset1         VertOffset-B07,  -- with a range of +-   6.3 meters vertical
+   offset2         VertOffset-B08,  -- with a range of +-  12.7 meters vertical
+   offset3         VertOffset-B09,  -- with a range of +-  25.5 meters vertical
+   offset4         VertOffset-B10,  -- with a range of +-  51.1 meters vertical
+   offset5         VertOffset-B11,  -- with a range of +- 102.3 meters vertical
+   offset6         VertOffset-B12,  -- with a range of +- 204.7 meters vertical
+   elevation       Elevation,       -- with a range of -409.5 to + 6143.9 meters
+   regional        RegionalExtension {{Reg-VerticalOffset}}  
+                                    -- offset which follows is of a
+                                    -- regional definition type
+   }
+
+
+WiperSet ::= SEQUENCE {
+   statusFront    WiperStatus,
+   rateFront      WiperRate,
+   statusRear     WiperStatus      OPTIONAL,
+   rateRear       WiperRate        OPTIONAL
+   }   
+
+   
+   
+
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+-- 
+-- Start of entries from table Data_Elements...
+-- This table typically contains data element entries.
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+-- 
+ 
+
+
+Acceleration ::= INTEGER (-2000..2001) 
+   -- LSB units are 0.01 m/s^2
+   -- the value 2000 shall be used for values greater than 2000     
+   -- the value -2000 shall be used for values less than -2000  
+   -- a value of 2001 shall be used for Unavailable
+
+AmbientAirPressure ::= INTEGER (0..255) 
+   -- 8 Bits in hPa starting at 580 with a resolution of 
+   -- 2 hPa resulting in a range of 580 to 1088
+
+
+AmbientAirTemperature ::= INTEGER (0..191) -- in °C with a -40 offset
+    -- The value 191 shall indicate an unknown value
+
+Angle ::= INTEGER (0..28800) 
+   -- LSB of 0.0125 degrees
+   -- A range of 0 to 359.9875 degrees
+
+AntiLockBrakeStatus ::= ENUMERATED {
+   unavailable (0), -- B'00  Vehicle Not Equipped with ABS Brakes 
+                    --       or ABS Brakes status is unavailable
+   off         (1), -- B'01  Vehicle's ABS are Off
+   on          (2), -- B'10  Vehicle's ABS are On ( but not Engaged )
+   engaged     (3)  -- B'11  Vehicle's ABS control is Engaged on any wheel
+   }
+
+ApproachID ::= INTEGER (0..15) -- zero to be used when valid value is unknown
+
+AuxiliaryBrakeStatus ::= ENUMERATED {
+   unavailable (0), -- B'00  Vehicle Not Equipped with Aux Brakes 
+                    --       or Aux Brakes status is unavailable
+   off         (1), -- B'01  Vehicle's Aux Brakes are Off
+   on          (2), -- B'10  Vehicle's Aux Brakes are On ( Engaged )
+   reserved    (3)  -- B'11 
+   }
+
+BasicVehicleClass ::= INTEGER (0..255)
+unknownVehicleClass             BasicVehicleClass ::=  0  
+                                -- Not Equipped, Not known or unavailable
+specialVehicleClass             BasicVehicleClass ::=  1  
+                                -- Special use    
+--
+--  Basic Passenger Motor Vehicle Types 
+-- 
+passenger-Vehicle-TypeUnknown   BasicVehicleClass ::=  10 -- default type
+passenger-Vehicle-TypeOther     BasicVehicleClass ::=  11 
+-- various fuel types are handled in another element
+
+--
+-- Light Trucks, Pickup, Van, Panel
+-- 
+lightTruck-Vehicle-TypeUnknown  BasicVehicleClass ::=  20 -- default type
+lightTruck-Vehicle-TypeOther    BasicVehicleClass ::=  21 
+
+--
+-- Trucks, Various axle types, includes HPMS items 
+-- 
+truck-Vehicle-TypeUnknown BasicVehicleClass ::=  25 -- default type
+truck-Vehicle-TypeOther BasicVehicleClass ::=  26 
+truck-axleCnt2  BasicVehicleClass ::=  27 -- Two axle, six tire single units    
+truck-axleCnt3  BasicVehicleClass ::=  28 -- Three axle, single units    
+truck-axleCnt4  BasicVehicleClass ::=  29 -- Four or more axle, single unit    
+truck-axleCnt4Trailer BasicVehicleClass ::=  30 -- Four or less axle, single trailer    
+truck-axleCnt5Trailer BasicVehicleClass ::=  31 -- Five or less axle, single trailer    
+truck-axleCnt6Trailer BasicVehicleClass ::=  32 -- Six or more axle, single trailer    
+truck-axleCnt5MultiTrailer BasicVehicleClass ::=  33 -- Five or less axle, multi-trailer    
+truck-axleCnt6MultiTrailer BasicVehicleClass ::=  34 -- Six axle, multi-trailer    
+truck-axleCnt7MultiTrailer BasicVehicleClass ::=  35 -- Seven or more axle, multi-trailer    
+
+--
+-- Motorcycle Types
+--
+motorcycle-TypeUnknown          BasicVehicleClass ::=  40 -- default type
+motorcycle-TypeOther            BasicVehicleClass ::=  41
+motorcycle-Cruiser-Standard     BasicVehicleClass ::=  42
+motorcycle-SportUnclad          BasicVehicleClass ::=  43
+motorcycle-SportTouring         BasicVehicleClass ::=  44
+motorcycle-SuperSport           BasicVehicleClass ::=  45
+motorcycle-Touring              BasicVehicleClass ::=  46
+motorcycle-Trike                BasicVehicleClass ::=  47 
+motorcycle-wPassengers          BasicVehicleClass ::=  48 -- type not stated
+
+--
+-- Transit Types
+--
+transit-TypeUnknown             BasicVehicleClass ::=  50 -- default type
+transit-TypeOther               BasicVehicleClass ::=  51
+transit-BRT                     BasicVehicleClass ::=  52
+transit-ExpressBus              BasicVehicleClass ::=  53
+transit-LocalBus                BasicVehicleClass ::=  54
+transit-SchoolBus               BasicVehicleClass ::=  55
+transit-FixedGuideway           BasicVehicleClass ::=  56
+transit-Paratransit             BasicVehicleClass ::=  57
+transit-Paratransit-Ambulance   BasicVehicleClass ::=  58
+
+--
+-- Emergency Vehicle Types
+--
+emergency-TypeUnknown            BasicVehicleClass ::=  60 -- default type
+emergency-TypeOther              BasicVehicleClass ::=  61 -- includes federal users
+emergency-Fire-Light-Vehicle     BasicVehicleClass ::=  62
+emergency-Fire-Heavy-Vehicle     BasicVehicleClass ::=  63
+emergency-Fire-Paramedic-Vehicle BasicVehicleClass ::=  64
+emergency-Fire-Ambulance-Vehicle BasicVehicleClass ::=  65
+emergency-Police-Light-Vehicle   BasicVehicleClass ::=  66
+emergency-Police-Heavy-Vehicle   BasicVehicleClass ::=  67
+emergency-Other-Responder        BasicVehicleClass ::=  68
+emergency-Other-Ambulance        BasicVehicleClass ::=  69
+
+--
+-- Other V2X Equipped Travelers
+--
+otherTraveler-TypeUnknown          BasicVehicleClass ::=  80 -- default type
+otherTraveler-TypeOther            BasicVehicleClass ::=  81
+otherTraveler-Pedestrian           BasicVehicleClass ::=  82
+otherTraveler-Visually-Disabled    BasicVehicleClass ::=  83
+otherTraveler-Physically-Disabled  BasicVehicleClass ::=  84
+otherTraveler-Bicycle              BasicVehicleClass ::=  85
+otherTraveler-Vulnerable-Roadworker BasicVehicleClass ::=  86
+
+--
+-- Other V2X Equipped Device Types
+--
+infrastructure-TypeUnknown      BasicVehicleClass ::=  90 -- default type
+infrastructure-Fixed            BasicVehicleClass ::=  91
+infrastructure-Movable          BasicVehicleClass ::=  92
+equipped-CargoTrailer           BasicVehicleClass ::=  93
+
+
+BasicVehicleRole ::= ENUMERATED {
+    -- Values used in the EU and in the US
+    basicVehicle     (0), -- Light duty passenger vehicle type
+    publicTransport  (1), -- Used in EU for Transit us
+    specialTransport (2), -- Used in EU (e.g., heavy load)
+    dangerousGoods   (3), -- Used in EU for any HAZMAT
+    roadWork         (4), -- Used in EU for State and Local DOT uses
+    roadRescue       (5), -- Used in EU and in the US to include tow trucks.
+    emergency        (6), -- Used in EU for Police, Fire and Ambulance units
+    safetyCar        (7), -- Used in EU for Escort vehicles
+    -- Begin US unique numbering
+    none-unknown     (8), -- added to follow current SAE style guidelines
+    truck            (9), -- Heavy trucks with additional BSM rights and obligations
+    motorcycle      (10), --
+    roadSideSource  (11), -- For infrastructure generated calls such as
+                          -- fire house, rail infrastructure, roadwork site, etc.
+    police          (12), --
+    fire            (13), --
+    ambulance       (14), -- (does not include private para-transit etc.)
+    dot             (15), -- all roadwork vehicles
+    transit         (16), -- all transit vehicles 
+    slowMoving      (17), -- to also include oversize etc.
+    stopNgo         (18), -- to include trash trucks, school buses and others
+                          -- that routinely disturb the free flow of traffic
+    cyclist         (19), --
+    pedestrian      (20), -- also includes those with mobility limitations
+    nonMotorized    (21), -- other, horse drawn, etc.
+    military        (22), --
+    ...   
+    }
+
+BrakeAppliedStatus ::= BIT STRING {
+   unavailable (0),  -- When set, the brake applied status is unavailable
+   leftFront   (1),  -- Left Front Active
+   leftRear    (2),  -- Left Rear Active
+   rightFront  (3),  -- Right Front Active
+   rightRear   (4)   -- Right Rear Active
+   } (SIZE (5))
+
+BrakeBoostApplied ::= ENUMERATED {
+   unavailable   (0), -- Vehicle not equipped with brake boost
+                      -- or brake boost data is unavailable
+   off           (1), -- Vehicle's brake boost is off
+   on            (2)  -- Vehicle's brake boost is on (applied)
+   }
+
+BumperHeight ::= INTEGER (0..127) -- in units of 0.01 meters from ground surface.
+
+CoarseHeading ::= INTEGER (0..240)
+   -- Where the LSB is in units of 1.5 degrees 
+   -- over a range of 0~358.5 degrees
+   -- the value 240 shall be used for unavailable
+
+CodeWord ::= OCTET STRING (SIZE(1..16)) 
+   -- any octet string up to 16 octets
+
+CoefficientOfFriction ::= INTEGER (0..50) 
+   -- where 0 = 0.00 micro (frictionless), also used when data is unavailable 
+   -- and  50 = 1.00 micro, in steps of 0.02
+
+Confidence ::= INTEGER (0..200)
+   -- LSB units of 0.5 percent
+
+Count ::= INTEGER (0..32)
+
+DDay ::= INTEGER (0..31)  -- units of days
+
+DeltaAngle ::= INTEGER (-150..150) 
+   -- With an angle range from 
+   -- negative 150 to positive 150 
+   -- in one degree steps where zero is directly
+   -- along the axis or the lane center line as defined by the
+   -- two closest points
+
+DescriptiveName ::= IA5String (SIZE(1..63))
+
+DHour ::= INTEGER (0..31) -- units of hours
+
+DMinute ::= INTEGER (0..60) -- units of minutes
+
+DMonth ::= INTEGER (0..12) -- units of months
+
+DOffset ::= INTEGER (-840..840) -- units of minutes from UTC time
+
+DrivenLineOffsetLg ::= INTEGER (-32767..32767) 
+   -- LSB units are 1 cm.
+
+DrivenLineOffsetSm ::= INTEGER (-2047..2047) 
+   -- LSB units are 1 cm.
+
+DSecond ::= INTEGER (0..65535) -- units of milliseconds
+   -- 
+   -- DER forms, 
+   -- All DER forms are now retired and not to be used
+   -- 
+   reservedMessageId-D               DSRCmsgID ::=  0 --'00'H 
+   alaCarteMessage-D                 DSRCmsgID ::=  1 --'01'H ACM
+   -- alaCarteMessage-D is Retired, not to be used
+   basicSafetyMessage-D              DSRCmsgID ::=  2 --'02'H BSM, heartbeat msg
+   basicSafetyMessageVerbose-D       DSRCmsgID ::=  3 --'03'H For testing only
+   commonSafetyRequest-D             DSRCmsgID ::=  4 --'04'H CSR
+   emergencyVehicleAlert-D           DSRCmsgID ::=  5 --'05'H EVA
+   intersectionCollision-D           DSRCmsgID ::=  6 --'06'H ICA
+   mapData-D                         DSRCmsgID ::=  7 --'07'H MAP, intersections 
+   nmeaCorrections-D                 DSRCmsgID ::=  8 --'08'H NMEA
+   probeDataManagement-D             DSRCmsgID ::=  9 --'09'H PDM
+   probeVehicleData-D                DSRCmsgID ::= 10 --'0A'H PVD
+   roadSideAlert-D                   DSRCmsgID ::= 11 --'0B'H RSA
+   rtcmCorrections-D                 DSRCmsgID ::= 12 --'0C'H RTCM
+   signalPhaseAndTimingMessage-D     DSRCmsgID ::= 13 --'0D'H SPAT
+   signalRequestMessage-D            DSRCmsgID ::= 14 --'0E'H SRM
+   signalStatusMessage-D             DSRCmsgID ::= 15 --'0F'H SSM
+   travelerInformation-D             DSRCmsgID ::= 16 --'10'H TIM
+   uperFrame-D                       DSRCmsgID ::= 17 --'11'H UPER frame
+
+Duration ::= INTEGER (0..3600) -- units of seconds
+
+DYear ::= INTEGER (0..4095) -- units of years
+
+ElevationConfidence ::= ENUMERATED {
+   unavailable (0),  -- B'0000  Not Equipped or unavailable
+   elev-500-00 (1),  -- B'0001  (500 m)
+   elev-200-00 (2),  -- B'0010  (200 m)
+   elev-100-00 (3),  -- B'0011  (100 m)
+   elev-050-00 (4),  -- B'0100  (50 m)
+   elev-020-00 (5),  -- B'0101  (20 m)
+   elev-010-00 (6),  -- B'0110  (10 m)
+   elev-005-00 (7),  -- B'0111  (5 m)
+   elev-002-00 (8),  -- B'1000  (2 m)
+   elev-001-00 (9),  -- B'1001  (1 m)
+   elev-000-50 (10), -- B'1010  (50 cm)
+   elev-000-20 (11), -- B'1011  (20 cm)
+   elev-000-10 (12), -- B'1100  (10 cm)
+   elev-000-05 (13), -- B'1101  (5 cm)
+   elev-000-02 (14), -- B'1110  (2 cm)
+   elev-000-01 (15)  -- B'1111  (1 cm)
+   }  -- Encoded as a 4 bit value
+
+Elevation ::= INTEGER (-4096..61439) 
+    -- In units of 10 cm steps above or below the reference ellipsoid
+    -- Providing a range of -409.5 to + 6143.9 meters
+    -- The value -4096 shall be used when Unknown is to be sent
+
+Extent ::= ENUMERATED {
+   useInstantlyOnly     (0),
+   useFor3meters        (1),
+   useFor10meters       (2),
+   useFor50meters       (3),
+   useFor100meters      (4),
+   useFor500meters      (5),
+   useFor1000meters     (6),
+   useFor5000meters     (7),
+   useFor10000meters    (8),
+   useFor50000meters    (9),
+   useFor100000meters   (10),
+   useFor500000meters   (11),
+   useFor1000000meters  (12),
+   useFor5000000meters  (13),
+   useFor10000000meters (14),
+   forever              (15)  -- very wide area
+   }  -- Encoded as a 4 bit value
+
+ExteriorLights ::= BIT STRING { 
+   -- All lights off is indicated by no bits set
+   lowBeamHeadlightsOn       (0), 
+   highBeamHeadlightsOn      (1), 
+   leftTurnSignalOn          (2), 
+   rightTurnSignalOn         (3), 
+   hazardSignalOn            (4), 
+   automaticLightControlOn   (5),
+   daytimeRunningLightsOn    (6), 
+   fogLightOn                (7), 
+   parkingLightsOn           (8) 
+   } (SIZE (9, ...))
+
+FrictionInformation ::= SEQUENCE {
+    roadSurfaceDescription      DescriptionOfRoadSurface,
+    dryOrWet                    RoadSurfaceCondition    OPTIONAL,
+    roadRoughness               RoadRoughness           OPTIONAL,
+    ...
+}
+
+DescriptionOfRoadSurface ::= CHOICE {
+    portlandCement PortlandCement,
+    asphaltOrTar   AsphaltOrTar,
+    gravel         Gravel,
+    grass          Grass,
+    cinders        Cinders,
+    rock           Rock,
+    ice            Ice,
+    snow           Snow,
+    ...
+}
+
+PortlandCement ::= SEQUENCE {
+    type    PortlandCementType,
+    ...
+}
+
+PortlandCementType ::= ENUMERATED {
+    newSharp,
+    traveled,
+    trafficPolished,
+    ...
+}
+
+AsphaltOrTar ::= SEQUENCE {
+    type    AsphaltOrTarType,
+    ...
+}
+
+AsphaltOrTarType ::= ENUMERATED {
+    newSharp,
+    traveled,
+    trafficPolished,
+    excessTar,
+    ...
+}
+
+Gravel ::= SEQUENCE {
+    type    GravelType,
+    ...
+}
+
+GravelType ::= ENUMERATED {
+    packedOiled,
+    loose,
+    ...
+}
+
+Grass ::= SEQUENCE {
+    type    GrassType,
+    ...
+}
+
+GrassType ::= ENUMERATED {
+    lessThan30Mph,
+    ...
+}
+
+Cinders ::= SEQUENCE {
+    type    CindersType,
+    ...
+}
+
+CindersType ::= ENUMERATED {
+    packed,
+    ...
+}
+
+Rock ::= SEQUENCE {
+    type    RockType,
+    ...
+}
+
+RockType ::= ENUMERATED {
+    crushed,
+    ...
+}
+
+Ice ::= SEQUENCE {
+    type    IceType,
+    ...
+}
+
+IceType ::= ENUMERATED {
+    smooth,
+    ...
+}
+
+Snow ::= SEQUENCE {
+    type    SnowType,
+    ...
+}
+
+SnowType ::= ENUMERATED {
+    packed,
+    loose,
+    ...
+}
+
+RoadSurfaceCondition ::= ENUMERATED { dry, wet, ... }
+    
+RoadRoughness ::= SEQUENCE {
+    meanVerticalVariation     MeanVariation,
+    verticalVariationStdDev   VariationStdDev   OPTIONAL,
+    meanHorizontalVariation   MeanVariation     OPTIONAL,
+    horizontalVariationStdDev VariationStdDev   OPTIONAL,
+    ...
+}
+
+MeanVariation ::= INTEGER (0..25000)
+    -- Measured in microns (.001 mm)
+    -- Range is 0 to 25 mm (0 to 25000 microns)
+
+VariationStdDev ::= INTEGER (0..2500)
+    -- Standard deviation in microns
+   
+FuelType ::= INTEGER (0..15)
+   unknownFuel   FuelType::=  0 -- Gasoline Powered
+   gasoline      FuelType::=  1 
+   ethanol       FuelType::=  2 -- Including blends
+   diesel        FuelType::=  3 -- All types
+   electric      FuelType::=  4  
+   hybrid        FuelType::=  5 -- All types 
+   hydrogen      FuelType::=  6  
+   natGasLiquid  FuelType::=  7 -- Liquefied
+   natGasComp    FuelType::=  8 -- Compressed
+   propane       FuelType::=  9  
+
+
+FurtherInfoID ::= OCTET STRING (SIZE(2))
+   -- a link to any other incident 
+   -- information data that may be available 
+   -- in the normal ATIS incident description 
+   -- or other messages
+
+GNSSstatus ::= BIT STRING {
+   unavailable               (0), -- Not Equipped or unavailable
+   isHealthy                 (1),
+   isMonitored               (2),
+   baseStationType           (3), -- Set to zero if a moving base station,
+                                  -- or if a rover device (an OBU),
+                                  -- set to one if it is a fixed base station 
+   aPDOPofUnder5             (4), -- A dilution of precision greater than 5
+   inViewOfUnder5            (5), -- Less than 5 satellites in view
+   localCorrectionsPresent   (6), -- DGPS type corrections used
+   networkCorrectionsPresent (7)  -- RTK type corrections used
+   } (SIZE(8))
+
+GrossSpeed ::= INTEGER (0..31) -- Units of 1.00 m/s
+   -- The value 30 shall be used for speeds of 30 m/s or greater (67.1 mph)
+   -- The value 31 shall indicate that the speed is unavailable
+
+HeadingConfidence ::= ENUMERATED {
+   unavailable   (0), -- B'000  Not Equipped or unavailable
+   prec10deg     (1), -- B'010  10     degrees
+   prec05deg     (2), -- B'011  5      degrees
+   prec01deg     (3), -- B'100  1      degrees
+   prec0-1deg    (4), -- B'101  0.1    degrees
+   prec0-05deg   (5), -- B'110  0.05   degrees
+   prec0-01deg   (6), -- B'110  0.01   degrees
+   prec0-0125deg (7)  -- B'111  0.0125 degrees, aligned with heading LSB
+   }  -- Encoded as a 3 bit value
+
+Heading ::= INTEGER (0..28800) 
+   -- LSB of 0.0125 degrees
+   -- A range of 0 to 359.9875 degrees
+
+HeadingSlice ::= BIT STRING {
+   -- Each bit 22.5 degree starting from 
+   -- North and moving Eastward (clockwise) as one bit
+   -- a value of noHeading means no bits set, while a 
+   -- a value of allHeadings means all bits would be set             
+      
+   from000-0to022-5degrees  (0),   
+   from022-5to045-0degrees  (1),   
+   from045-0to067-5degrees  (2),   
+   from067-5to090-0degrees  (3),   
+   
+   from090-0to112-5degrees  (4),   
+   from112-5to135-0degrees  (5),   
+   from135-0to157-5degrees  (6),   
+   from157-5to180-0degrees  (7),   
+   
+   from180-0to202-5degrees  (8),   
+   from202-5to225-0degrees  (9),   
+   from225-0to247-5degrees  (10),  
+   from247-5to270-0degrees  (11),  
+   
+   from270-0to292-5degrees  (12),  
+   from292-5to315-0degrees  (13),  
+   from315-0to337-5degrees  (14),  
+   from337-5to360-0degrees  (15)  
+   }  (SIZE (16))
+
+IntersectionID ::= INTEGER (0..65535)
+   -- The values zero through 255 are allocated for testing purposes
+   -- Note that the value assigned to an intersection will be
+   -- unique within a given regional ID only
+
+Iso3833VehicleType ::= INTEGER (0..100)
+
+TrailerWeight ::= INTEGER (0..64255)
+
+LaneConnectionID ::= INTEGER (0..255)
+
+LaneID ::= INTEGER (0..255)
+   -- the value 0 shall be used when the lane ID is
+   -- not available or not known
+   -- the value 255 is reserved for future use
+
+LaneWidth ::= INTEGER (0..32767) -- units of 1 cm
+
+Latitude ::= INTEGER (-900000000..900000001)  
+   -- LSB = 1/10 microdegree
+   -- Providing a range of plus-minus 90 degrees
+
+LightbarInUse ::= ENUMERATED {
+     unavailable         (0),  -- Not Equipped or unavailable
+     notInUse            (1),  -- none active
+     inUse               (2),  
+     yellowCautionLights (3),  
+     schooldBusLights    (4),  
+     arrowSignsActive    (5),  
+     slowMovingVehicle   (6),   
+     freqStops           (7)   
+     }
+
+Longitude ::= INTEGER (-1799999999..1800000001)  
+   -- LSB = 1/10 microdegree
+   -- Providing a range of plus-minus 180 degrees
+
+Location-quality ::= ENUMERATED {                        
+     loc-qual-bt1m       (0), -- quality better than 1 meter
+     loc-qual-bt5m       (1), -- quality better than 5 meters
+     loc-qual-bt12m      (2), -- quality better than 12.5 meters
+     loc-qual-bt50m      (3), -- quality better than 50 meters
+     loc-qual-bt125m     (4), -- quality better than 125 meters
+     loc-qual-bt500m     (5), -- quality better than 500 meters
+     loc-qual-bt1250m    (6), -- quality better than 1250 meters
+     loc-qual-unknown    (7)  -- quality value unknown
+     } -- 3 bits, appends with loc-tech to make one octet (0..7)
+
+Location-tech ::= ENUMERATED {                        
+     loc-tech-unknown    (0), -- technology type unknown
+     loc-tech-GNSS       (1), -- GNSS technology only
+     loc-tech-DGPS       (2), -- differential GNSS (DGPS) technology
+     loc-tech-RTK        (3), -- differential GNSS (RTK) technology
+     loc-tech-PPP        (4), -- precise point positioning (PPP) technology
+     loc-tech-drGPS      (5), -- dead reckoning system w/GPS
+     loc-tech-drDGPS     (6), -- dead reckoning system w/DGPS
+     loc-tech-dr         (7), -- dead reckoning only
+     loc-tech-nav        (8), -- autonomous navigation system on-board
+     loc-tech-fault      (9), -- feature is not working
+     ...
+     }    
+
+MergeDivergeNodeAngle ::= INTEGER (-180..180) 
+   -- In units of 1.5 degrees from north
+   -- the value -180 shall be used to represent 
+   -- data is not available or unknown
+
+MessageBLOB ::= OCTET STRING (SIZE(10..2000)) 
+    -- Final size range may be further 
+    -- limited by the transport layer used
+
+MinuteOfTheYear ::= INTEGER (0..527040) 
+   -- the value 527040 shall be used for invalid
+
+
+MsgCount ::= INTEGER (0..127)
+
+MultiVehicleResponse ::= ENUMERATED {
+     unavailable   (0), -- Not Equipped or unavailable
+     singleVehicle (1),  
+     multiVehicle  (2),  
+     reserved      (3)  -- for future use
+     }
+
+NodeAttributeXY ::= ENUMERATED {
+   -- Various values which pertain only to the current node point
+   
+   -- General Items
+   reserved,  
+   stopLine,             -- point where a mid-path stop line exists
+                         -- See also 'do not block' for segments
+
+   -- Path finish details 
+   roundedCapStyleA,      -- Used to control final path rounded end shape
+                          -- with edge of curve at final point in a circle
+   roundedCapStyleB,      -- Used to control final path rounded end shape
+                          -- with edge of curve extending 50% of width past
+                          -- final point in a circle
+   
+   -- Topography Points (items with no concept of a distance along the path)
+   mergePoint,           -- Japan merge with 1 or more lanes
+   divergePoint,         -- Japan diverge with 1 or more lanes
+   downstreamStopLine,   -- Japan style downstream intersection 
+                                   -- (a 2nd intersection) stop line
+   downstreamStartNode,  -- Japan style downstream intersection 
+                                   -- (a 2nd intersection) start node
+     
+   -- Pedestrian Support Attributes
+   closedToTraffic,      -- where a pedestrian may NOT go
+                         -- to be used during construction events
+   safeIsland,           -- a pedestrian safe stopping point
+                         -- also called a traffic island
+                         -- This usage described a point feature on a path, 
+                         -- other entries can describe a path
+   curbPresentAtStepOff, -- the sidewalk to street curb is NOT 
+                         -- angled where it meets the edge of the 
+                         -- roadway (user must step up/down)
+ 
+   -- Lane geometry details  (see standard for defined shapes)
+   hydrantPresent,       -- Or other services access 
+   ...
+   }
+
+ObstacleDistance ::= INTEGER (0..32767) -- LSB units of meters
+
+Offset-B09 ::= INTEGER (-256..255)
+   -- a range of +- 2.55 meters
+
+Offset-B10 ::= INTEGER (-512..511)
+   -- a range of +- 5.11 meters
+
+Offset-B11 ::= INTEGER (-1024..1023)
+   -- a range of +- 10.23 meters
+
+Offset-B12 ::= INTEGER (-2048..2047)
+   -- a range of +- 20.47 meters
+
+Offset-B13 ::= INTEGER (-4096..4095)
+   -- a range of +- 40.95 meters
+
+Offset-B14 ::= INTEGER (-8192..8191)
+   -- a range of +- 81.91 meters
+
+Offset-B16 ::= INTEGER (-32768..32767)
+   -- a range of +- 327.67 meters
+
+OffsetLL-B18 ::= INTEGER (-131072..131071)     
+   -- A range of +- 0.0131071 degrees
+   -- The value +131071 shall be used for values >= than +0.0131071 degrees
+   -- The value -131071 shall be used for values <= than -0.0131071 degrees
+   -- The value -131072 shall be used unknown
+   -- In LSB units of 0.1 microdegrees (unless a zoom is employed)
+
+PayloadData ::= OCTET STRING (SIZE(1..2048)) 
+
+PositionConfidence ::= ENUMERATED {
+   unavailable (0),  -- B'0000  Not Equipped or unavailable
+   a500m   (1), -- B'0001  500m  or about 5 * 10 ^ -3 decimal degrees
+   a200m   (2), -- B'0010  200m  or about 2 * 10 ^ -3 decimal degrees
+   a100m   (3), -- B'0011  100m  or about 1 * 10 ^ -3 decimal degrees
+   a50m    (4), -- B'0100  50m   or about 5 * 10 ^ -4 decimal degrees 
+   a20m    (5), -- B'0101  20m   or about 2 * 10 ^ -4 decimal degrees 
+   a10m    (6), -- B'0110  10m   or about 1 * 10 ^ -4 decimal degrees 
+   a5m     (7), -- B'0111  5m    or about 5 * 10 ^ -5 decimal degrees 
+   a2m     (8), -- B'1000  2m    or about 2 * 10 ^ -5 decimal degrees 
+   a1m     (9), -- B'1001  1m    or about 1 * 10 ^ -5 decimal degrees 
+   a50cm  (10), -- B'1010  0.50m or about 5 * 10 ^ -6 decimal degrees 
+   a20cm  (11), -- B'1011  0.20m or about 2 * 10 ^ -6 decimal degrees 
+   a10cm  (12), -- B'1100  0.10m or about 1 * 10 ^ -6 decimal degrees 
+   a5cm   (13), -- B'1101  0.05m or about 5 * 10 ^ -7 decimal degrees 
+   a2cm   (14), -- B'1110  0.02m or about 2 * 10 ^ -7 decimal degrees 
+   a1cm   (15)  -- B'1111  0.01m or about 1 * 10 ^ -7 decimal degrees 
+   } 
+   -- Encoded as a 4 bit value
+
+PrioritizationResponseStatus ::= ENUMERATED {
+   unknown           (0),
+                      -- Unknown state
+   requested         (1),
+                      -- This prioritization request was detected 
+                      -- by the traffic controller  
+   processing        (2),
+                      -- Checking request 
+                      -- (request is in queue, other requests are prior)
+   watchOtherTraffic (3),
+                      -- Cannot give full permission, 
+                      -- therefore watch for other traffic
+                      -- Note that other requests may be present
+   granted           (4),
+                      -- Intervention was successful 
+                      -- and now prioritization is active
+   rejected          (5),
+                      -- The prioritization or preemption request was 
+                      -- rejected by the traffic controller
+   maxPresence       (6),
+                      -- The Request has exceeded maxPresence time
+                      -- Used when the controller has determined that
+                      -- the requester should then back off and 
+                      -- request an alternative.  
+   reserviceLocked   (7),
+                      -- Prior conditions have resulted in a reservice 
+                      -- locked event: the controller requires the 
+                      -- passage of time before another similar request 
+                      -- will be accepted
+   ...
+   }
+
+Priority ::= OCTET STRING (SIZE(1)) 
+    -- Follow definition notes on setting these bits
+
+PrivilegedEventFlags ::= BIT STRING {
+   peUnavailable                (0), -- Not Equipped or unavailable
+   peEmergencyResponse          (1),
+      -- The vehicle is a properly authorized public safety vehicle, 
+      -- is engaged in a service call, and is currently moving 
+      -- or is within the roadway.  Note that lights and sirens 
+      -- may not be evident during any given response call   
+
+   -- Emergency and Non Emergency Lights related
+   peEmergencyLightsActive      (2),
+   peEmergencySoundActive       (3),
+   peNonEmergencyLightsActive   (4),
+   peNonEmergencySoundActive    (5)
+
+   -- this list is likely to grow with further peer review
+   } (SIZE (16))
+
+RadiusOfCurvature ::= INTEGER (-32767..32767)
+   -- LSB units of 10cm
+   -- A straight path to use value of 32767
+
+RegionId ::= INTEGER (0..255)
+   noRegion     RegionId ::= 0  -- Use default supplied stubs
+   addGrpA      RegionId ::= 1  -- USA
+   addGrpB      RegionId ::= 2  -- Japan
+   addGrpC      RegionId ::= 3  -- EU
+   addGrpD      RegionId ::= 4  -- Korea
+   -- NOTE: new registered regional IDs will be added here
+   -- The values 128 and above are for local region use
+
+RequestID ::= INTEGER (0..255)
+
+RequestImportanceLevel ::= ENUMERATED {
+    requestImportanceLevelUnKnown  (0),
+    requestImportanceLevel1        (1), -- The least important request
+    requestImportanceLevel2        (2), -- The values here shall be assigned
+    requestImportanceLevel3        (3), -- Meanings based on regional needs
+    requestImportanceLevel4        (4), -- for each of the basic roles which
+    requestImportanceLevel5        (5), -- are defined elsewhere
+    requestImportanceLevel6        (6),
+    requestImportanceLevel7        (7),
+    requestImportanceLevel8        (8),
+    requestImportanceLevel9        (9),
+    requestImportanceLevel10      (10),
+    requestImportanceLevel11      (11),
+    requestImportanceLevel12      (12),
+    requestImportanceLevel13      (13),
+    requestImportanceLevel14      (14), -- The most important request
+    requestImportanceReserved     (15)  -- Reserved for future use
+    }
+
+RequestSubRole ::= ENUMERATED {
+    requestSubRoleUnKnown    (0),
+    requestSubRole1          (1), -- The first type of sub role
+    requestSubRole2          (2), -- The values here shall be assigned
+    requestSubRole3          (3), -- Meanings based on regional needs
+    requestSubRole4          (4), -- to refine and expand the basic
+    requestSubRole5          (5), -- roles which are defined elsewhere
+    requestSubRole6          (6),
+    requestSubRole7          (7),
+    requestSubRole8          (8),
+    requestSubRole9          (9),
+    requestSubRole10        (10),
+    requestSubRole11        (11),
+    requestSubRole12        (12),
+    requestSubRole13        (13),
+    requestSubRole14        (14), -- The last type of sub role
+    requestSubRoleReserved  (15)  -- Reserved for future use
+    }
+
+ResponseType ::= ENUMERATED {
+   notInUseOrNotEquipped      (0),            
+   emergency                  (1),  -- active service call at emergency level           
+   nonEmergency               (2),  -- also used when returning from service call          
+   pursuit                    (3),  -- sender driving may be erratic 
+   stationary                 (4),  -- sender is not moving, stopped along roadside
+   slowMoving                 (5),  -- such a mowers, litter trucks, etc.
+   stopAndGoMovement          (6),  -- such as school bus or garbage truck   
+   ...
+   }
+
+RestrictionClassID ::= INTEGER (0..255)
+   -- An index value to identify data about classes of users
+   -- the value used varies with each intersection's
+   -- needs and is defined in the map to the assigned 
+   -- classes of supported users.
+
+RoadAuthorityID ::= CHOICE {
+-- This data frame defines the Object Identifier (OID) of the Road Authority.
+   fullRdAuthID    FullRoadAuthorityID,
+   relRdAuthID     RelativeRoadAuthorityID,
+   ...
+   }
+
+FullRoadAuthorityID ::= OBJECT IDENTIFIER
+-- This data element provides the identifier for the fully specified OID of the 
+-- Road Authority.
+
+RelativeRoadAuthorityID ::= RELATIVE-OID
+-- This data element provides the identifier for the partially specified OID of the 
+-- Road Authority. This may be used when the base portion of the OID is known.
+
+RoadRegulatorID ::= INTEGER (0..65535)
+   -- The value zero shall be used for testing only
+
+RoadSegmentID ::= INTEGER (0..65535)
+   -- The values zero to 255 shall be used for testing only
+   -- Note that the value assigned to an RoadSegment will be
+   -- unique within a given regional ID only during its use
+
+RoadwayCrownAngle ::= INTEGER (-128..127) 
+    -- In LSB units of 0.3 degrees of angle
+    -- over a range of -38.1 to + 38.1 degrees
+    -- The value -128 shall be used for unknown
+    -- The value zero shall be used for angles 
+    -- which are between -0.15 and +0.15
+
+RTCMmessage ::= OCTET STRING (SIZE(1..1023))
+
+Scale-B12 ::= INTEGER (-2048..2047)  -- in steps of 0.05 percent
+
+SegmentAttributeXY ::= ENUMERATED {
+   -- Various values which can be Enabled and Disabled for a lane segment
+   
+   -- General Items
+   reserved                  ,  
+   doNotBlock                ,  -- segment where a vehicle 
+                                -- may not come to a stop
+   whiteLine                 ,  -- segment where lane crossing is not allowed
+                                -- such as the final few meters of a lane
+   
+   -- Porous Lane states, merging, turn outs, parking etc.
+   
+   mergingLaneLeft           ,  -- indicates porous lanes
+   mergingLaneRight          ,
+   
+   curbOnLeft                ,  -- indicates presence of curbs
+   curbOnRight               ,
+   
+   loadingzoneOnLeft         ,  -- loading or drop off zones
+   loadingzoneOnRight        ,
+   
+   turnOutPointOnLeft        ,  -- opening to adjacent street/alley/road
+   turnOutPointOnRight       ,
+   
+   adjacentParkingOnLeft     , -- side of road parking
+   adjacentParkingOnRight    ,
+   
+   -- Bike Lane Needs
+   adjacentBikeLaneOnLeft    , -- presence of marked bike lanes
+   adjacentBikeLaneOnRight   ,
+   sharedBikeLane            , -- right of way is shared with bikes
+                               -- who may occupy entire lane width
+   bikeBoxInFront            ,
+   
+   -- Transit Needs
+   transitStopOnLeft         , -- any form of bus/transit loading
+                               -- with pull in-out access to lane on left
+   transitStopOnRight        , -- any form of bus/transit loading
+                               -- with pull in-out access to lane on right
+   transitStopInLane         , -- any form of bus/transit loading
+                               -- in mid path of the lane
+   sharedWithTrackedVehicle  , -- lane is shared with train or trolley 
+                               -- not used for crossing tracks
+  
+     
+   -- Pedestrian Support Attributes
+   safeIsland                , -- begin/end a safety island in path
+   lowCurbsPresent           , -- for ADA support
+   rumbleStripPresent        , -- for ADA support
+   audibleSignalingPresent   , -- for ADA support
+   adaptiveTimingPresent     , -- for ADA support
+   rfSignalRequestPresent    , -- Supports RF push to walk technologies
+   partialCurbIntrusion      , -- path is blocked by a median or curb 
+                               -- but at least 1 meter remains open for use
+                               -- and at-grade passage
+   
+   -- Lane geometry details  (see standard for defined shapes)
+   taperToLeft               , -- Used to control final path shape
+   taperToRight              , -- Used to control final path shape
+   taperToCenterLine         , -- Used to control final path shape
+
+   -- Parking Lane and Curb Attributes
+   parallelParking           , -- 
+   headInParking             , -- Parking at an angle with the street
+   freeParking               , -- no restriction on use of parking
+   timeRestrictionsOnParking , -- Parking is not permitted at all times
+                               -- typically used when the 'parking' lane 
+                               -- becomes a driving lane at times
+   costToPark                , -- Used where parking has a cost
+   midBlockCurbPresent       , -- a protruding curb near lane edge
+   unEvenPavementPresent     , -- a disjoint height at lane edge
+   ...
+   }
+
+SemiMajorAxisAccuracy ::= INTEGER (0..255)
+   -- semi-major axis accuracy at one standard dev 
+   -- range 0-12.7 meter, LSB = .05m
+   -- 254 = any value equal or greater than 12.70 meter
+   -- 255 = unavailable semi-major axis value
+
+SemiMajorAxisOrientation ::= INTEGER (0..65535)
+   -- orientation of semi-major axis 
+   -- relative to true north (0~359.9945078786 degrees)
+   -- LSB units of 360/65535 deg  = 0.0054932479
+   -- a value of 0 shall be 0 degrees
+   -- a value of 1 shall be 0.0054932479 degrees 
+   -- a value of 65534 shall be 359.9945078786 deg
+   -- a value of 65535 shall be used for orientation unavailable
+
+SemiMinorAxisAccuracy ::= INTEGER (0..255)
+   -- semi-minor axis accuracy at one standard dev 
+   -- range 0-12.7 meter, LSB = .05m
+   -- 254 = any value equal or greater than 12.70 meter
+   -- 255 = unavailable semi-minor axis value
+
+SignalGroupID ::= INTEGER (0..255) 
+    -- The value 0 shall be used when the ID is
+    -- not available or not known
+    -- the value 255 is reserved to indicate a 
+    -- permanent green movement state
+    -- therefore a simple 8 phase signal controller 
+    -- device might use 1..9 as its groupIDs
+
+SignalReqScheme ::= OCTET STRING (SIZE(1)) 
+    -- Encoded as follows: 
+   -- upper nibble:  Preempt #:  
+    -- Bit 7 (MSB) 1 =  Preempt and 0 =  Priority 
+    -- Remaining 3 bits: 
+    -- Range of 0..7. The values of 1..6 represent 
+    -- the respective controller preempt or Priority 
+    -- to be activated. The value of 7 represents a 
+    -- request for a cabinet flash prempt, 
+    -- while the value of 0 is reserved.  
+   
+   -- lower nibble:  Strategy #:  
+    -- Range is 0..15 and is used to specify a desired 
+    -- strategy (if available).  
+    -- Currently no strategies are defined and this 
+    -- should be zero.
+
+SirenInUse ::= ENUMERATED {
+     unavailable   (0), -- Not Equipped or unavailable
+     notInUse      (1),  
+     inUse         (2),  
+     reserved      (3)  -- for future use
+     }
+
+SpeedConfidence ::= ENUMERATED {
+   unavailable (0), -- Not Equipped or unavailable
+   prec100ms   (1), -- 100  meters / sec
+   prec10ms    (2), -- 10   meters / sec
+   prec5ms     (3), -- 5    meters / sec
+   prec1ms     (4), -- 1    meters / sec
+   prec0-1ms   (5), -- 0.1  meters / sec
+   prec0-05ms  (6), -- 0.05 meters / sec
+   prec0-01ms  (7)  -- 0.01 meters / sec
+   }
+
+SpeedLimitType ::= ENUMERATED {
+    unknown,                    -- Speed limit type not available
+    maxSpeedInSchoolZone,       -- Only sent when the limit is active
+    maxSpeedInSchoolZoneWhenChildrenArePresent, -- Sent at any time
+    maxSpeedInConstructionZone, -- Used for work zones, incident zones, etc.
+                                -- where a reduced speed is present
+    vehicleMinSpeed,
+    vehicleMaxSpeed,            -- Regulatory speed limit for general traffic
+    vehicleNightMaxSpeed,
+
+    truckMinSpeed,
+    truckMaxSpeed,
+    truckNightMaxSpeed,
+
+    vehiclesWithTrailersMinSpeed,
+    vehiclesWithTrailersMaxSpeed,
+    vehiclesWithTrailersNightMaxSpeed,
+    ...
+    } 
+
+Speed ::= INTEGER (0..8191) -- Units of 0.02 m/s
+          -- The value 8191 indicates that 
+          -- speed is unavailable
+
+SSPindex ::= INTEGER (0..31)
+
+StabilityControlStatus ::= ENUMERATED {
+   unavailable (0), -- B'00  Not Equipped with SC
+                    --       or SC status is unavailable
+   off         (1), -- B'01  Off
+   on          (2), -- B'10  On or active (but not engaged)
+   engaged     (3)  -- B'11  stability control is Engaged 
+   }
+
+StationID ::= INTEGER (0..4294967295)
+
+SteeringWheelAngle ::= INTEGER (-126..127) 
+    -- LSB units of 1.5 degrees, a range of -189 to +189 degrees
+    -- +001 = +1.5 deg
+    -- -126 = -189 deg and beyond  
+    -- +126 = +189 deg and beyond
+    -- +127 to be used for unavailable
+
+TemporaryID ::= OCTET STRING (SIZE(4))
+
+ThrottleConfidence ::= ENUMERATED {
+   unavailable     (0), -- B'00  Not Equipped or unavailable
+   prec10percent   (1), -- B'01  10  percent Confidence level
+   prec1percent    (2), -- B'10  1   percent Confidence level
+   prec0-5percent  (3)  -- B'11  0.5 percent Confidence level
+   }
+
+TimeConfidence ::= ENUMERATED {
+   unavailable              (0), -- Not Equipped or unavailable
+   time-100-000             (1), -- Better than  100 Seconds
+   time-050-000             (2), -- Better than  50 Seconds
+   time-020-000             (3), -- Better than  20 Seconds
+   time-010-000             (4), -- Better than  10 Seconds
+   time-002-000             (5), -- Better than  2 Seconds
+   time-001-000             (6), -- Better than  1 Second
+   time-000-500             (7), -- Better than  0.5 Seconds
+   time-000-200             (8), -- Better than  0.2 Seconds
+   time-000-100             (9), -- Better than  0.1 Seconds
+   time-000-050            (10), -- Better than  0.05 Seconds
+   time-000-020            (11), -- Better than  0.02 Seconds
+   time-000-010            (12), -- Better than  0.01 Seconds
+   time-000-005            (13), -- Better than  0.005 Seconds
+   time-000-002            (14), -- Better than  0.002 Seconds
+   time-000-001            (15), -- Better than  0.001 Seconds
+                                 -- Better than  1 ms
+   time-000-000-5          (16), -- Better than  0.000,5 Seconds
+   time-000-000-2          (17), -- Better than  0.000,2 Seconds
+   time-000-000-1          (18), -- Better than  0.000,1 Seconds
+   time-000-000-05         (19), -- Better than  0.000,05 Seconds
+   time-000-000-02         (20), -- Better than  0.000,02 Seconds
+   time-000-000-01         (21), -- Better than  0.000,01 Seconds
+   time-000-000-005        (22), -- Better than  0.000,005 Seconds
+   time-000-000-002        (23), -- Better than  0.000,002 Seconds
+   time-000-000-001        (24), -- Better than  0.000,001 Seconds 
+                                 -- Better than  1 µs
+   time-000-000-000-5      (25), -- Better than  0.000,000,5 Seconds
+   time-000-000-000-2      (26), -- Better than  0.000,000,2 Seconds
+   time-000-000-000-1      (27), -- Better than  0.000,000,1 Seconds
+   time-000-000-000-05     (28), -- Better than  0.000,000,05 Seconds
+   time-000-000-000-02     (29), -- Better than  0.000,000,02 Seconds
+   time-000-000-000-01     (30), -- Better than  0.000,000,01 Seconds
+   time-000-000-000-005    (31), -- Better than  0.000,000,005 Seconds
+   time-000-000-000-002    (32), -- Better than  0.000,000,002 Seconds
+   time-000-000-000-001    (33), -- Better than  0.000,000,001 Seconds
+                                 -- Better than  1 nanosecond
+   time-000-000-000-000-5  (34), -- Better than  0.000,000,000,5 Seconds
+   time-000-000-000-000-2  (35), -- Better than  0.000,000,000,2 Seconds
+   time-000-000-000-000-1  (36), -- Better than  0.000,000,000,1 Seconds
+   time-000-000-000-000-05 (37), -- Better than  0.000,000,000,05 Seconds
+   time-000-000-000-000-02 (38), -- Better than  0.000,000,000,02 Seconds
+   time-000-000-000-000-01 (39)  -- Better than  0.000,000,000,01 Seconds 
+   }
+
+TimeOffset ::= INTEGER (1..65535)
+   -- LSB units of of 10 mSec, 
+   -- with a range of 0.01 seconds to 10 minutes and 55.34 seconds
+   -- a value of 65534 to be used for 655.34 seconds or greater
+   -- a value of 65535 to be unavailable
+
+TractionControlStatus ::= ENUMERATED {
+   unavailable (0), -- B'00  Not Equipped with traction control 
+                    --       or traction control status is unavailable
+   off         (1), -- B'01  traction control is Off
+   on          (2), -- B'10  traction control is On (but not Engaged)
+   engaged     (3)  -- B'11  traction control is Engaged
+   } 
+
+TransitStatus ::= BIT STRING {
+    none        (0), -- nothing is active
+    anADAuse    (1), -- an ADA access is in progress (wheelchairs, kneeling, etc.)
+    aBikeLoad   (2), -- loading of a bicycle is in progress
+    doorOpen    (3), -- a vehicle door is open for passenger access
+    occM        (4),
+    occL        (5)
+    -- bits four and five are used to relate the 
+    -- the relative occupancy of the vehicle, with
+    -- 00  as least full and 11 indicating a 
+    -- close-to or full condition
+    } (SIZE(6))
+
+TransmissionState ::= ENUMERATED {
+   neutral      (0), -- Neutral
+   park         (1), -- Park 
+   forwardGears (2), -- Forward gears
+   reverseGears (3), -- Reverse gears 
+   reserved1    (4),      
+   reserved2    (5),      
+   reserved3    (6),      
+   unavailable  (7)  -- not-equipped or unavailable value,
+   -- Any related speed is relative to the vehicle reference frame used
+   }
+
+URL-Link ::= IA5String (SIZE(1..255))
+
+VehicleEventFlags ::= BIT STRING {
+   eventHazardLights               (0),
+   eventStopLineViolation          (1), -- Intersection Violation   
+   eventABSactivated               (2),
+   eventTractionControlLoss        (3),
+   eventStabilityControlactivated  (4),
+   eventHazardousMaterials         (5),
+   eventReserved1                  (6),   
+   eventHardBraking                (7),
+   eventLightsChanged              (8),
+   eventWipersChanged              (9),
+   eventFlatTire                   (10),
+   eventDisabledVehicle            (11), -- The DisabledVehicle DF may also be sent
+   eventAirBagDeployment           (12)
+   } (SIZE (13, ...))
+-- To extend: Append event flags to the list,
+-- and update extension marker, e.g., (Size (13, ..., 14..16))
+-- EDITED: reverted to previous definition without 'eventJackKnife'
+
+VehicleHeight ::= INTEGER (0..127) 
+    -- the height of the vehicle
+    -- LSB units of 5 cm, range to 6.35 meters
+
+VehicleLength ::= INTEGER (0.. 4095) -- LSB units of 1 cm with a range of >40 meters
+
+VehicleMass ::= INTEGER (0..255)
+    -- Values 000 to 080 in steps of 50kg
+    -- Values 081 to 200 in steps of 500kg
+    -- Values 201 to 253 in steps of 2000kg
+    -- The Value 254 shall be used for weights above 170000 kg
+    -- The Value 255 shall be used when the value is unknown or unavailable
+    -- Encoded such that the values:
+    --  81 represents   4500 kg
+    -- 181 represents  54500 kg
+    -- 253 represents 170000 kg
+
+VehicleType ::= ENUMERATED {
+   none                 (0),  -- Not Equipped, Not known or unavailable
+   unknown              (1),  -- Does not fit any other category    
+   special              (2),  -- Special use    
+   moto                 (3),  -- Motorcycle    
+   car                  (4),  -- Passenger car    
+   carOther             (5),  -- Four tire single units    
+   bus                  (6),  -- Buses    
+   axleCnt2             (7),  -- Two axle, six tire single units    
+   axleCnt3             (8),  -- Three axle, single units    
+   axleCnt4             (9),  -- Four or more axle, single unit    
+   axleCnt4Trailer      (10), -- Four or less axle, single trailer    
+   axleCnt5Trailer      (11), -- Five or less axle, single trailer    
+   axleCnt6Trailer      (12), -- Six or more axle, single trailer    
+   axleCnt5MultiTrailer (13), -- Five or less axle, multi-trailer    
+   axleCnt6MultiTrailer (14), -- Six axle, multi-trailer    
+   axleCnt7MultiTrailer (15),  -- Seven or more axle, multi-trailer    
+   ...  
+   } 
+
+VehicleWidth ::= INTEGER (0..1023) -- LSB units are 1 cm with a range of >10 meters
+
+Velocity ::= INTEGER (0..8191) -- Units of 0.02 m/s
+    -- The value 8191 indicates that 
+    -- velocity is unavailable
+
+VerticalAccelerationThreshold ::= BIT STRING {
+   notEquipped (0), -- Not equipped or off
+   leftFront   (1), -- Left Front Event
+   leftRear    (2), -- Left Rear Event
+   rightFront  (3), -- Right Front Event
+   rightRear   (4)  -- Right Rear Event
+   } (SIZE(5))
+
+VerticalAcceleration ::= INTEGER (-127..127) 
+   -- LSB units of 0.02 G steps over -2.52 to +2.54 G
+   -- The value +127 shall be used for ranges >= 2.54 G
+   -- The value -126 shall be used for ranges <= 2.52 G
+   -- The value -127 shall be used for unavailable
+
+VertOffset-B08 ::= INTEGER (-128..127)  
+   -- LSB units of of 10 cm
+   -- with a range of +- 12.7 meters vertical
+   -- value  127 to be used for  127 or greater
+   -- value -127 to be used for -127 or greater
+   -- value -128 to be unavailable
+
+VertOffset-B09 ::= INTEGER (-256..255)  
+   -- LSB units of of 10 cm
+   -- with a range of +- 25.5 meters vertical
+   -- value  255 to be used for  255 or greater
+   -- value -255 to be used for -255 or greater
+   -- value -256 to be unavailable
+
+VertOffset-B10 ::= INTEGER (-512..511)  
+   -- LSB units of of 10 cm
+   -- with a range of +- 51.1 meters vertical
+   -- value  511 to be used for  511 or greater
+   -- value -511 to be used for -511 or greater
+   -- value -512 to be unavailable
+
+VertOffset-B11 ::= INTEGER (-1024..1023)  
+   -- LSB units of of 10 cm
+   -- with a range of +- 102.3 meters vertical
+   -- value  1023 to be used for  1023 or greater
+   -- value -1023 to be used for -1023 or greater
+   -- value -1024 to be unavailable
+
+VertOffset-B12 ::= INTEGER (-2048..2047)  
+   -- LSB units of of 10 cm
+   -- with a range of +- 204.7 meters vertical
+   -- value  2047 to be used for  2047 or greater
+   -- value -2047 to be used for -2047 or greater
+   -- value -2048 to be unavailable
+
+WiperRate ::= INTEGER (0..127) -- units of sweeps per minute
+
+WiperStatus ::= ENUMERATED {
+     unavailable         (0), -- Not Equipped with wiper status
+                              -- or wiper status is unavailable
+     off                 (1),  
+     intermittent        (2), 
+     low                 (3),
+     high                (4),
+     washerInUse         (5), -- washing solution being used
+     automaticPresent    (6), -- Auto wiper equipped
+     ...  
+     }
+
+YawRate ::= INTEGER (-32767..32767) 
+   -- LSB units of 0.01 degrees per second (signed)
+END
+
