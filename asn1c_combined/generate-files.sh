@@ -56,7 +56,7 @@ if [ "$year" == "2024" ]; then
         exit 1
     fi
 
-    if grep -q eventJackKnife ./j2735-asn-files/2024/J2735-Common-2024-rel-v1.1.2.asn; then
+    if grep -q " eventJackKnife " ./j2735-asn-files/2024/J2735-Common-2024-rel-v1.1.2.asn; then
         echo "The patch for the Common ASN file was not applied correctly."
         exit 1
     fi
