@@ -15,6 +15,7 @@ eventJackKnife bit introduced in the 2024 revision. As a result, the eventJackKn
 - [CDOT PR 34](https://github.com/CDOT-CV/asn1_codec/pull/34): Compression
 - [CDOT PR 35](https://github.com/CDOT-CV/asn1_codec/pull/35): Update j2735 version to 2024.
 - [CDOT PR 37](https://github.com/CDOT-CV/asn1_codec/pull/37): Workaround bsm vehicle event flags issue
+- [CDOT PR 39](https://github.com/CDOT-CV/asn1_codec/pull/39): Renamed PartIIcontent to BSMpartIIExtension in test data
 - [USDOT PR 62](https://github.com/usdot-jpo-ode/asn1_codec/pull/62): Update GitHub Actions Third-Party Action Versions
 
 ### Breaking Changes
