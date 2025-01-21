@@ -9,7 +9,7 @@ The main updates include:
 - Updating GitHub Actions workflows with the latest versions of third-party actions from external repositories to eliminate Node.js deprecation warnings.
 - Introducing partial compatibility with J2735 2024.
 
-However, there is a limitation. Due to a bug in the ASN.1 Compiler, the VehicleEventFlags bitstring has been reverted to its 2020 version, omitting the 
+However, there is a limitation. Due to [a bug in the ASN.1 Compiler](https://github.com/usdot-fhwa-stol/usdot-asn1c/issues/2), the VehicleEventFlags bitstring has been reverted to its 2020 version, omitting the 
 eventJackKnife bit introduced in the 2024 revision. As a result, the eventJackKnife bit will not appear in output BSMs until the issue is resolved.
 
 - [CDOT PR 34](https://github.com/CDOT-CV/asn1_codec/pull/34): Compression
