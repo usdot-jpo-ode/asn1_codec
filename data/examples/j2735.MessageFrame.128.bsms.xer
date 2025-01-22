@@ -40,7 +40,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -144,7 +144,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -191,7 +191,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -295,7 +295,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -342,7 +342,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -374,7 +374,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -421,7 +421,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -453,7 +453,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -500,7 +500,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -604,7 +604,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -651,7 +651,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -755,7 +755,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -802,7 +802,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -834,7 +834,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -881,7 +881,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -913,7 +913,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -960,7 +960,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -1064,7 +1064,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -1111,7 +1111,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -1215,7 +1215,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -1262,7 +1262,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -1294,7 +1294,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -1341,7 +1341,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -1373,7 +1373,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -1420,7 +1420,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -1524,7 +1524,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -1571,7 +1571,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -1675,7 +1675,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -1722,7 +1722,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -1754,7 +1754,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -1801,7 +1801,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -1833,7 +1833,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -1880,7 +1880,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -1984,7 +1984,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -2031,7 +2031,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -2135,7 +2135,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -2182,7 +2182,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -2214,7 +2214,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -2261,7 +2261,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -2293,7 +2293,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -2340,7 +2340,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -2444,7 +2444,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -2491,7 +2491,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -2595,7 +2595,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -2642,7 +2642,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -2674,7 +2674,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -2721,7 +2721,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -2753,7 +2753,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -2800,7 +2800,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -2904,7 +2904,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -2951,7 +2951,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -3055,7 +3055,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -3102,7 +3102,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -3134,7 +3134,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -3181,7 +3181,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -3213,7 +3213,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -3260,7 +3260,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -3364,7 +3364,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -3411,7 +3411,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -3515,7 +3515,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -3562,7 +3562,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -3594,7 +3594,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -3641,7 +3641,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -3673,7 +3673,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -3720,7 +3720,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -3824,7 +3824,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -3871,7 +3871,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -3975,7 +3975,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -4022,7 +4022,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -4054,7 +4054,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -4101,7 +4101,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -4133,7 +4133,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -4180,7 +4180,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -4284,7 +4284,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -4331,7 +4331,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -4435,7 +4435,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -4482,7 +4482,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -4514,7 +4514,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -4561,7 +4561,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -4593,7 +4593,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -4640,7 +4640,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -4744,7 +4744,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -4791,7 +4791,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -4895,7 +4895,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -4942,7 +4942,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -4974,7 +4974,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -5021,7 +5021,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -5053,7 +5053,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -5100,7 +5100,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -5204,7 +5204,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -5251,7 +5251,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -5355,7 +5355,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -5402,7 +5402,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -5434,7 +5434,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -5481,7 +5481,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -5513,7 +5513,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -5560,7 +5560,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -5664,7 +5664,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -5711,7 +5711,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -5815,7 +5815,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -5862,7 +5862,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -5894,7 +5894,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -5941,7 +5941,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -5973,7 +5973,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -6020,7 +6020,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -6124,7 +6124,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -6171,7 +6171,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -6275,7 +6275,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -6322,7 +6322,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -6354,7 +6354,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -6401,7 +6401,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -6433,7 +6433,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -6480,7 +6480,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -6584,7 +6584,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -6631,7 +6631,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -6735,7 +6735,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -6782,7 +6782,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -6814,7 +6814,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -6861,7 +6861,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -6893,7 +6893,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -6940,7 +6940,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -7044,7 +7044,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -7091,7 +7091,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -7195,7 +7195,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -7242,7 +7242,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -7274,7 +7274,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -7321,7 +7321,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -7353,7 +7353,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -7400,7 +7400,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -7504,7 +7504,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -7551,7 +7551,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -7655,7 +7655,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -7702,7 +7702,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -7734,7 +7734,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -7781,7 +7781,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -7813,7 +7813,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -7860,7 +7860,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -7964,7 +7964,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -8011,7 +8011,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -8115,7 +8115,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -8162,7 +8162,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -8194,7 +8194,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -8241,7 +8241,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -8273,7 +8273,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -8320,7 +8320,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -8424,7 +8424,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -8471,7 +8471,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -8575,7 +8575,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -8622,7 +8622,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -8654,7 +8654,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -8701,7 +8701,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -8733,7 +8733,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -8780,7 +8780,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -8884,7 +8884,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -8931,7 +8931,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -9035,7 +9035,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -9082,7 +9082,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -9114,7 +9114,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -9161,7 +9161,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -9193,7 +9193,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -9240,7 +9240,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -9344,7 +9344,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -9391,7 +9391,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -9495,7 +9495,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -9542,7 +9542,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -9574,7 +9574,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -9621,7 +9621,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -9653,7 +9653,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -9700,7 +9700,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -9804,7 +9804,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -9851,7 +9851,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -9955,7 +9955,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -10002,7 +10002,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -10034,7 +10034,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -10081,7 +10081,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -10113,7 +10113,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -10160,7 +10160,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -10264,7 +10264,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -10311,7 +10311,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -10415,7 +10415,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -10462,7 +10462,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -10494,7 +10494,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -10541,7 +10541,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -10573,7 +10573,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -10620,7 +10620,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -10724,7 +10724,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -10771,7 +10771,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -10875,7 +10875,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -10922,7 +10922,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -10954,7 +10954,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -11001,7 +11001,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -11033,7 +11033,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -11080,7 +11080,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -11184,7 +11184,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -11231,7 +11231,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -11335,7 +11335,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -11382,7 +11382,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -11414,7 +11414,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -11461,7 +11461,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -11493,7 +11493,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -11540,7 +11540,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -11644,7 +11644,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -11691,7 +11691,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -11795,7 +11795,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -11842,7 +11842,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -11874,7 +11874,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -11921,7 +11921,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -11953,7 +11953,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -12000,7 +12000,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -12104,7 +12104,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -12151,7 +12151,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -12255,7 +12255,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -12302,7 +12302,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -12334,7 +12334,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -12381,7 +12381,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -12413,7 +12413,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -12460,7 +12460,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -12564,7 +12564,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -12611,7 +12611,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -12715,7 +12715,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -12762,7 +12762,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -12794,7 +12794,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -12841,7 +12841,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -12873,7 +12873,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -12920,7 +12920,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -13024,7 +13024,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -13071,7 +13071,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -13175,7 +13175,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -13222,7 +13222,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -13254,7 +13254,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -13301,7 +13301,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -13333,7 +13333,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -13380,7 +13380,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -13484,7 +13484,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -13531,7 +13531,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -13635,7 +13635,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -13682,7 +13682,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -13714,7 +13714,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -13761,7 +13761,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -13793,7 +13793,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -13840,7 +13840,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -13944,7 +13944,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -13991,7 +13991,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -14095,7 +14095,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -14142,7 +14142,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -14174,7 +14174,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -14221,7 +14221,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -14253,7 +14253,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -14300,7 +14300,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -14404,7 +14404,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -14451,7 +14451,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -14555,7 +14555,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -14602,7 +14602,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -14634,7 +14634,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
@@ -14681,7 +14681,7 @@
                 </size>
             </coreData>
             <partII>
-                <PartIIcontent>
+                <BSMpartIIExtension>
                     <partII-Id>0</partII-Id>
                     <partII-Value>
                         <VehicleSafetyExtensions>
@@ -14713,7 +14713,7 @@
                             </pathPrediction>
                         </VehicleSafetyExtensions>
                     </partII-Value>
-                </PartIIcontent>
+                </BSMpartIIExtension>
             </partII>
         </BasicSafetyMessage>
     </value>
