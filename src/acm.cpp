@@ -1824,6 +1824,12 @@ bool ASN1_Codec::filetest() {
     return r ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
+    std::cout << "Input file: " << input_file << std::endl;
+    std::cout << "Output file: " << output_file << std::endl;
+    return EXIT_SUCCESS;
+}
+
 int ASN1_Codec::operator()(void) {
     const std::string fnname = "run()";
 
@@ -1961,6 +1967,9 @@ int main( int argc, char* argv[] )
     asn1_codec.addOption( 'h', "help", "print out some help" );
     asn1_codec.addOption( 'F', "infile", "accept a file and bypass kafka.", false );
     asn1_codec.addOption( 'T', "codec-type", "The type of codec to use: decode or encode; defaults to decode", true );
+    asn1_codec.addOption( 'A', "batch", "Accept a batch file of line delimited J2735 ASN.1 hex and bypass kafka. " +
+                                "Argument is a file path to output line-delimited XER to. " +
+                                "Decode mode only; codec-type option is ignored if this is set. Does not decode 1609.2", true)
 
 
     // debug for ASN.1
@@ -1997,10 +2006,14 @@ int main( int argc, char* argv[] )
         }
     }
 
-    if (asn1_codec.optIsSet('F')) {
+    if (asn1_codec.optIsSet('A')) {
+        // Batch input and output
+        auto infile = str(operands[0].c_str());
+        auto outfile = asn1_codec.optAsString('F');
+        std::exit( asn1_codec.batch(infile, outfile) );
+    } else if (asn1_codec.optIsSet('F')) {
         // Only used when an input file is specified.
         std::exit( asn1_codec.filetest() );
-
     } else {
         // The module will run and when it terminates return an appropriate error code.
         std::exit( asn1_codec.run() );
