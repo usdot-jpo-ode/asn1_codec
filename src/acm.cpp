@@ -1847,6 +1847,7 @@ bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
     std::string hex_line;
     buffer_structure_t xb = {0, 0, 0};
     while (std::getline(infile, hex_line)) {
+        if (hex_line == "") break;
         decode_messageframe_data(hex_line, &xb);
         std::string xml_line(xb.buffer, xb.buffer_size);
         outfile << xml_line << std::endl;
