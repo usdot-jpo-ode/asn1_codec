@@ -54,6 +54,9 @@
 #include <thread>
 #include <cstdio>
 
+#include <iostream>
+#include <fstream>
+
 // for both windows and linux.
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1825,8 +1828,33 @@ bool ASN1_Codec::filetest() {
 }
 
 bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
+    
     std::cout << "Input file: " << input_file << std::endl;
     std::cout << "Output file: " << output_file << std::endl;
+
+    std::ifstream infile(input_file);
+    if (!infile.is_open()) {
+        std::cerr << "Error opening input file." << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::ofstream outfile(output_file);
+    if (outfile.fail()) {
+        std::cerr << "Error opening output file." << std::endl;
+        return EXIT_FAILURE;
+    }
+    
+    std::string hex_line;
+    buffer_structure_t xb = {0, 0, 0};
+    while (std::getline(infile, hex_line)) {
+        decode_messageframe_data(hex_line, &xb);
+        std::string xml_line(xb.buffer, xb.buffer_size);
+        outfile << xml_line << std::endl;
+    }
+
+    outfile.close();
+    infile.close();
+
     return EXIT_SUCCESS;
 }
 
