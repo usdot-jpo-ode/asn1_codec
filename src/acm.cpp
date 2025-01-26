@@ -1845,13 +1845,20 @@ bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
     }
     
     std::string hex_line;
-    buffer_structure_t xb = {0, 0, 0};
+    long long i = 0;
     while (std::getline(infile, hex_line)) {
         if (hex_line == "") break;
+        ++i;
+        //std::cout << "read line " << i << std::endl;
+        buffer_structure_t xb = {0, 0, 0};
         decode_messageframe_data(hex_line, &xb);
+        //std::cout << "buffer size " << xb.buffer_size << std::endl;
         std::string xml_line(xb.buffer, xb.buffer_size);
+        std::free(static_cast<void *>(xb.buffer));
         outfile << xml_line << std::endl;
     }
+
+    std::cout << " Finished" << std::endl;
 
     outfile.close();
     infile.close();
