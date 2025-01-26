@@ -2008,7 +2008,7 @@ int main( int argc, char* argv[] )
 
     if (asn1_codec.optIsSet('A')) {
         // Batch input and output
-        auto infile = str(operands[0].c_str());
+        std::string infile(operands[0].c_str());
         auto outfile = asn1_codec.optAsString('F');
         std::exit( asn1_codec.batch(infile, outfile) );
     } else if (asn1_codec.optIsSet('F')) {
