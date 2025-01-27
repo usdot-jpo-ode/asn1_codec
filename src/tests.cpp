@@ -221,3 +221,17 @@ TEST_CASE("Decode BSM", "[decoding]") {
     payload_node = ode_payload_query.evaluate_node(output_doc).node();
     CHECK(payload_node);
 }
+
+TEST_CASE("Decode BSM with VehicleEventFlags", "[decoding]") {
+    std::cout << "=== Decode BSM with VehicleEventFlags ===" << std::endl;
+
+    // prepare
+    asn1_codec.setup_logger_for_testing();
+
+    std::stringstream out9;
+    CHECK(asn1_codec.file_test("data/InputData.decoding.bsm.with.VehicleEventFlags.xml", out9, false) == EXIT_SUCCESS);
+    parse_result = output_doc.load(out9, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+}

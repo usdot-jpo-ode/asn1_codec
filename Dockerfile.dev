@@ -1,5 +1,5 @@
 # === BUILDER IMAGE ===
-FROM alpine:3.12 as builder
+FROM alpine:3.18 as builder
 USER root
 WORKDIR /asn1_codec
 VOLUME ["/asn1_codec_share"]
@@ -10,21 +10,24 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
     g++ \
     make \
     bash \
-    automake \
-    libtool \
-    autoconf \
     librdkafka \
-    librdkafka-dev \
-    flex \
-    bison
+    librdkafka-dev 
+
+# Dependencies that are not needed if asn1c is not installed in the build container:
+# libtool
+# automake
+# autoconf
+# bison
+# flex
 
 # Install pugixml
 ADD ./pugixml /asn1_codec/pugixml
 RUN cd /asn1_codec/pugixml && mkdir -p build && cd build && cmake .. && make && make install
 
-# Build and install asn1c submodule
-ADD ./usdot-asn1c /asn1_codec/asn1c
-RUN cd asn1c && test -f configure || autoreconf -iv && ./configure && make && make install
+# The codec C files are pre-generated manually so it isn't necessary to build asn1c in the container
+# # Build and install asn1c submodule
+# ADD ./usdot-asn1c /asn1_codec/asn1c
+# RUN cd asn1c && test -f configure || autoreconf -iv && ./configure && make && make install
 
 # Make generated files available to the build & compile example
 RUN export LD_LIBRARY_PATH=/usr/local/lib
@@ -58,7 +61,7 @@ RUN echo "export CC=gcc" >> ~/.bashrc
 RUN mkdir -p /build && cd /build && cmake /asn1_codec && make
 
 # === RUNTIME IMAGE ===
-FROM alpine:3.12
+FROM alpine:3.18
 USER root
 WORKDIR /asn1_codec
 VOLUME ["/asn1_codec_share"]

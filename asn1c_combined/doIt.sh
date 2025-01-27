@@ -6,9 +6,9 @@
 export LD_LIBRARY_PATH=/usr/local/lib
 export CC=gcc
 
-# if J2735_YEAR is not set, default to 2020
+# if J2735_YEAR is not set, default to 2024
 if [ -z "$J2735_YEAR" ]; then
-    year="2020"
+    year="2024"
 else
     year=$J2735_YEAR
 fi
