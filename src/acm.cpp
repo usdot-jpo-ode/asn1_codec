@@ -57,8 +57,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <chrono>
-#include <vector>
 
 // for both windows and linux.
 #include <sys/types.h>
@@ -1830,6 +1830,27 @@ bool ASN1_Codec::filetest() {
     return r ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+bool ASN1_Codec::decode_messageframe_data_batch(std::vector<std::string>& batch_hex, std::vector<std::string>& batch_xml) {
+    bool err;
+
+    long t1millis = get_epoch_milliseconds();
+    std::cout << "Start decoding at " << t1millis << std::endl;
+    
+    for (auto a_hex_line : batch_hex) {
+        buffer_structure_t xb = {0, 0, 0};
+        err = decode_messageframe_data(a_hex_line, &xb);
+        std::string xml_line(xb.buffer, xb.buffer_size);
+        std::free(static_cast<void *>(xb.buffer));
+        batch_xml.push_back(xml_line);
+    }
+
+    long t2millis = get_epoch_milliseconds();
+    long delta = t2millis - t1millis;
+    std::cout << "Finished decoding in " << delta << " milliseconds." <<  std::endl;
+
+    return err;
+}
+
 bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
     
     std::cout << "Input file: " << input_file << std::endl;
@@ -1853,46 +1874,26 @@ bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
     std::vector<std::string> xml_line_array;
 
     // Read lines into memory.
-    // The only reason for doing this is to know the timing for the decode operation from and to memory.
-    // It would be more memory efficient to operate directly on the file streams in single loop.
+    // It would be more memory efficient to do the conversion while reading the file, but
+    // we want to separate out the batch processing function for the server to use as well.
     while (std::getline(infile, hex_line)) {
         if (hex_line == "") break;
         ++msgCount;
         hex_line_array.push_back(hex_line);
     }
     infile.close();
-    std::cout << "Read " << msgCount << " hex lines" << std::endl;
+    std::cout << "Read " << msgCount << " hex lines" << std::endl;  
 
-    const auto t1 = std::chrono::system_clock::now();
-    const auto t1epoch = t1.time_since_epoch();
-    long t1millis = std::chrono::duration_cast<std::chrono::milliseconds>(t1epoch).count();
-    std::cout << "Start decoding at " << t1millis << std::endl;
-
-    // Loop over line in the vector 
-    for (auto a_hex_line : hex_line_array) {
-        buffer_structure_t xb = {0, 0, 0};
-        decode_messageframe_data(a_hex_line, &xb);
-        std::string xml_line(xb.buffer, xb.buffer_size);
-        std::free(static_cast<void *>(xb.buffer));
-        xml_line_array.push_back(xml_line);
-    }
-
-    const auto t2 = std::chrono::system_clock::now();
-    const auto t2epoch = t2.time_since_epoch();
-    long t2millis = std::chrono::duration_cast<std::chrono::milliseconds>(t2epoch).count();
-    long delta = t2millis - t1millis;
-    std::cout << "Finished decoding " << msgCount << " messages in " << delta << " milliseconds." <<  std::endl;
-
+    bool err = decode_messageframe_data_batch(hex_line_array, xml_line_array);
+    
     // Write to output file
     for (auto an_xml_line : xml_line_array) {
         outfile << an_xml_line << std::endl;
     }
-
     outfile.close();
-    
     std::cout << "Wrote xml to output file " << output_file << std::endl;
 
-    return EXIT_SUCCESS;
+    return err ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 bool ASN1_Codec::http_server() {
@@ -1901,11 +1902,46 @@ bool ASN1_Codec::http_server() {
     svr.Get("/hello", [](const httplib::Request & /*req*/, httplib::Response &res){
         res.set_content("Hello world!", "text/plain");
     });
+
+    svr.Post("/batch/uper/hex/xer", 
+        [=](const httplib::Request &req, httplib::Response &res){
+            
+            std::vector<std::string> hex_line_array;
+            std::vector<std::string> xml_line_array;
+            std::string hex_line;
+            long msgCount = 0;
+
+            std::istringstream infile(req.body);
+            // req.body has newlines stripped for unknown reasons, use space as delimiter
+            const char delim(' ');
+            while (std::getline(infile, hex_line, delim)) {
+                if (hex_line == "") break;
+                ++msgCount;
+                hex_line_array.push_back(hex_line);
+            }
+            std::cout << "Read " << msgCount << " hex lines" << std::endl;  
+            
+            bool err = decode_messageframe_data_batch(hex_line_array, xml_line_array);
+            
+            std::ostringstream outfile;
+            for (auto an_xml_line : xml_line_array) {
+                outfile << an_xml_line << std::endl;
+            }
+            std::string xml_result(outfile.str());
+            res.set_content(xml_result, "text/plain");
+        });
     
     std::cout << "Starting HTTP server" << std::endl;
     svr.listen("0.0.0.0", 8080);
 
     return EXIT_SUCCESS;
+}
+
+long ASN1_Codec::get_epoch_milliseconds() {
+    const auto t = std::chrono::system_clock::now();
+    const auto epoch = t.time_since_epoch();
+    long millis = std::chrono::duration_cast<std::chrono::milliseconds>(epoch).count();
+    return millis;
 }
 
 int ASN1_Codec::operator()(void) {
