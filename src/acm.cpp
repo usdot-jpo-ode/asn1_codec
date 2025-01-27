@@ -48,6 +48,7 @@
 #include <iomanip>
 
 #include "spdlog/spdlog.h"
+#include "cpp-httplib/httplib.h"
 
 #include <csignal>
 #include <chrono>
@@ -1894,6 +1895,19 @@ bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
     return EXIT_SUCCESS;
 }
 
+bool ASN1_Codec::http_server() {
+    httplib::Server svr;
+
+    svr.Get("/hello", [](const httplib::Request & /*req*/, httplib::Response &res){
+        res.set_content("Hello world!", "text/plain");
+    });
+    
+    std::cout << "Starting HTTP server" << std::endl;
+    svr.listen("0.0.0.0", 8080);
+
+    return EXIT_SUCCESS;
+}
+
 int ASN1_Codec::operator()(void) {
     const std::string fnname = "run()";
 
@@ -2079,7 +2093,7 @@ int main( int argc, char* argv[] )
     } else if (asn1_codec.optIsSet('H')) {
         // Run HTTP server
         std::cout << "Run HTTP Server" << std::endl;
-        std::exit(0);
+        std::exit( asn1_codec.http_server() );
     } else if (asn1_codec.optIsSet('F')) {
         // Only used when an input file is specified.
         std::exit( asn1_codec.filetest() );
