@@ -57,6 +57,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <vector>
 
 // for both windows and linux.
 #include <sys/types.h>
@@ -1845,21 +1846,34 @@ bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
         return EXIT_FAILURE;
     }
 
+    std::string hex_line;
+    long msgCount = 0;
+    std::vector<std::string> hex_line_array;
+    std::vector<std::string> xml_line_array;
+
+    // Read lines into memory.
+    // The only reason for doing this is to know the timing for the decode operation from and to memory.
+    // It would be more memory efficient to operate directly on the file streams in single loop.
+    while (std::getline(infile, hex_line)) {
+        if (hex_line == "") break;
+        ++msgCount;
+        hex_line_array.push_back(hex_line);
+    }
+    infile.close();
+    std::cout << "Read " << msgCount << " hex lines" << std::endl;
+
     const auto t1 = std::chrono::system_clock::now();
     const auto t1epoch = t1.time_since_epoch();
     long t1millis = std::chrono::duration_cast<std::chrono::milliseconds>(t1epoch).count();
     std::cout << "Start decoding at " << t1millis << std::endl;
-    
-    std::string hex_line;
-    long msgCount = 0;
-    while (std::getline(infile, hex_line)) {
-        if (hex_line == "") break;
-        ++msgCount;
+
+    // Loop over line in the vector 
+    for (auto a_hex_line : hex_line_array) {
         buffer_structure_t xb = {0, 0, 0};
-        decode_messageframe_data(hex_line, &xb);
+        decode_messageframe_data(a_hex_line, &xb);
         std::string xml_line(xb.buffer, xb.buffer_size);
         std::free(static_cast<void *>(xb.buffer));
-        outfile << xml_line << std::endl;
+        xml_line_array.push_back(xml_line);
     }
 
     const auto t2 = std::chrono::system_clock::now();
@@ -1868,8 +1882,14 @@ bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
     long delta = t2millis - t1millis;
     std::cout << "Finished decoding " << msgCount << " messages in " << delta << " milliseconds." <<  std::endl;
 
+    // Write to output file
+    for (auto an_xml_line : xml_line_array) {
+        outfile << an_xml_line << std::endl;
+    }
+
     outfile.close();
-    infile.close();
+    
+    std::cout << "Wrote xml to output file " << output_file << std::endl;
 
     return EXIT_SUCCESS;
 }
