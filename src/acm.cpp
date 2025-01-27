@@ -56,6 +56,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 // for both windows and linux.
 #include <sys/types.h>
@@ -1843,22 +1844,29 @@ bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
         std::cerr << "Error opening output file." << std::endl;
         return EXIT_FAILURE;
     }
+
+    const auto t1 = std::chrono::system_clock::now();
+    const auto t1epoch = t1.time_since_epoch();
+    long t1millis = std::chrono::duration_cast<std::chrono::milliseconds>(t1epoch).count();
+    std::cout << "Start decoding at " << t1millis << std::endl;
     
     std::string hex_line;
-    long long i = 0;
+    long msgCount = 0;
     while (std::getline(infile, hex_line)) {
         if (hex_line == "") break;
-        ++i;
-        //std::cout << "read line " << i << std::endl;
+        ++msgCount;
         buffer_structure_t xb = {0, 0, 0};
         decode_messageframe_data(hex_line, &xb);
-        //std::cout << "buffer size " << xb.buffer_size << std::endl;
         std::string xml_line(xb.buffer, xb.buffer_size);
         std::free(static_cast<void *>(xb.buffer));
         outfile << xml_line << std::endl;
     }
 
-    std::cout << " Finished" << std::endl;
+    const auto t2 = std::chrono::system_clock::now();
+    const auto t2epoch = t2.time_since_epoch();
+    long t2millis = std::chrono::duration_cast<std::chrono::milliseconds>(t2epoch).count();
+    long delta = t2millis - t1millis;
+    std::cout << "Finished decoding " << msgCount << " messages in " << delta << " milliseconds." <<  std::endl;
 
     outfile.close();
     infile.close();
