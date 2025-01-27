@@ -13,3 +13,8 @@ services:
       ACM_LOG_TO_FILE: "${ACM_LOG_TO_FILE}"
       ACM_LOG_LEVEL: "${ACM_LOG_LEVEL}"
     restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 1G

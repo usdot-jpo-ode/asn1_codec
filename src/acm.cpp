@@ -1870,27 +1870,28 @@ bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
 
     std::string hex_line;
     long msgCount = 0;
-    std::vector<std::string> hex_line_array;
-    std::vector<std::string> xml_line_array;
+    bool err;
 
-    // Read lines into memory.
-    // It would be more memory efficient to do the conversion while reading the file, but
-    // we want to separate out the batch processing function for the server to use as well.
+    long t1millis = get_epoch_milliseconds();
+    std::cout << "Start decoding at " << t1millis << std::endl;
+    
     while (std::getline(infile, hex_line)) {
         if (hex_line == "") break;
         ++msgCount;
-        hex_line_array.push_back(hex_line);
+        buffer_structure_t xb = {0, 0, 0};
+        err = decode_messageframe_data(hex_line, &xb);
+        std::string xml_line(xb.buffer, xb.buffer_size);
+        std::free(static_cast<void *>(xb.buffer));
+        outfile << xml_line << std::endl;
     }
-    infile.close();
-    std::cout << "Read " << msgCount << " hex lines" << std::endl;  
 
-    bool err = decode_messageframe_data_batch(hex_line_array, xml_line_array);
-    
-    // Write to output file
-    for (auto an_xml_line : xml_line_array) {
-        outfile << an_xml_line << std::endl;
-    }
+    infile.close();
     outfile.close();
+
+    long t2millis = get_epoch_milliseconds();
+    long delta = t2millis - t1millis;
+     
+    std::cout << "Finished decoding " << msgCount << " lines in " << delta << " milliseconds." <<  std::endl;
     std::cout << "Wrote xml to output file " << output_file << std::endl;
 
     return err ? EXIT_SUCCESS : EXIT_FAILURE;
