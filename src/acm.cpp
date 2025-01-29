@@ -44,6 +44,7 @@
  */
 
 #include "acm.hpp"
+#include "acm_batch.hpp"
 #include "utilities.hpp"
 #include <iomanip>
 
@@ -1885,11 +1886,11 @@ bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
         outfile << xml_line << std::endl;
     }
 
-    infile.close();
-    outfile.close();
-
     long t2millis = get_epoch_milliseconds();
     long delta = t2millis - t1millis;
+
+    infile.close();
+    outfile.close();
      
     std::cout << "Finished decoding " << msgCount << " lines in " << delta << " milliseconds." <<  std::endl;
     std::cout << "Wrote xml to output file " << output_file << std::endl;
@@ -2124,9 +2125,10 @@ int main( int argc, char* argv[] )
     if (asn1_codec.optIsSet('A') && asn1_codec.optIsSet('B')) {
         // Batch input and output.
         std::cout << "Batch processing" << std::endl;
+        ASN1_Batch_Codec batch_codec(asn1_codec);
         std::string infile = asn1_codec.optString('B');
         std::string outfile = asn1_codec.optString('A');
-        std::exit( asn1_codec.batch(infile, outfile) );
+        std::exit( batch_codec.batch(infile, outfile) );
     } else if (asn1_codec.optIsSet('H')) {
         // Run HTTP server
         std::cout << "Run HTTP Server" << std::endl;

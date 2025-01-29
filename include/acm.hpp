@@ -1,3 +1,8 @@
+#ifndef ACM_HPP
+#define ACM_HPP
+
+
+
 /** 
  * @file 
  * @author   Jason M. Carter (carterjm@ornl.gov)
@@ -241,6 +246,8 @@ class ASN1_Codec : public tool::Tool {
          */
         bool setup_logger_for_testing();
 
+        bool decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
+
     private:
 
         static bool bootstrap;                                          ///> flag indicating we need to bootstrap the consumer and producer
@@ -338,7 +345,7 @@ class ASN1_Codec : public tool::Tool {
         bool decode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool decode_message_legacy( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool decode_1609dot2_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
-        bool decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
+        
         bool decode_messageframe_data_batch(std::vector<std::string>& batch_hex, std::vector<std::string>& batch_xml);
 
         bool encode_message( std::stringstream& output_message_stream );
@@ -353,3 +360,4 @@ class ASN1_Codec : public tool::Tool {
         long get_epoch_milliseconds();
 };
 
+#endif

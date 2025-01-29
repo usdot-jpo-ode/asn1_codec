@@ -53,6 +53,7 @@ include( "src/CMakeLists.txt" )
 target_link_libraries(acm pthread rdkafka++ asncodec pugixml)
 
 target_link_libraries(acm_tests pthread rdkafka++ asncodec pugixml Catch)
+
 target_compile_definitions(acm_tests PRIVATE _ASN1_CODEC_TESTS) 
 
 add_subdirectory(kafka-test)
