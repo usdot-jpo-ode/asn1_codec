@@ -1,5 +1,7 @@
 #include "acm_batch.hpp"
 
+#include "nlohmann/json.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -38,16 +40,31 @@ bool ASN1_Batch_Codec::decode_batch_file(std::string input_file, std::string out
         return EXIT_FAILURE;
     }
 
+    json json_value;
+    std::string json_line;
     std::string hex_line;
+    long timestamp;
+    std::string message_type;
     long msgCount = 0;
     bool err;
 
     long t1millis = get_epoch_milliseconds();
     std::cout << "Start decoding at " << t1millis << std::endl;
     
-    while (std::getline(infile, hex_line)) {
+    while (std::getline(infile, json_line)) {
         if (hex_line == "") break;
         ++msgCount;
+        
+        try {
+            json_value = json::parse(json_line);
+            timestamp = json_value["timestamp"];
+            message_type = json_value["type"];
+            hex_line = json_value["hex"];
+        } catch (json::parse_error& ex) {
+            std::cerr << "json parse error in line " << json_line << std:endl;
+            continue;
+        }
+
         buffer_structure_t xb = {0, 0, 0};
         err = codec.decode_messageframe_data(hex_line, &xb);
         std::string xml_line(xb.buffer, xb.buffer_size);

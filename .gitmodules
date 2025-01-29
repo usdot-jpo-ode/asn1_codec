@@ -4,6 +4,3 @@
 [submodule "usdot-asn1c"]
 	path = usdot-asn1c
 	url = https://github.com/usdot-fhwa-stol/usdot-asn1c
-[submodule "include/cpp-httplib"]
-	path = include/cpp-httplib
-	url = https://github.com/yhirose/cpp-httplib

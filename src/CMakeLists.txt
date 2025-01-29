@@ -4,7 +4,6 @@
 target_sources(acm PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}/acm.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/acm_batch.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/http_server.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/tool.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/utilities.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/acmLogger.cpp"
@@ -30,7 +29,6 @@ target_sources(acm_tests PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}/utilities.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/acmLogger.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/acm_batch.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/http_server.cpp"
     )
 
 target_include_directories(acm_tests PUBLIC
