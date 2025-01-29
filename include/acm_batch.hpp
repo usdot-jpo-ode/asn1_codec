@@ -2,7 +2,8 @@
 #define ACM_BATCH_H
 
 #include "acm.hpp"
-#include "nlohmann/json.hpp"
+
+
 
 class ASN1_Batch_Codec {
     public:
