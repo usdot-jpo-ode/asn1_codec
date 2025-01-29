@@ -222,8 +222,6 @@ class ASN1_Codec : public tool::Tool {
         bool launch_producer();
         bool process_message(RdKafka::Message* message, std::stringstream& output_message_stream);
         bool filetest();
-        bool batch(std::string input_file, std::string output_file);
-        bool http_server();
         bool file_test(std::string file_path, std::ostream& os, bool encode = true);
         int operator()(void);
         const char* getEnvironmentVariable(const char* variableName);
@@ -246,7 +244,7 @@ class ASN1_Codec : public tool::Tool {
          */
         bool setup_logger_for_testing();
 
-        bool decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
+        bool decode_messageframe_data(std::string& data_as_hex, buffer_structure_t* xml_buffer);
 
     private:
 
@@ -346,7 +344,6 @@ class ASN1_Codec : public tool::Tool {
         bool decode_message_legacy( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool decode_1609dot2_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
         
-        bool decode_messageframe_data_batch(std::vector<std::string>& batch_hex, std::vector<std::string>& batch_xml);
 
         bool encode_message( std::stringstream& output_message_stream );
         void encode_frame_data(const std::string& data_as_xml, std::string& hex_string);
@@ -356,8 +353,6 @@ class ASN1_Codec : public tool::Tool {
 
         std::string get_current_time() const;
 
-        
-        long get_epoch_milliseconds();
 };
 
 #endif

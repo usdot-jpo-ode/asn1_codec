@@ -20,7 +20,7 @@ long ASN1_Batch_Codec::get_epoch_milliseconds() {
     return millis;
 }
 
-bool ASN1_Batch_Codec::batch(std::string input_file, std::string output_file) 
+bool ASN1_Batch_Codec::decode_batch_file(std::string input_file, std::string output_file) 
 {
     
     std::cout << "Input file: " << input_file << std::endl;
@@ -65,5 +65,29 @@ bool ASN1_Batch_Codec::batch(std::string input_file, std::string output_file)
     std::cout << "Wrote xml to output file " << output_file << std::endl;
 
     return err ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+bool ASN1_Batch_Codec::decode_messageframe_data_batch(std::vector<std::string>& batch_hex, std::vector<std::string>& batch_xml) {
+    bool err;
+
+    long t1millis = get_epoch_milliseconds();
+    std::cout << "Start decoding at " << t1millis << std::endl;
+    
+    buffer_structure_t xb = {0, 0, 0};
+    for (auto a_hex_line : batch_hex) {
+        xb.buffer = 0;
+        xb.buffer_size = 0;
+        xb.allocated_size = 0;
+        err = codec.decode_messageframe_data(a_hex_line, &xb);
+        std::string xml_line(xb.buffer, xb.buffer_size);
+        std::free(static_cast<void *>(xb.buffer));
+        batch_xml.push_back(xml_line);
+    }
+
+    long t2millis = get_epoch_milliseconds();
+    long delta = t2millis - t1millis;
+    std::cout << "Finished decoding in " << delta << " milliseconds." <<  std::endl;
+
+    return err;
 }
 

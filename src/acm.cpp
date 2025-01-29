@@ -45,21 +45,16 @@
 
 #include "acm.hpp"
 #include "acm_batch.hpp"
+#include "http_server.hpp"
 #include "utilities.hpp"
 #include <iomanip>
 
 #include "spdlog/spdlog.h"
-#include "cpp-httplib/httplib.h"
 
 #include <csignal>
 #include <chrono>
 #include <thread>
 #include <cstdio>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <chrono>
 
 // for both windows and linux.
 #include <sys/types.h>
@@ -1831,120 +1826,6 @@ bool ASN1_Codec::filetest() {
     return r ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-bool ASN1_Codec::decode_messageframe_data_batch(std::vector<std::string>& batch_hex, std::vector<std::string>& batch_xml) {
-    bool err;
-
-    long t1millis = get_epoch_milliseconds();
-    std::cout << "Start decoding at " << t1millis << std::endl;
-    
-    for (auto a_hex_line : batch_hex) {
-        buffer_structure_t xb = {0, 0, 0};
-        err = decode_messageframe_data(a_hex_line, &xb);
-        std::string xml_line(xb.buffer, xb.buffer_size);
-        std::free(static_cast<void *>(xb.buffer));
-        batch_xml.push_back(xml_line);
-    }
-
-    long t2millis = get_epoch_milliseconds();
-    long delta = t2millis - t1millis;
-    std::cout << "Finished decoding in " << delta << " milliseconds." <<  std::endl;
-
-    return err;
-}
-
-bool ASN1_Codec::batch(std::string input_file, std::string output_file) {
-    
-    std::cout << "Input file: " << input_file << std::endl;
-    std::cout << "Output file: " << output_file << std::endl;
-
-    std::ifstream infile(input_file);
-    if (!infile.is_open()) {
-        std::cerr << "Error opening input file." << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    std::ofstream outfile(output_file);
-    if (outfile.fail()) {
-        std::cerr << "Error opening output file." << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    std::string hex_line;
-    long msgCount = 0;
-    bool err;
-
-    long t1millis = get_epoch_milliseconds();
-    std::cout << "Start decoding at " << t1millis << std::endl;
-    
-    while (std::getline(infile, hex_line)) {
-        if (hex_line == "") break;
-        ++msgCount;
-        buffer_structure_t xb = {0, 0, 0};
-        err = decode_messageframe_data(hex_line, &xb);
-        std::string xml_line(xb.buffer, xb.buffer_size);
-        std::free(static_cast<void *>(xb.buffer));
-        outfile << xml_line << std::endl;
-    }
-
-    long t2millis = get_epoch_milliseconds();
-    long delta = t2millis - t1millis;
-
-    infile.close();
-    outfile.close();
-     
-    std::cout << "Finished decoding " << msgCount << " lines in " << delta << " milliseconds." <<  std::endl;
-    std::cout << "Wrote xml to output file " << output_file << std::endl;
-
-    return err ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-bool ASN1_Codec::http_server() {
-    httplib::Server svr;
-
-    svr.Get("/hello", [](const httplib::Request & /*req*/, httplib::Response &res){
-        res.set_content("Hello world!", "text/plain");
-    });
-
-    svr.Post("/batch/uper/hex/xer", 
-        [=](const httplib::Request &req, httplib::Response &res){
-            
-            std::vector<std::string> hex_line_array;
-            std::vector<std::string> xml_line_array;
-            std::string hex_line;
-            long msgCount = 0;
-
-            std::istringstream infile(req.body);
-            // req.body has newlines stripped for unknown reasons, use space as delimiter
-            const char delim(' ');
-            while (std::getline(infile, hex_line, delim)) {
-                if (hex_line == "") break;
-                ++msgCount;
-                hex_line_array.push_back(hex_line);
-            }
-            std::cout << "Read " << msgCount << " hex lines" << std::endl;  
-            
-            bool err = decode_messageframe_data_batch(hex_line_array, xml_line_array);
-            
-            std::ostringstream outfile;
-            for (auto an_xml_line : xml_line_array) {
-                outfile << an_xml_line << std::endl;
-            }
-            std::string xml_result(outfile.str());
-            res.set_content(xml_result, "text/plain");
-        });
-    
-    std::cout << "Starting HTTP server" << std::endl;
-    svr.listen("0.0.0.0", 8080);
-
-    return EXIT_SUCCESS;
-}
-
-long ASN1_Codec::get_epoch_milliseconds() {
-    const auto t = std::chrono::system_clock::now();
-    const auto epoch = t.time_since_epoch();
-    long millis = std::chrono::duration_cast<std::chrono::milliseconds>(epoch).count();
-    return millis;
-}
 
 int ASN1_Codec::operator()(void) {
     const std::string fnname = "run()";
@@ -2128,11 +2009,13 @@ int main( int argc, char* argv[] )
         ASN1_Batch_Codec batch_codec(asn1_codec);
         std::string infile = asn1_codec.optString('B');
         std::string outfile = asn1_codec.optString('A');
-        std::exit( batch_codec.batch(infile, outfile) );
+        std::exit( batch_codec.decode_batch_file(infile, outfile) );
     } else if (asn1_codec.optIsSet('H')) {
         // Run HTTP server
         std::cout << "Run HTTP Server" << std::endl;
-        std::exit( asn1_codec.http_server() );
+        ASN1_Batch_Codec batch_codec(asn1_codec);
+        Http_Server server(batch_codec);
+        std::exit( server.http_server() );
     } else if (asn1_codec.optIsSet('F')) {
         // Only used when an input file is specified.
         std::exit( asn1_codec.filetest() );
