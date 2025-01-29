@@ -1,10 +1,10 @@
 # cmake_minimum_required(VERSION 2.6)
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 
 project(ACM)
 
 # need to set these prior to setting any targets.
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -38,6 +38,8 @@ link_directories("/usr/local/lib")
 # CPP Preprocessor variable PDU is used in the asn1-j2735-lib.h file to build a variable to a ASN.1 parsing structure.
 # This variable may need changing if we are parsing some other type of ASN.1 schema.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPDU=MessageFrame")
+
+add_definitions(-H -DASIO_STANDALONE -std=c++11)
 
 # Use the include + target_sources pattern; this just sets up the container for the list of source files.
 add_executable(acm "")
