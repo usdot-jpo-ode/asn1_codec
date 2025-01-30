@@ -62,6 +62,46 @@ bool Http_Server::http_server() {
         return "Hello world, this is crow!!";
     });
 
+    // From https://github.com/CrowCpp/Crow/blob/master/examples/example.cpp#L153
+    //      * curl -d '{"a":1,"b":2}' {ip}:18080/add_json
+    CROW_ROUTE(app, "/add_json")
+      .methods("POST"_method)([](const crow::request& req) {
+          auto x = crow::json::load(req.body);
+          if (!x)
+              return crow::response(400);
+          int sum = x["a"].i() + x["b"].i();
+          ostringstream os;
+          os << sum;
+          return crow::response{os.str()};
+      });
+
+    CROW_ROUTE(app, "/batch/uper/hex/xer")
+        .methods("POST"_method)([&](const crow::request& req){
+            vector<string> hex_line_array;
+            vector<string> xml_line_array;
+            string hex_line;
+            long msgCount = 0;
+            
+            istringstream infile(req.body);
+
+            while (getline(infile, hex_line)) {
+                if (hex_line == "") break;
+                ++msgCount;
+                hex_line_array.push_back(hex_line);
+            }
+            cout << "Read " << msgCount << " hex lines" << endl;  
+            
+            bool err = batch.decode_messageframe_data_batch(hex_line_array, xml_line_array);
+            
+            std::ostringstream outfile;
+            for (auto an_xml_line : xml_line_array) {
+                outfile << an_xml_line << endl;
+            }
+            string xml_result(outfile.str());
+            
+            return crow::response("text/plain", xml_result);
+        });
+
     cout << "Starting HTTP server" << endl;
     app.port(8080).run();
 
