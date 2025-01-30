@@ -2083,8 +2083,7 @@ int main( int argc, char* argv[] )
     } else if (asn1_codec.optIsSet('H')) {
         // Run HTTP server
         std::cout << "Run HTTP Server" << std::endl;
-        ASN1_Batch_Codec batch_codec(asn1_codec);
-        Http_Server server(batch_codec);
+        Http_Server server(asn1_codec);
         std::exit( server.http_server() );
     } else if (asn1_codec.optIsSet('F')) {
         // Only used when an input file is specified.

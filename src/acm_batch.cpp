@@ -150,8 +150,8 @@ vector<vector<char>> ASN1_Batch_Codec::batch_hex_to_bytes(vector<string>& batch_
     vector<vector<char>> bytes_list;
     for (auto a_hex_line : batch_hex) {
         vector<char> bytes;
-        bool err = codec.hex_to_bytes_(a_hex_line, bytes);
-        if (err) {
+        bool ok = codec.hex_to_bytes_(a_hex_line, bytes);
+        if (!ok) {
             cout << "Error decoding hex to bytes: " << a_hex_line << endl;
             continue;
         }
