@@ -17,44 +17,7 @@ Http_Server::~Http_Server()
 
 
 bool Http_Server::http_server() {
-    // httplib::Server svr;
-
-    // svr.Get("/hello", [](const httplib::Request & /*req*/, httplib::Response &res){
-    //     res.set_content("Hello world!", "text/plain");
-    // });
-
-
-    // svr.Post("/batch/uper/hex/xer", 
-    //     [this](const httplib::Request &req, httplib::Response &res){
-            
-    //         std::vector<std::string> hex_line_array;
-    //         std::vector<std::string> xml_line_array;
-    //         std::string hex_line;
-    //         long msgCount = 0;
-
-    //         std::istringstream infile(req.body);
-    //         // req.body has newlines stripped for unknown reasons, use space as delimiter
-    //         const char delim(' ');
-    //         while (std::getline(infile, hex_line, delim)) {
-    //             if (hex_line == "") break;
-    //             ++msgCount;
-    //             hex_line_array.push_back(hex_line);
-    //         }
-    //         std::cout << "Read " << msgCount << " hex lines" << std::endl;  
-            
-    //         bool err = batch.decode_messageframe_data_batch(hex_line_array, xml_line_array);
-            
-    //         std::ostringstream outfile;
-    //         for (auto an_xml_line : xml_line_array) {
-    //             outfile << an_xml_line << std::endl;
-    //         }
-    //         std::string xml_result(outfile.str());
-    //         res.set_content(xml_result, "text/plain");
-    //     });
     
-    // std::cout << "Starting HTTP server" << std::endl;
-    // svr.listen("0.0.0.0", 8080);
-
     crow::SimpleApp app;
 
     CROW_ROUTE(app, "/hello")
@@ -75,8 +38,18 @@ bool Http_Server::http_server() {
           return crow::response{os.str()};
       });
 
-    CROW_ROUTE(app, "/batch/uper/hex/xer")
-        .methods("POST"_method)([&](const crow::request& req){
+    CROW_ROUTE(app, "/batch/uper/<string>/xer")
+        .methods("POST"_method)
+        ([this](const crow::request& req, string uper_text_encoding){
+
+            cout << uper_text_encoding << endl;
+
+            if (uper_text_encoding != "hex" && uper_text_encoding != "b64") {
+                cerr << "Unknown uper text encoding: " << uper_text_encoding 
+                    << ". 'hex' or 'b64' are allowed." << endl;
+                return crow::response(400, "text/plain", "Error");
+            }
+
             vector<string> hex_line_array;
             vector<string> xml_line_array;
             string hex_line;
@@ -84,14 +57,16 @@ bool Http_Server::http_server() {
             
             istringstream infile(req.body);
 
+            // Use curl --data-binary to preserve newlinse
             while (getline(infile, hex_line)) {
                 if (hex_line == "") break;
                 ++msgCount;
                 hex_line_array.push_back(hex_line);
             }
-            cout << "Read " << msgCount << " hex lines" << endl;  
+            cout << "Read " << msgCount << " uper lines" << endl;  
             
-            bool err = batch.decode_messageframe_data_batch(hex_line_array, xml_line_array);
+            vector<vector<char>> bytes = batch.batch_hex_to_bytes(hex_line_array);
+            bool err2 = batch.decode_messageframe_data_batch(bytes, xml_line_array);
             
             std::ostringstream outfile;
             for (auto an_xml_line : xml_line_array) {

@@ -116,3 +116,52 @@ bool ASN1_Batch_Codec::decode_messageframe_data_batch(vector<string>& batch_hex,
     return err;
 }
 
+bool ASN1_Batch_Codec::decode_messageframe_data_batch(vector<vector<char>>& batch_bytes, vector<string>& batch_xml) {
+    bool err;
+
+    long t1millis = get_epoch_milliseconds();
+    cout << "Start decoding at " << t1millis << endl;
+    
+    buffer_structure_t xb = {0, 0, 0};
+    for (auto bytes : batch_bytes) {
+        xb.buffer = 0;
+        xb.buffer_size = 0;
+        xb.allocated_size = 0;
+        err = codec.decode_messageframe_data(bytes, &xb);
+        string xml_line(xb.buffer, xb.buffer_size);
+        free(static_cast<void *>(xb.buffer));
+        batch_xml.push_back(xml_line);
+    }
+
+    long t2millis = get_epoch_milliseconds();
+    long delta = t2millis - t1millis;
+    cout << "Finished decoding in " << delta << " milliseconds." <<  endl;
+
+    return err;
+}
+
+
+
+vector<vector<char>> ASN1_Batch_Codec::batch_hex_to_bytes(vector<string>& batch_hex) {
+    
+    long t1millis = get_epoch_milliseconds();
+    cout << "Start decoding hex at " << t1millis << endl;
+
+    vector<vector<char>> bytes_list;
+    for (auto a_hex_line : batch_hex) {
+        vector<char> bytes;
+        bool err = codec.hex_to_bytes_(a_hex_line, bytes);
+        if (err) {
+            cout << "Error decoding hex to bytes: " << a_hex_line << endl;
+            continue;
+        }
+        bytes_list.push_back(bytes);
+    }
+
+    long t2millis = get_epoch_milliseconds();
+    long delta = t2millis - t1millis;
+    cout << "Finished decoding hex in " << delta << " milliseconds." <<  endl;
+    
+    return bytes_list;
+}
+

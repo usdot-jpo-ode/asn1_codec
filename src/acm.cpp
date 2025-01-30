@@ -1434,6 +1434,77 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
     logger->trace(fnname + ": finished.");
     return true;
 }
+
+
+bool ASN1_Codec::decode_messageframe_data( std::vector<char>& data_as_bytes, buffer_structure_t* xml_buffer ) {
+    const std::string fnname = "decode_messageframe_data_bytes()";
+
+    asn_dec_rval_t decode_rval;
+    asn_enc_rval_t encode_rval;
+
+    errlen = max_errbuf_size;
+
+    MessageFrame_t *messageframe = 0;           // must be initialized to 0.
+
+    logger->trace(fnname + ": starting...");
+
+    if (data_as_bytes.empty()) {
+        throw Asn1CodecError{"failed attempt to decode MessageFrame byte array: empty array."};
+    }
+
+    logger->trace(fnname + ": successful conversion to raw byte buffer.");
+
+    decode_rval = asn_decode( 
+            0, 
+            decode_messageframe_type, 
+            &asn_DEF_MessageFrame,
+            (void **)&messageframe,
+            data_as_bytes.data(), 
+            data_as_bytes.size() 
+            );
+
+    if ( decode_rval.code != RC_OK ) {
+        erroross.str("");
+        erroross << "failed ASN.1 binary decoding of element " << asn_DEF_MessageFrame.name << ": ";
+        if ( decode_rval.code == RC_FAIL ) {
+            erroross << "bad data.";
+        } else {
+            erroross << "more data expected.";
+        }
+        erroross << " Successfully decoded " << decode_rval.consumed << " bytes.";
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    logger->trace(fnname + ": ASN.1 binary decode successful.");
+
+    if (asn_check_constraints( &asn_DEF_MessageFrame, messageframe, errbuf, &errlen )) {
+        erroross.str("");
+        erroross << "failed ASN.1 constraints check of element " << asn_DEF_MessageFrame.name << ": ";
+        erroross.write( errbuf, errlen );
+        ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    // Encode the Ieee1609Dot2Data ASN.1 C struct into XML, so we can extract out the BSM.
+    encode_rval = xer_encode( 
+            &asn_DEF_MessageFrame, 
+            messageframe, 
+            XER_F_CANONICAL, 
+            dynamic_buffer_append, 
+            static_cast<void *>(xml_buffer) 
+            );
+
+    ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
+
+    if ( encode_rval.encoded == -1 ) {
+        erroross.str("");
+        erroross << "failed ASN.1 XML encoding of MessageFrame element " << encode_rval.failed_type->name;
+        throw Asn1CodecError{ erroross.str() };
+    }
+
+    logger->trace(fnname + ": finished.");
+    return true;
+}
         
 void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& hex_string) {
     const std::string fnname = "encode_frame_data()";

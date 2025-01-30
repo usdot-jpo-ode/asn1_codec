@@ -245,6 +245,9 @@ class ASN1_Codec : public tool::Tool {
         bool setup_logger_for_testing();
 
         bool decode_messageframe_data(std::string& data_as_hex, buffer_structure_t* xml_buffer);
+        bool decode_messageframe_data(std::vector<char>& data_as_bytes, buffer_structure_t* xml_buffer);
+
+        bool hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer);
 
     private:
 
@@ -310,7 +313,7 @@ class ASN1_Codec : public tool::Tool {
         std::vector<char> byte_buffer;                                 ///> storage for hex to byte and byte to hex encoder/decoder.
 
 
-        bool hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer);
+        
         bool bytes_to_hex_(buffer_structure_t* buf_struct, std::string& payload_hex );
 
         // ASN.1 Compiler
