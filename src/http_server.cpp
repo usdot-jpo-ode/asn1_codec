@@ -26,13 +26,38 @@ long Http_Server::get_epoch_milliseconds() {
     return millis;
 }
 
-
+/**
+ * Runs an HTTP server with REST methods of the form:
+ *     
+ *     /<spec>/<from-encoding>/<to-encoding> 
+ * 
+ * for single message conversions, or:
+ * 
+ *     /batch/<spec>/<from-encoding>/<to-encoding> 
+ * 
+ * for batch conversions.
+ * 
+ * Path parameters:
+ *     
+ *     <spec> 
+ *         is the name of an ASN.1 specification, eg. j2735, 1609.2, asd
+ * 
+ *     <to-encoding> and 
+ *     <from-encoding> 
+ *          are ASN.1 encodings, eg. uper, oer, xer, jer.
+ * 
+ * Currently supported methods:
+ * 
+ *     /j2735/uper/xer
+ *     /batch/j2735/uper/xer
+ *     
+ */
 bool Http_Server::http_server() {
     
     crow::SimpleApp app;
 
     /**
-     * Endpoint to decode a single UPER/hex MessageFrame to XER.
+     * Endpoint to decode a single UPER/hex J2735 MessageFrame to XER.
      * 
      * Accepts Content-Type:
      * 
@@ -47,7 +72,7 @@ bool Http_Server::http_server() {
      *    The MessageFrame converted to XER
      * 
      */
-    CROW_ROUTE(app, "/uper/hex/xer")
+    CROW_ROUTE(app, "/j2735/uper/xer")
         .methods("POST"_method)
         ([this](const crow::request& req) {
             
@@ -67,7 +92,7 @@ bool Http_Server::http_server() {
         });
 
     /**
-     * Endpoint to decode a batch of UPER/hex MessageFrames to XER.
+     * Endpoint to decode a batch of UPER/hex J2735 MessageFrames to XER.
      * 
      * Accepts Content-Types:
      *     
@@ -93,7 +118,7 @@ bool Http_Server::http_server() {
      *    BSM,1683155410467
      *    <MessageFrame><messageId>20</messageId><value><BasicSafetyMessage>...
      */
-    CROW_ROUTE(app, "/batch/uper/hex/xer")
+    CROW_ROUTE(app, "/batch/j2735/uper/xer")
         .methods("POST"_method)
         ([this](const crow::request& req){
 
