@@ -80,6 +80,7 @@ bool Http_Server::http_server() {
             buffer_structure_t xb = {0, 0, 0};
             bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
             if (!decodeOk) {
+                free(static_cast<void *>(xb.buffer));
                 string msg("Error decoding uper: ");
                 string err_msg = msg + hex_line;
                 cerr << err_msg << endl;
@@ -160,6 +161,7 @@ bool Http_Server::http_server() {
                 buffer_structure_t xb = {0, 0, 0};
                 bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
                 if (!decodeOk) {
+                    free(static_cast<void *>(xb.buffer));
                     cout << "Error decoding uper: " << hex_line << endl;
                     continue;
                 }
