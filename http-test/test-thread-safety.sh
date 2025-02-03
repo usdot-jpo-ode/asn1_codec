@@ -7,7 +7,7 @@
 #   * A Bash command line (for example Git Bash or WSL on Windows)
 #   * curl installed
 #
-# This script sends large batches of rmessage frames over 4 simultaneous HTTP connections.
+# This script sends large batches of message frames over 4 simultaneous HTTP connections.
 #
 # Run the app in server mode in Docker, and observe the container log for decoding errors
 # while running this script.  If intermittent/periodic decoding errors are seen with this

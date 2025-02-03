@@ -27,6 +27,10 @@ if (${APPLE})
     link_directories("${MACPORTS_DIR}/local/lib" "/usr/lib" "/usr/local/lib")
 endif ()
 
+# Make headers available to IDE
+include_directories("${CMAKE_SOURCE_DIR}/pugixml/src")
+include_directories("${CMAKE_SOURCE_DIR}/generated-files/2024")
+
 #### BUILD TARGET FOR THE ASN1_Codec ####
 
 # before the add_executable
