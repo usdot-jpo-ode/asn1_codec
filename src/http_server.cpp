@@ -102,7 +102,11 @@ bool Http_Server::http_server() {
      * 
      * POST Body: 
      * 
-     *   Either plain text containing one hex MessageFrame per line,
+     *   Either plain text containing one hex MessageFrame per line:
+     * 
+     *     001355222...
+     *     0014250f0...
+     * 
      *   or line-delimited JSON containing one JSON message per line of the form:
      * 
      *     { "timestamp": 1683155399091, "type": "SPAT", "hex": "0013..." }
@@ -111,13 +115,17 @@ bool Http_Server::http_server() {
      * 
      * Returns:
      * 
-     *   For plain text input, returns line-delimited XER,
+     *   For plain text input, returns line-delimited XER:
+     * 
+     *     <MessageFrame><messageId>19</messageId><value><SPAT>...
+     *     <MessageFrame><messageId>20</messageId><value><BasicSafetyMessage>...
+     * 
      *   For JSON input, returns line-delimited XER alternating with the metadata in the format:
      * 
-     *    SPAT,1683155399091
-     *    <MessageFrame><messageId>19</messageId><value><SPAT>...
-     *    BSM,1683155410467
-     *    <MessageFrame><messageId>20</messageId><value><BasicSafetyMessage>...
+     *     SPAT,1683155399091
+     *     <MessageFrame><messageId>19</messageId><value><SPAT>...
+     *     BSM,1683155410467
+     *     <MessageFrame><messageId>20</messageId><value><BasicSafetyMessage>...
      */
     CROW_ROUTE(app, "/batch/j2735/uper/xer")
         .methods("POST"_method)
