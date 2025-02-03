@@ -98,7 +98,7 @@ bool Http_Server::http_server() {
      * Accepts Content-Types:
      *     
      *   text/plain,
-     *   application/json, or other json types.
+     *   application/x-ndjson, or other json types.
      * 
      * POST Body: 
      * 
