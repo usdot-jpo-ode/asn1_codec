@@ -44,7 +44,6 @@
  */
 
 #include "acm.hpp"
-#include "acm_batch.hpp"
 #include "http_server.hpp"
 #include "utilities.hpp"
 #include <iomanip>
@@ -2035,8 +2034,6 @@ int main( int argc, char* argv[] )
     asn1_codec.addOption( 'h', "help", "print out some help" );
     asn1_codec.addOption( 'F', "infile", "accept a file and bypass kafka.", false );
     asn1_codec.addOption( 'T', "codec-type", "The type of codec to use: decode or encode; defaults to decode", true );
-    asn1_codec.addOption( 'B', "batch-input", "Batch input file. Argument is a path to a line-delimited J2735 ASN.1 hex file. Use in conjunction with the 'A' option. Decode mode only; the 'codec-type' option is ignored and Kafka does not run if both this and the 'A' option are set. Does not decode 1609.2", true);
-    asn1_codec.addOption( 'A', "batch-output", "Batch output file. Use in conjunction with the 'B' option. Argument is a file path to output line-delimited XER to.", true);
     asn1_codec.addOption( 'H', "http-server", "Run http server instead of Kafka.", false);
 
     // debug for ASN.1
@@ -2073,14 +2070,7 @@ int main( int argc, char* argv[] )
         }
     }
 
-    if (asn1_codec.optIsSet('A') && asn1_codec.optIsSet('B')) {
-        // Batch input and output.
-        std::cout << "Batch processing" << std::endl;
-        ASN1_Batch_Codec batch_codec(asn1_codec);
-        std::string infile = asn1_codec.optString('B');
-        std::string outfile = asn1_codec.optString('A');
-        std::exit( batch_codec.decode_batch_file(infile, outfile) );
-    } else if (asn1_codec.optIsSet('H')) {
+    if (asn1_codec.optIsSet('H')) {
         // Run HTTP server
         std::cout << "Run HTTP Server" << std::endl;
         Http_Server server(asn1_codec);

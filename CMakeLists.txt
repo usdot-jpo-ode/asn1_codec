@@ -39,7 +39,7 @@ link_directories("/usr/local/lib")
 # This variable may need changing if we are parsing some other type of ASN.1 schema.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPDU=MessageFrame")
 
-add_definitions(-DASIO_STANDALONE -std=c++11)
+add_definitions(-DASIO_STANDALONE)
 
 # Use the include + target_sources pattern; this just sets up the container for the list of source files.
 add_executable(acm "")
