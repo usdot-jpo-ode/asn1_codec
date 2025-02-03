@@ -18,7 +18,7 @@
 
 function send_batch {
     for run in {1..20}; do
-        curl --data-binary "@batch.data.hex" http://localhost:9999/batch/j2735/uper/xer > $1;
+        curl --header "Content-Type: text/plain" --data-binary "@batch.data.hex" http://localhost:9999/batch/j2735/uper/xer > $1;
     done
 }
 
