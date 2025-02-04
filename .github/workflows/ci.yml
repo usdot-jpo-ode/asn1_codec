@@ -43,7 +43,7 @@ jobs:
       - name: Install librdkafka
         run: |
           sudo apt-get -y update && sudo apt-get -y upgrade
-          sudo apt-get -y install automake flex bison
+          sudo apt-get -y install automake flex bison libasio-dev
           sudo apt-get -y install build-essential
           sudo apt -y install cmake g++ libprotobuf-dev protobuf-compiler
           sudo apt-get install autotools-dev
