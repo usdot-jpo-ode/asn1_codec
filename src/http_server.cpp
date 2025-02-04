@@ -15,6 +15,20 @@ Http_Server::Http_Server(ASN1_Codec& asn1_codec) :
     codec(asn1_codec),
     logger("http_server")
 {
+    string portString = getEnvironmentVariable("ACM_HTTP_SERVER_PORT");
+    string concurrencyString = getEnvironmentVariable("ACM_HTTP_SERVER_CONCURRENCY");
+
+    if (!portString.empty()) {
+        port = stoi(portString);
+    } else {
+        cout << "WARNING: ACM_HTTP_SERVER_PORT env variable is not set, using default" << port << endl;
+    }
+
+    if (!concurrencyString.empty()) {
+        concurrency = stoi(concurrencyString);
+    } else {
+        cout << "WARNING: ACM_HTTP_SERVER_CONCURRENCY env variable is not set, using default" << concurrency << endl;
+    }
 }
 
 Http_Server::~Http_Server()
@@ -26,6 +40,14 @@ long Http_Server::get_epoch_milliseconds() {
     const auto epoch = t.time_since_epoch();
     long millis = duration_cast<milliseconds>(epoch).count();
     return millis;
+}
+
+const char* Http_Server::getEnvironmentVariable(std::string variableName) {
+    char* variableValue = getenv(variableName.c_str());
+    if (variableValue == NULL) {
+        return "";
+    }
+    return variableValue;
 }
 
 /**
@@ -82,7 +104,7 @@ bool Http_Server::http_server() {
             buffer_structure_t xb = {0, 0, 0};
             bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
             if (!decodeOk) {
-                free(static_cast<void *>(xb.buffer));
+                free(xb.buffer);
                 string msg("Error decoding uper: ");
                 string err_msg = msg + hex_line;
                 logger.error(err_msg);
@@ -205,9 +227,15 @@ bool Http_Server::http_server() {
             return crow::response("text/plain", xml_result);
         });
 
-
-    logger.info("Starting HTTP server");
-    app.port(8080).concurrency(4).run();
+    {
+        ostringstream msg;
+        msg << "Starting HTTP server on port " << port << ", using " << concurrency << " threads.";
+        logger.info(msg.str());
+    }
+    app.port(port)
+        .concurrency(concurrency)
+        .loglevel(crow::LogLevel::Warning)
+        .run();
 
     return EXIT_SUCCESS;
 }

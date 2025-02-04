@@ -12,7 +12,10 @@ class Http_Server {
     private:
         ASN1_Codec& codec;
         AcmLogger logger;
-        long get_epoch_milliseconds();
+        static const char* getEnvironmentVariable(std::string var);
+        static long get_epoch_milliseconds();
+        int port = 8080;
+        int concurrency = 4;
 };
 
 #endif
