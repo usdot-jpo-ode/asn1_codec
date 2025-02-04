@@ -78,6 +78,10 @@ RUN apk add --upgrade --no-cache \
 COPY --from=builder /asn1_codec /asn1_codec
 COPY --from=builder /build /build
 
+# Use jemalloc
+RUN apk add --upgrade --no-cache jemalloc
+ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
+
 # run ACM
 RUN chmod 7777 /asn1_codec/run_acm.sh
 CMD ["/asn1_codec/run_acm.sh"]

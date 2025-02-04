@@ -73,6 +73,10 @@ RUN apk add --upgrade --no-cache \
     librdkafka \
     librdkafka-dev
 
+# Use jemalloc
+RUN apk add --upgrade --no-cache jemalloc
+ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
+
 # install editors vim and nano
 RUN apk update && apk add vim nano
 
