@@ -11,7 +11,7 @@ COPY ./confluent.repo /etc/yum.repos.d
 RUN yum clean all
 RUN yum install -y librdkafka-devel
 
-# Install asio from Fedora repo
+# Install asio from Fedora repo (build dependency only)
 COPY ./fedora.repo /etc/yum.repos.d
 RUN dnf --enablerepo=fedora install asio-devel -y
 
@@ -65,10 +65,6 @@ RUN rpm --import https://packages.confluent.io/rpm/7.6/archive.key
 COPY ./confluent.repo /etc/yum.repos.d
 RUN yum clean all
 RUN yum install -y librdkafka-devel
-
-# Install asio from Fedora repo
-COPY ./fedora.repo /etc/yum.repos.d
-RUN dnf --enablerepo=fedora install asio-devel -y
 
 # # copy the built files from the builder
 COPY --from=builder /asn1_codec /asn1_codec
