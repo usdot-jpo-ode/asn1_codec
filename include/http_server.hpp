@@ -2,6 +2,7 @@
 #define ACM_HTTP_SERVER_H
 
 #include "acm.hpp"
+#include "acmLogger.hpp"
 
 class Http_Server {
     public:
@@ -10,6 +11,7 @@ class Http_Server {
         bool http_server();
     private:
         ASN1_Codec& codec;
+        AcmLogger logger;
         long get_epoch_milliseconds();
 };
 

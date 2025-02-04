@@ -2018,7 +2018,7 @@ int main( int argc, char* argv[] )
 
     if (asn1_codec.optIsSet('H')) {
         // Run HTTP server
-        std::cout << "Run HTTP Server" << std::endl;
+        asn1_codec.logger->info("Run HTTP Server");
         Http_Server server(asn1_codec);
         std::exit( server.http_server() );
     } else if (asn1_codec.optIsSet('F')) {

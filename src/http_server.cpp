@@ -1,4 +1,5 @@
 #include "http_server.hpp"
+#include "acmLogger.hpp"
 
 // Note: Crow depends on asio.  Asio standalone library does not compile
 // on Alpine due to not being able to find <linux/version.h> header
@@ -11,7 +12,8 @@ using namespace nlohmann;
 using namespace nlohmann::json_abi_v3_11_3;
 
 Http_Server::Http_Server(ASN1_Codec& asn1_codec) :
-    codec(asn1_codec)
+    codec(asn1_codec),
+    logger("http_server")
 {
 }
 
@@ -83,11 +85,11 @@ bool Http_Server::http_server() {
                 free(static_cast<void *>(xb.buffer));
                 string msg("Error decoding uper: ");
                 string err_msg = msg + hex_line;
-                cerr << err_msg << endl;
+                logger.error(err_msg);
                 return crow::response(400, "text/plain", err_msg);
             }
             string xml_line(xb.buffer, xb.buffer_size);
-            free(static_cast<void *>(xb.buffer));
+            free(xb.buffer);
             return crow::response("text/plain", xml_line);
 
         });
@@ -133,10 +135,17 @@ bool Http_Server::http_server() {
 
             string content_type = req.get_header_value("Content-Type");
             const bool is_json = content_type.find("json") != string::npos;
-            cout << "Content-Type: " << content_type << ", is json: " << is_json << endl;
-
+            {
+                ostringstream msg;
+                msg << "Content-Type: " << content_type << ", is json: " << is_json;
+                logger.info(msg.str());
+            }
             long t1millis = get_epoch_milliseconds();
-            cout << "Start decoding at " << t1millis << endl;
+            {
+                ostringstream msg;
+                msg << "Start decoding at " << t1millis;
+                logger.info(msg.str());
+            }
             
             istringstream infile(req.body);
             ostringstream outfile;
@@ -148,7 +157,7 @@ bool Http_Server::http_server() {
             string message_type;
 
             while (getline(infile, line)) {
-                //cout << "line: " << line << endl;
+
                 if (line == "") continue;
                 ++msgCount;
 
@@ -159,7 +168,7 @@ bool Http_Server::http_server() {
                         message_type = json_value["type"];
                         hex_line = json_value["hex"];
                     } catch (json::parse_error& ex) {
-                        cout << "json parse error in line " << line << endl;
+                        logger.error("json parse error in line " + line);
                         continue;
                     }
                 } else {
@@ -169,12 +178,12 @@ bool Http_Server::http_server() {
                 buffer_structure_t xb = {0, 0, 0};
                 bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
                 if (!decodeOk) {
-                    free(static_cast<void *>(xb.buffer));
-                    cout << "Error decoding uper: " << hex_line << endl;
+                    free(xb.buffer);
+                    logger.error("Error decoding uper: " + hex_line);
                     continue;
                 }
                 string xml_line(xb.buffer, xb.buffer_size);
-                free(static_cast<void *>(xb.buffer));
+                free(xb.buffer);
                 
                 // If json, write additional info on line before decoded xml
                 if (is_json) {
@@ -186,13 +195,18 @@ bool Http_Server::http_server() {
            
             long t2millis = get_epoch_milliseconds();
             long delta = t2millis - t1millis;
-            cout << "Finished decoding " << msgCount << " uper messages in " << delta << " milliseconds." <<  endl;
-        
+            {
+                ostringstream msg;
+                msg << "Finished decoding " << msgCount << " uper messages in " << delta << " milliseconds.";
+                logger.info(msg.str());
+            }
+
             string xml_result(outfile.str());
             return crow::response("text/plain", xml_result);
         });
 
-    cout << "Starting HTTP server" << endl;
+
+    logger.info("Starting HTTP server");
     app.port(8080).concurrency(4).run();
 
     return EXIT_SUCCESS;
