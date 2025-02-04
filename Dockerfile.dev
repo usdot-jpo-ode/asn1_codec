@@ -11,7 +11,8 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
     make \
     bash \
     librdkafka \
-    librdkafka-dev 
+    librdkafka-dev \
+    asio-dev
 
 # Dependencies that are not needed if asn1c is not installed in the build container:
 # libtool
