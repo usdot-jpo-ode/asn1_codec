@@ -2,7 +2,7 @@ services:
   asn1_codec:
     build:
       context: .
-      dockerfile: Dockerfile.server.amazonlinux
+      dockerfile: Dockerfile.server.alpine
     ports:
       - "9999:8080"
     environment:
