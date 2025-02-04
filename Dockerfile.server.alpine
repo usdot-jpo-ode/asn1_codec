@@ -77,8 +77,7 @@ VOLUME ["/asn1_codec_share"]
 RUN apk add --upgrade --no-cache \
     bash \
     librdkafka \
-    librdkafka-dev \
-    asio-dev
+    librdkafka-dev
 
 # copy the built files from the builder
 COPY --from=builder /asn1_codec /asn1_codec
