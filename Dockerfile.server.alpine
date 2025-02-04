@@ -84,5 +84,15 @@ COPY --from=builder /asn1_codec/config /asn1_codec/config
 COPY --from=builder /asn1_codec/run_acm_server.sh /asn1_codec
 COPY --from=builder /build /build
 
-# Keep the container running but don't start up the app
+# Use either jemalloc or mimalloc for better performance, esp. with multithreading
+
+# Use jemalloc
+RUN apk add --upgrade --no-cache jemalloc
+ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
+
+## Use mimalloc
+#RUN apk add --upgrade --no-cache mimalloc
+#ENV LD_PRELOAD=/usr/lib/libmimalloc.so.2
+
+# Start server
 CMD ["/asn1_codec/run_acm_server.sh"]
