@@ -4,13 +4,23 @@ asn1_codec Release Notes
 Version 3.0.0, released January 2025
 ----------------------------------------
 ### **Summary**
-The main changes include switching the default configurations to use zstd (ZStandard) compression, updating the J2735 specification to the 2024 version, and updating GitHub Actions workflows with the latest versions of third-party actions from external repositories to remove Node.js and other deprecation warnings.
+The main updates include:
+- Changing the default configurations to use ZStandard (zstd) compression.
+- Updating GitHub Actions workflows with the latest versions of third-party actions from external repositories to eliminate Node.js deprecation warnings.
+- Introducing partial compatibility with J2735 2024.
+
+However, there is a limitation. Due to [a bug in the ASN.1 Compiler](https://github.com/usdot-fhwa-stol/usdot-asn1c/issues/2), the VehicleEventFlags bitstring has been reverted to its 2020 version, omitting the 
+eventJackKnife bit introduced in the 2024 revision. As a result, the eventJackKnife bit will not appear in output BSMs until the issue is resolved.
+
 - [CDOT PR 34](https://github.com/CDOT-CV/asn1_codec/pull/34): Compression
 - [CDOT PR 35](https://github.com/CDOT-CV/asn1_codec/pull/35): Update j2735 version to 2024.
+- [CDOT PR 37](https://github.com/CDOT-CV/asn1_codec/pull/37): Workaround bsm vehicle event flags issue
+- [CDOT PR 39](https://github.com/CDOT-CV/asn1_codec/pull/39): Renamed PartIIcontent to BSMpartIIExtension in test data
 - [USDOT PR 62](https://github.com/usdot-jpo-ode/asn1_codec/pull/62): Update GitHub Actions Third-Party Action Versions
 
 ### Breaking Changes
-In the 2024 TIM message specification, the following fields in the `TravelerDataFrame` sequence have been renamed. This is a breaking change to the XML encoding, requiring an update to the ODE POJOs. However, the UPER encoding remains independent of these names and remains backward compatible.
+In the 2024 TIM message specification, the following fields in the `TravelerDataFrame` sequence have been renamed. This is a breaking change to the XML 
+encoding, requiring an update to the ODE POJOs. However, the UPER encoding remains independent of these names and remains backward compatible.
 
 notUsed -> doNotUse1
 notUsed1 -> doNotUse2
