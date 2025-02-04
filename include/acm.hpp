@@ -306,18 +306,12 @@ class ASN1_Codec : public tool::Tool {
         pugi::xpath_query ode_payload_query;
         pugi::xpath_query ode_encodings_query;
 
-        std::ostringstream erroross;
 		bool add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1ErrorType et, std::string message, bool update_time = false );
 
-        std::vector<char> byte_buffer;                                 ///> storage for hex to byte and byte to hex encoder/decoder.
-
-
-        
         bool bytes_to_hex_(buffer_structure_t* buf_struct, std::string& payload_hex );
 
         // ASN.1 Compiler
-        std::size_t errlen;
-        char errbuf[max_errbuf_size];
+        //char errbuf[max_errbuf_size];
 
 		// TODO: A byte flag word is needed here since we will set multiple decode / encoders.
 		uint32_t opsflag;

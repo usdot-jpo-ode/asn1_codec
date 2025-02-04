@@ -3,10 +3,11 @@
 {
 	"name": "Amazon Linux",
 	
- .   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"dockerComposeFile": "../../docker-compose-server.yml",
-	"service": "asn1_codec",
-	"workspaceFolder": "/",
+    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "amazonlinux:2023",
+//	"dockerComposeFile": "../../docker-compose-server.yml",
+//	"service": "asn1_codec",
+//	"workspaceFolder": "/",
 
 
 	// Features to add to the dev container. More info: https://containers.dev/features.

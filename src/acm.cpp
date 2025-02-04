@@ -193,8 +193,6 @@ ASN1_Codec::ASN1_Codec( const std::string& name, const std::string& description 
     , ieee1609dot2_unsecuredData_query{"Ieee1609Dot2Data/content//unsecuredData"}  // this will work on both signed and unsigned
     , ode_payload_query{"OdeAsn1Data/payload/data"}
     , ode_encodings_query{"OdeAsn1Data/metadata/encodings"}
-    , erroross{}
-    , byte_buffer{}
 	, opsflag{0}
     , decode_1609dot2{ false }
     , decode_messageframe{ false }
@@ -979,7 +977,9 @@ bool ASN1_Codec::process_message(RdKafka::Message* message, std::stringstream& o
 
             parse_result = input_doc.load_buffer((const void*) message->payload(), message->len(), xml_parse_options );
 
+
             if (!parse_result) {
+                std::ostringstream erroross;
                 erroross.str("");
                 erroross << "Input file parse error: " << parse_result.description() << " at offset " << parse_result.offset;
                 throw UnparseableInputError{ erroross.str() };
@@ -1067,6 +1067,7 @@ bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream
 			parse_result = internal_doc.load_buffer(static_cast<const void *>( xb.buffer), xb.buffer_size );
 
 			if ( !parse_result ) {
+			    std::ostringstream erroross;
 				erroross.str("");
 				erroross << "IEEE 1609.2 decoded XER cannot be parsed/loaded as a valid document: " << parse_result.description() << " at offset " << parse_result.offset;
 				throw Asn1CodecError{ erroross.str() };
@@ -1096,6 +1097,7 @@ bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream
 			parse_result = internal_doc.load_buffer( static_cast<const void *>( xb.buffer), xb.buffer_size );
 
 			if ( !parse_result ) {
+			    std::ostringstream erroross;
 				erroross.str("");
 				erroross <<"J2735 decoded XER cannot be parsed/loaded as a valid document: "<< parse_result.description() << " at offset " << parse_result.offset;
 				throw Asn1CodecError{ erroross.str() };
@@ -1275,7 +1277,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
     // } asn_enc_rval_t;
     asn_enc_rval_t encode_rval;
 
-    errlen = max_errbuf_size;
+    std::size_t errlen(max_errbuf_size);
 
     Ieee1609Dot2Data_t *ieee1609data = 0;        // must initialize to 0 according to asn.1 instructions.
 
@@ -1290,7 +1292,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
 
     logger->trace(fnname + ": success extracting " + asn_DEF_Ieee1609Dot2Data.name + " hex string: " + data_as_hex );
 
-    byte_buffer.clear();
+    std::vector<char> byte_buffer;
     if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
         throw Asn1CodecError{"failed attempt to decode IEEE 1609.2 hex string: cannot convert to bytes."};
     }
@@ -1308,6 +1310,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
             );
 
     if ( decode_rval.code != RC_OK ) {
+        std::ostringstream erroross;
         erroross.str("");
         erroross << "failed ASN.1 binary decoding of element " << asn_DEF_Ieee1609Dot2Data.name << ": ";
         if ( decode_rval.code == RC_FAIL ) {
@@ -1322,7 +1325,9 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
     logger->trace(fnname + ": ASN.1 binary decode success." );
 
     // check the data in the returned structure against the ASN.1 specification constraints.
+    char errbuf[max_errbuf_size];
     if (asn_check_constraints( &asn_DEF_Ieee1609Dot2Data, ieee1609data, errbuf, &errlen )) {
+        std::ostringstream erroross;
         erroross.str("");
         erroross << "failed ASN.1 constraints check of element " << asn_DEF_Ieee1609Dot2Data.name << ": ";
         erroross.write( errbuf, errlen );
@@ -1342,6 +1347,7 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
     ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, ieee1609data);
 
     if ( encode_rval.encoded == -1 ) {
+        std::ostringstream erroross;
         erroross.str("");
         erroross << "failed ASN.1 XML encoding of Ieee1609Dot2Data element " << encode_rval.failed_type->name;
         throw Asn1CodecError{ erroross.str() };
@@ -1360,7 +1366,7 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
     asn_dec_rval_t decode_rval;
     asn_enc_rval_t encode_rval;
 
-    errlen = max_errbuf_size;
+    std::size_t errlen(max_errbuf_size);
 
     MessageFrame_t *messageframe = 0;           // must be initialized to 0.
 
@@ -1375,7 +1381,7 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
 
     logger->trace(fnname + ": success extracting " + asn_DEF_MessageFrame.name + " hex string: " + data_as_hex);
 
-    byte_buffer.clear();
+    std::vector<char> byte_buffer;
     if (!hex_to_bytes_(data_as_hex, byte_buffer)) {
         throw Asn1CodecError{"failed attempt to decode MessageFrame hex string: cannot convert to bytes."};
     }
@@ -1392,6 +1398,7 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
             );
 
     if ( decode_rval.code != RC_OK ) {
+        std::ostringstream erroross;
         erroross.str("");
         erroross << "failed ASN.1 binary decoding of element " << asn_DEF_MessageFrame.name << ": ";
         if ( decode_rval.code == RC_FAIL ) {
@@ -1405,7 +1412,9 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
 
     logger->trace(fnname + ": ASN.1 binary decode successful.");
 
+    char errbuf[max_errbuf_size];
     if (asn_check_constraints( &asn_DEF_MessageFrame, messageframe, errbuf, &errlen )) {
+        std::ostringstream erroross;
         erroross.str("");
         erroross << "failed ASN.1 constraints check of element " << asn_DEF_MessageFrame.name << ": ";
         erroross.write( errbuf, errlen );
@@ -1425,6 +1434,7 @@ bool ASN1_Codec::decode_messageframe_data( std::string& data_as_hex, buffer_stru
     ASN_STRUCT_FREE(asn_DEF_MessageFrame, messageframe);
 
     if ( encode_rval.encoded == -1 ) {
+        std::ostringstream erroross;
         erroross.str("");
         erroross << "failed ASN.1 XML encoding of MessageFrame element " << encode_rval.failed_type->name;
         throw Asn1CodecError{ erroross.str() };
@@ -1469,7 +1479,7 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
             break;
     }
 
-    errlen = max_errbuf_size;
+    std::size_t errlen(max_errbuf_size);
 
     decode_rval = xer_decode( 
             0 				// new parameter addition seems to work with nullptr.
@@ -1480,6 +1490,7 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
             );
 
     if ( decode_rval.code != RC_OK ) {
+        std::ostringstream erroross;
         erroross.str("");
         erroross << "failed ASN.1 decoding of XML element " << data_struct->name << ": ";
         if ( decode_rval.code == RC_FAIL ) {
@@ -1491,7 +1502,9 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
         throw Asn1CodecError{ erroross.str() };
     }
 
+    char errbuf[max_errbuf_size];
     if (asn_check_constraints( data_struct, frame_data, errbuf, &errlen )) {
+        std::ostringstream erroross;
         erroross.str("");
         erroross << "failed ASN.1 constraints check of element " << data_struct->name << ": ";
         erroross.write( errbuf, errlen );
@@ -1513,6 +1526,7 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
     ASN_STRUCT_FREE(*data_struct, frame_data);
 
     if ( encode_rval.encoded == -1 ) {
+        std::ostringstream erroross;
         erroross.str("");
         erroross << "failed ASN.1 encoding of SDWTIM element " << encode_rval.failed_type->name;
         throw Asn1CodecError{ erroross.str() };
@@ -1649,6 +1663,7 @@ bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode)
             pugi::xml_parse_result result = input_doc.load_buffer((const void*) consumed_xml_buffer.data(), consumed_xml_buffer.size(), xml_parse_options );
 
             if (!result) {
+                std::ostringstream erroross;
                 erroross.str("");
                 erroross << "Input file parse error: " << result.description() << " at offset " << result.offset;
                 throw UnparseableInputError{ erroross.str() };
@@ -1759,6 +1774,7 @@ bool ASN1_Codec::filetest() {
             pugi::xml_parse_result result = input_doc.load_buffer((const void*) consumed_xml_buffer.data(), consumed_xml_buffer.size(), xml_parse_options );
 
             if (!result) {
+                std::ostringstream erroross;
                 erroross.str("");
                 erroross << "Input file parse error: " << result.description() << " at offset " << result.offset;
                 throw UnparseableInputError{ erroross.str() };
