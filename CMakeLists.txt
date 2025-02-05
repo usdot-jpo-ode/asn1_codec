@@ -46,7 +46,8 @@ link_directories("/usr/local/lib")
 # This variable may need changing if we are parsing some other type of ASN.1 schema.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPDU=MessageFrame")
 
-# Using boost/asio, not standalone asio
+# Currently using boost/asio, not standalone asio.
+# If it were desired to use standalone asio, uncomment the following:
 #add_definitions(-DASIO_STANDALONE)
 
 # Use the include + target_sources pattern; this just sets up the container for the list of source files.
