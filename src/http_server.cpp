@@ -1,9 +1,5 @@
 #include "http_server.hpp"
 #include "acmLogger.hpp"
-
-// Note: Crow depends on asio.  Asio standalone library does not compile
-// on Alpine due to not being able to find <linux/version.h> header
-#include "crow/crow_all.h"
 #include "nlohmann/json.hpp"
 
 using namespace std;
@@ -99,21 +95,7 @@ bool Http_Server::http_server() {
     CROW_ROUTE(app, "/j2735/uper/xer")
         .methods("POST"_method)
         ([this](const crow::request& req) {
-            
-            string hex_line(req.body);
-            buffer_structure_t xb = {0, 0, 0};
-            bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
-            if (!decodeOk) {
-                free(xb.buffer);
-                string msg("Error decoding uper: ");
-                string err_msg = msg + hex_line;
-                logger.error(err_msg);
-                return crow::response(400, "text/plain", err_msg);
-            }
-            string xml_line(xb.buffer, xb.buffer_size);
-            free(xb.buffer);
-            return crow::response("text/plain", xml_line);
-
+            return post_single(req);
         });
 
     /**
@@ -154,84 +136,14 @@ bool Http_Server::http_server() {
     CROW_ROUTE(app, "/batch/j2735/uper/xer")
         .methods("POST"_method)
         ([this](const crow::request& req){
-
-            string content_type = req.get_header_value("Content-Type");
-            const bool is_json = content_type.find("json") != string::npos;
-            {
-                ostringstream msg;
-                msg << "Content-Type: " << content_type << ", is json: " << is_json;
-                logger.info(msg.str());
-            }
-            long t1millis = get_epoch_milliseconds();
-            {
-                ostringstream msg;
-                msg << "Start decoding at " << t1millis;
-                logger.info(msg.str());
-            }
-            
-            istringstream infile(req.body);
-            ostringstream outfile;
-            long msgCount = 0;
-            string line;
-            string hex_line;
-            json json_value;
-            long timestamp;
-            string message_type;
-
-            while (getline(infile, line)) {
-
-                if (line == "") continue;
-                ++msgCount;
-
-                if (is_json) {
-                    try {
-                        json_value = json::parse(line);
-                        timestamp = json_value["timestamp"];
-                        message_type = json_value["type"];
-                        hex_line = json_value["hex"];
-                    } catch (json::parse_error& ex) {
-                        logger.error("json parse error in line " + line);
-                        continue;
-                    }
-                } else {
-                    hex_line = line;
-                }
-
-                buffer_structure_t xb = {0, 0, 0};
-                bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
-                if (!decodeOk) {
-                    free(xb.buffer);
-                    logger.error("Error decoding uper: " + hex_line);
-                    continue;
-                }
-                string xml_line(xb.buffer, xb.buffer_size);
-                free(xb.buffer);
-                
-                // If json, write additional info on line before decoded xml
-                if (is_json) {
-                    outfile << message_type << "," << timestamp << endl;
-                }
-
-                outfile << xml_line << endl;
-            }
-           
-            long t2millis = get_epoch_milliseconds();
-            long delta = t2millis - t1millis;
-            {
-                ostringstream msg;
-                msg << "Finished decoding " << msgCount << " uper messages in " << delta << " milliseconds.";
-                logger.info(msg.str());
-            }
-
-            string xml_result(outfile.str());
-            return crow::response("text/plain", xml_result);
+            return post_batch(req);
         });
 
-    {
-        ostringstream msg;
-        msg << "Starting HTTP server on port " << port << ", using " << concurrency << " threads.";
-        logger.info(msg.str());
-    }
+
+    ostringstream msg;
+    msg << "Starting HTTP server on port " << port << ", using " << concurrency << " threads.";
+    logger.info(msg.str());
+
     app.port(port)
         .concurrency(concurrency)
         .loglevel(crow::LogLevel::Warning)
@@ -239,3 +151,93 @@ bool Http_Server::http_server() {
 
     return EXIT_SUCCESS;
 }
+
+crow::response Http_Server::post_single(const crow::request &req) {
+    string hex_line(req.body);
+    buffer_structure_t xb = {0, 0, 0};
+    bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
+    if (!decodeOk) {
+        free(xb.buffer);
+        string msg("Error decoding uper: ");
+        string err_msg = msg + hex_line;
+        logger.error(err_msg);
+        return crow::response(400, "text/plain", err_msg);
+    }
+    string xml_line(xb.buffer, xb.buffer_size);
+    free(xb.buffer);
+    return crow::response("application/xml", xml_line);
+}
+
+crow::response Http_Server::post_batch(const crow::request &req) {
+    string content_type = req.get_header_value("Content-Type");
+    const bool is_json = content_type.find("json") != string::npos;
+    {
+        ostringstream msg;
+        msg << "Content-Type: " << content_type << ", is json: " << is_json;
+        logger.info(msg.str());
+    }
+    long t1millis = get_epoch_milliseconds();
+    {
+        ostringstream msg;
+        msg << "Start decoding at " << t1millis;
+        logger.info(msg.str());
+    }
+
+    istringstream infile(req.body);
+    ostringstream outfile;
+    long msgCount = 0;
+    string line;
+    string hex_line;
+    json json_value;
+    long timestamp;
+    string message_type;
+
+    while (getline(infile, line)) {
+
+        if (line == "") continue;
+        ++msgCount;
+
+        if (is_json) {
+            try {
+                json_value = json::parse(line);
+                timestamp = json_value["timestamp"];
+                message_type = json_value["type"];
+                hex_line = json_value["hex"];
+            } catch (json::parse_error& ex) {
+                logger.error("json parse error in line " + line);
+                continue;
+            }
+        } else {
+            hex_line = line;
+        }
+
+        buffer_structure_t xb = {0, 0, 0};
+        bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
+        if (!decodeOk) {
+            free(xb.buffer);
+            logger.error("Error decoding uper: " + hex_line);
+            continue;
+        }
+        string xml_line(xb.buffer, xb.buffer_size);
+        free(xb.buffer);
+
+        // If json, write additional info on line before decoded xml
+        if (is_json) {
+            outfile << message_type << "," << timestamp << endl;
+        }
+
+        outfile << xml_line << endl;
+    }
+
+    long t2millis = get_epoch_milliseconds();
+    long delta = t2millis - t1millis;
+    {
+        ostringstream msg;
+        msg << "Finished decoding " << msgCount << " uper messages in " << delta << " milliseconds.";
+        logger.info(msg.str());
+    }
+
+    string xml_result(outfile.str());
+    return crow::response("text/plain", xml_result);
+}
+

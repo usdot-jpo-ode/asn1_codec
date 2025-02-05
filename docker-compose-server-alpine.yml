@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.server.alpine
     ports:
-      - "9999:8080"
+      - "9999:9999"
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_TYPE: "ON-PREM"
