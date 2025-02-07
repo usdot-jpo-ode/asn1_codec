@@ -2,7 +2,7 @@
 
 # Stress test to check for thread safety
 #
-# Prerequesites:
+# Prerequisites:
 #   * Docker
 #   * A Bash command line (for example Git Bash or WSL on Windows)
 #   * curl installed
