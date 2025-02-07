@@ -2,7 +2,7 @@
 
 The ASN.1 Codec Module (ACM) processes Kafka data streams that preset [ODE
 Metadata](https://github.com/usdot-jpo-ode/jpo-ode/blob/develop/docs/metadata_standards.md) wrapped ASN.1 data.  It can perform
-one of two functions depending on how it is started:
+one of three functions depending on how it is started:
 
 1. **Decode**: This function is used to process messages *from* the connected
 vehicle environment *to* ODE subscribers. Specifically, the ACM extacts binary
@@ -10,10 +10,14 @@ data from consumed messages (ODE Metadata Messages) and decodes the binary
 ASN.1 data into a structure that is subsequently encoded into an alternative
 format more suitable for ODE subscribers (currently XML using XER).
 
-1. **Encode**: This function is used to process messages *from* the ODE *to*
+2. **Encode**: This function is used to process messages *from* the ODE *to*
 the connected vehicle environment. Specifically, the ACM extracts
 human-readable data from ODE Metadata and decodes it into a structure that
 is subsequently *encoded into ASN.1 binary data*.
+
+3. **HTTP Server**: This function is used to run an HTTP Server for applications
+that need to decode ASN.1 messages using a request/response paradigm.  Currently, the Kafka
+consumers and producers do not run in this mode.
 
 ![ASN.1 Codec Operations](docs/graphics/asn1codec-operations.png)
 
@@ -21,16 +25,17 @@ is subsequently *encoded into ASN.1 binary data*.
 
 **README.md**
 1. [Release Notes](#release-notes)
-1. [Getting Involved](#getting-involved)
-1. [Documentation](#documentation)
-1. [Generating C Files from ASN.1 Definitions](#generating-c-files-from-asn1-definitions)
-1. [Confluent Cloud Integration](#confluent-cloud-integration)
+2. [Getting Involved](#getting-involved)
+3. [Documentation](#documentation)
+4. [Generating C Files from ASN.1 Definitions](#generating-c-files-from-asn1-definitions)
+5. [Confluent Cloud Integration](#confluent-cloud-integration)
+6. [HTTP Server](#http-server)
 
 **Other Documents**
 1. [Installation](docs/installation.md)
-1. [Configuration and Operation](docs/configuration.md)
-1. [Interface](docs/interface.md)
-1. [Testing](docs/testing.md)
+2. [Configuration and Operation](docs/configuration.md)
+2. [Interface](docs/interface.md)
+3. [Testing](docs/testing.md)
 
 ## Release Notes
 The current version and release history of the asn1_codec: [asn1_codec Release Notes](<docs/Release_notes.md>)
@@ -119,3 +124,20 @@ There is a provided docker-compose file (docker-compose-confluent-cloud.yml) tha
 
 ### Note
 This has only been tested with Confluent Cloud but technically all SASL authenticated Kafka brokers can be reached using this method.
+
+## HTTP Server
+To run the HTTP server, use one of the docker-compose-server-*.yml files to start up:
+```bash
+docker compose -f docker-compose-server-amazonlinux.yml up --build -d
+```
+### Environment Variables
+In HTTP server mode, the following additional environment variables are recognized:
+- `ACM_HTTP_SERVER_PORT` The port to listen on. Default 9999.
+- `ACM_HTTP_SERVER_CONCURRENCY` The number of threads for the server to use. Default 4.
+
+### REST Endpoints
+Currently, two endpoints are available to convert J2735 messages from UPER to XER:
+- `POST /j2735/uper/xer` 
+  - Converts one message
+- `POST /batch/j2735/uper/xer`
+  - Converts a batch of messages
