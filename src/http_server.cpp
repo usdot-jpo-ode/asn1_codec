@@ -17,13 +17,17 @@ Http_Server::Http_Server(ASN1_Codec& asn1_codec) :
     if (!portString.empty()) {
         port = stoi(portString);
     } else {
-        cout << "WARNING: ACM_HTTP_SERVER_PORT env variable is not set, using default" << port << endl;
+        ostringstream msg;
+        msg << "WARNING: ACM_HTTP_SERVER_PORT env variable is not set, using default: " << port;
+        logger.warn(msg.str());
     }
 
     if (!concurrencyString.empty()) {
         concurrency = stoi(concurrencyString);
     } else {
-        cout << "WARNING: ACM_HTTP_SERVER_CONCURRENCY env variable is not set, using default" << concurrency << endl;
+        ostringstream msg;
+        msg << "WARNING: ACM_HTTP_SERVER_CONCURRENCY env variable is not set, using default: " << concurrency;
+        logger.warn(msg.str());
     }
 }
 
