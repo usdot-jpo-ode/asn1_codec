@@ -130,6 +130,9 @@ To run the HTTP server, use one of the docker-compose-server-*.yml files to star
 ```bash
 docker compose -f docker-compose-server-amazonlinux.yml up --build -d
 ```
+If testing on Windows, start up Docker Desktop, then issue the above "docker compose" command
+from Powershell, it may not work from the WSL shell.
+
 ### Environment Variables
 In HTTP server mode, the following additional environment variables are recognized:
 - `ACM_HTTP_SERVER_PORT` The port to listen on. Default 9999.
