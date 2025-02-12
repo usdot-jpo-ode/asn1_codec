@@ -197,40 +197,43 @@ crow::response Http_Server::post_batch(const crow::request &req) {
     string message_type;
 
     while (getline(infile, line)) {
+        try {
+            if (line == "") continue;
+            ++msgCount;
 
-        if (line == "") continue;
-        ++msgCount;
+            if (is_json) {
+                try {
+                    json_value = json::parse(line);
+                    timestamp = json_value["timestamp"];
+                    message_type = json_value["type"];
+                    hex_line = json_value["hex"];
+                } catch (json::parse_error& ex) {
+                    logger.error("json parse error in line " + line);
+                    continue;
+                }
+            } else {
+                hex_line = line;
+            }
 
-        if (is_json) {
-            try {
-                json_value = json::parse(line);
-                timestamp = json_value["timestamp"];
-                message_type = json_value["type"];
-                hex_line = json_value["hex"];
-            } catch (json::parse_error& ex) {
-                logger.error("json parse error in line " + line);
+            buffer_structure_t xb = {0, 0, 0};
+            bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
+            if (!decodeOk) {
+                free(xb.buffer);
+                logger.error("Error decoding uper: " + hex_line);
                 continue;
             }
-        } else {
-            hex_line = line;
-        }
-
-        buffer_structure_t xb = {0, 0, 0};
-        bool decodeOk = codec.decode_messageframe_data(hex_line, &xb);
-        if (!decodeOk) {
+            string xml_line(xb.buffer, xb.buffer_size);
             free(xb.buffer);
-            logger.error("Error decoding uper: " + hex_line);
-            continue;
-        }
-        string xml_line(xb.buffer, xb.buffer_size);
-        free(xb.buffer);
 
-        // If json, write additional info on line before decoded xml
-        if (is_json) {
-            outfile << message_type << "," << timestamp << endl;
-        }
+            // If json, write additional info on line before decoded xml
+            if (is_json) {
+                outfile << message_type << "," << timestamp << endl;
+            }
 
-        outfile << xml_line << endl;
+            outfile << xml_line << endl;
+        } catch (exception& ex) {
+            logger.error(ex.what());
+        }
     }
 
     long t2millis = get_epoch_milliseconds();
