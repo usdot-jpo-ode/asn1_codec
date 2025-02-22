@@ -4,6 +4,7 @@
 #include "acm.hpp"
 #include "utilities.hpp"
 
+
 bool loadTestCases( const std::string& case_file, StrVector& case_data ) {
 
     std::string line;
@@ -234,4 +235,132 @@ TEST_CASE("Decode BSM with VehicleEventFlags", "[decoding]") {
     CHECK(parse_result);
     payload_node = ode_payload_query.evaluate_node(output_doc).node();
     CHECK(payload_node);
+}
+
+/*
+ * Utilities for VehicleEventFlags tests
+ */
+
+void print_bits(const void * buf, const ssize_t num_bytes) {
+    std::cout << "uper: ";
+    for (int i = 0; i < num_bytes; i++) {
+        uint8_t abyte = *((uint8_t *)buf + i);
+        std::cout << std::bitset<8>(abyte) << " ";
+    }
+    std::cout << std::endl;
+}
+
+void test_encode_VehicleEventFlags_to_uper(const uint16_t bs, const uint8_t *expected_uper, const ssize_t expected_byte_len) {
+    std::cout << "bitstring: " << std::bitset<16>(bs) << std::endl;
+    const uint8_t buf[] = { static_cast<uint8_t>(bs >> 8), static_cast<uint8_t>(bs & 0xFF) };
+    const size_t size = sizeof(buf);
+    uint8_t *ptr_buf = (uint8_t *)&buf;
+    const int bits_unused = __builtin_ctz(bs);
+    asn_struct_ctx_t asn_ctx = {};
+    VehicleEventFlags_t vef = {ptr_buf, size, bits_unused, asn_ctx};
+    VehicleEventFlags_t* ptr_vef = &vef;
+    asn_TYPE_descriptor_t *vef_type = &asn_DEF_VehicleEventFlags;
+    asn_encode_to_new_buffer_result_t res
+        = asn_encode_to_new_buffer(0, ATS_UNALIGNED_BASIC_PER, vef_type, ptr_vef);
+    if (res.buffer) {
+        printf("Successfully encoded %ld bytes to uper\n", res.result.encoded);
+        print_bits(res.buffer, res.result.encoded);
+    } else {
+        FAIL("Error encoding vef");
+        return;
+    }
+    if (res.result.encoded != expected_byte_len) {
+        fprintf(stderr, "Error, expected %ld bytes but got %ld", expected_byte_len, res.result.encoded);
+        FAIL("Wrong number of bytes");
+    }
+    if (memcmp(expected_uper, (uint8_t *)res.buffer, res.result.encoded) != 0) {
+        FAIL("Error, Uper doesn't match expected");
+    }
+    free(res.buffer);
+}
+
+void test_decode_VehicleEventFlags_from_uper(const uint8_t * uper, const ssize_t uper_len, const uint16_t expected_bitstring,
+    const int expect_constraint_to_fail) {
+    print_bits(uper, uper_len);
+    VehicleEventFlags_t * ptr_vef = 0;
+    asn_dec_rval_t rval
+        = asn_decode(0, ATS_UNALIGNED_BASIC_PER, &asn_DEF_VehicleEventFlags, (void **)&ptr_vef, uper, uper_len);
+    if (rval.code != RC_OK) {
+        FAIL("Error decoding");
+        return;
+    }
+    printf("Successfully decoded %ld bytes\n", rval.consumed);
+    printf("bitstring size: %ld, bits_unused: %d\n", ptr_vef->size, ptr_vef->bits_unused);
+
+    if (ptr_vef->size != 2) {
+        FAIL("Error, expected 2 bytes");
+    }
+    uint16_t actual_bitstring = (ptr_vef->buf[0] << 8) | ptr_vef->buf[1];
+    std::cout << "bitstring: " << std::bitset<16>(actual_bitstring) << std::endl;
+    if (actual_bitstring != expected_bitstring) {
+        std::cout << "Error, expected bitstring: " << std::bitset<16>(expected_bitstring)
+            << " but got: " << std::bitset<16>(actual_bitstring) << std::endl;
+        FAIL("Bitstring mismatch");
+    }
+
+    // Check constraints
+    char errbuf[128];
+    size_t errlen = sizeof(errbuf);
+    int cons_ret = asn_check_constraints(&asn_DEF_VehicleEventFlags, ptr_vef, errbuf, &errlen);
+    if (cons_ret && !expect_constraint_to_fail) {
+        fprintf(stderr, "Constraint check failed: %s\n", errbuf);
+        FAIL("Unexpected constraint check fail");
+    }
+
+    ASN_STRUCT_FREE(asn_DEF_VehicleEventFlags, ptr_vef);
+}
+
+/*
+ * Data for VehicleEventFlags tests
+ */
+constexpr uint16_t bitstring_root = (0x8000 >> VehicleEventFlags_eventHazardLights)
+                                        | (0x8000 >> VehicleEventFlags_eventAirBagDeployment);
+constexpr uint8_t uper_root[2] = { 0b01000000, 0b00000100 };
+
+constexpr uint16_t bitstring_with_ext = (0x8000 >> VehicleEventFlags_eventHazardLights)
+                                        | (0x8000 >> VehicleEventFlags_eventAirBagDeployment)
+//                                        | (0x8000 >> VehicleEventFlags_eventJackKnife);
+                                        | (0x8000 >> 13);
+constexpr uint8_t uper_with_ext[3] = { 0b10000111, 0b01000000, 0b00000110 };
+
+constexpr uint16_t bitstring_15bits = (0x8000 >> VehicleEventFlags_eventHazardLights)
+                                      | (0x8000 >> VehicleEventFlags_eventAirBagDeployment)
+//                                        | (0x8000 >> VehicleEventFlags_eventJackKnife);
+                                      | (0x8000 >> 13)
+                                      | (0x8000 >> 14);
+constexpr uint8_t uper_15bits[3] = {0b10000111, 0b11000000, 0b00000111 };
+
+TEST_CASE("Encode VehicleEventFlags, from struct to UPER, 13 bits", "[encoding]") {
+    std::cout << "=== Encode VehicleEventFlags, 13 bits ===" << std::endl;
+    test_encode_VehicleEventFlags_to_uper(bitstring_root, uper_root, 2);
+}
+
+TEST_CASE("Encode VehicleEventFlags with 2024 extension, from struct to UPER, 14 bits", "[encoding]") {
+    std::cout << "=== Encode VehicleEventFlags with 2024 extension to UPER, 14 bits ===" << std::endl;
+    test_encode_VehicleEventFlags_to_uper(bitstring_with_ext, uper_with_ext, 3);
+}
+
+TEST_CASE("Encode VehicleEventFlags with unknown future extension, from struct to UPER, 15 bits", "[encoding]") {
+    std::cout << "=== Encode VehicleEventFlags with unknown future extension, 15 bits ===" << std::endl;
+    test_encode_VehicleEventFlags_to_uper(bitstring_15bits, uper_15bits, 3);
+}
+
+TEST_CASE("Decode VehicleEventFlags, from UPER to struct, 13 bits", "[decoding]") {
+    std::cout << "=== Decode VehicleEventFlags, from UPER to struct, 13 bits ===" << std::endl;
+    test_decode_VehicleEventFlags_from_uper(uper_root, 2, bitstring_root, 0);
+}
+
+TEST_CASE("Decode VehicleEventFlags with 2024 extension, from UPER to struct, 14 bits", "[decoding]") {
+    std::cout << "=== Decode VehicleEventFlags with 2024 extension, from UPER to struct, 14 bits ===" << std::endl;
+    test_decode_VehicleEventFlags_from_uper(uper_with_ext, 3, bitstring_with_ext, 0);
+}
+
+TEST_CASE("Decode VehicleEventFlags with unknown future extension, from UPER to struct, 15 bits", "[decoding]") {
+    std::cout << "=== Decode VehicleEventFlags with unknown future extension, from UPER to struct, 15 bits ===" << std::endl;
+    test_decode_VehicleEventFlags_from_uper(uper_15bits, 3, bitstring_15bits, 1);
 }
