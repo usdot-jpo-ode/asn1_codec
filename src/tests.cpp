@@ -27,6 +27,7 @@ bool loadTestCases( const std::string& case_file, StrVector& case_data ) {
 }
 
 pugi::xpath_query ode_payload_query("OdeAsn1Data/payload/data");
+pugi::xpath_query bsm_vehicle_event_flags_query("MessageFrame/value/BasicSafetyMessage/partII/BSMpartIIExtension/partII-Value/VehicleSafetyExtensions/events");
 pugi::xml_document output_doc;
 pugi::xml_parse_result parse_result;
 pugi::xml_node payload_node;
@@ -223,8 +224,8 @@ TEST_CASE("Decode BSM", "[decoding]") {
     CHECK(payload_node);
 }
 
-TEST_CASE("Decode BSM with VehicleEventFlags", "[decoding]") {
-    std::cout << "=== Decode BSM with VehicleEventFlags ===" << std::endl;
+TEST_CASE("Decode BSM with VehicleEventFlags (hard braking event)", "[decoding]") {
+    std::cout << "=== Decode BSM with VehicleEventFlags (hard braking event) ===" << std::endl;
 
     // prepare
     asn1_codec.setup_logger_for_testing();
@@ -235,6 +236,32 @@ TEST_CASE("Decode BSM with VehicleEventFlags", "[decoding]") {
     CHECK(parse_result);
     payload_node = ode_payload_query.evaluate_node(output_doc).node();
     CHECK(payload_node);
+    pugi::xml_node event_flags_node = bsm_vehicle_event_flags_query.evaluate_node(payload_node).node();
+    CHECK(event_flags_node);
+    std::string bitstring(event_flags_node.text().get());
+    std::cout << "VehicleEventFlags: " << bitstring << std::endl;
+    std::string expected_bitstring("0000000100000");
+    CHECK(bitstring == expected_bitstring);
+}
+
+TEST_CASE("Decode BSM with VehicleEventFlags (jackknife event)", "[decoding]") {
+    std::cout << "=== Decode BSM with VehicleEventFlags (jackknife event) ===" << std::endl;
+
+    // prepare
+    asn1_codec.setup_logger_for_testing();
+
+    std::stringstream out9;
+    CHECK(asn1_codec.file_test("data/InputData.decoding.bsm.with.VehicleEventFlags.eventJackKnife.xml", out9, false) == EXIT_SUCCESS);
+    parse_result = output_doc.load(out9, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+    pugi::xml_node event_flags_node = bsm_vehicle_event_flags_query.evaluate_node(payload_node).node();
+    CHECK(event_flags_node);
+    std::string bitstring(event_flags_node.text().get());
+    std::cout << "VehicleEventFlags: " << bitstring << std::endl;
+    std::string expected_bitstring("00000000000001");
+    CHECK(bitstring == expected_bitstring);
 }
 
 /*
