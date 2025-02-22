@@ -250,12 +250,12 @@ void print_bits(const void * buf, const ssize_t num_bytes) {
     std::cout << std::endl;
 }
 
-void test_encode_VehicleEventFlags_to_uper(const uint16_t bs, const uint8_t *expected_uper, const ssize_t expected_byte_len) {
-    std::cout << "bitstring: " << std::bitset<16>(bs) << std::endl;
-    const uint8_t buf[] = { static_cast<uint8_t>(bs >> 8), static_cast<uint8_t>(bs & 0xFF) };
+void test_encode_VehicleEventFlags_to_uper(const uint16_t bitstring, const uint8_t *expected_uper, const ssize_t expected_byte_len) {
+    std::cout << "bitstring: " << std::bitset<16>(bitstring) << std::endl;
+    const uint8_t buf[] = { static_cast<uint8_t>(bitstring >> 8), static_cast<uint8_t>(bitstring & 0xFF) };
     const size_t size = sizeof(buf);
     uint8_t *ptr_buf = (uint8_t *)&buf;
-    const int bits_unused = __builtin_ctz(bs);
+    const int bits_unused = __builtin_ctz(bitstring);
     asn_struct_ctx_t asn_ctx = {};
     VehicleEventFlags_t vef = {ptr_buf, size, bits_unused, asn_ctx};
     VehicleEventFlags_t* ptr_vef = &vef;
@@ -293,7 +293,7 @@ void test_decode_VehicleEventFlags_from_uper(const uint8_t * uper, const ssize_t
     printf("bitstring size: %ld, bits_unused: %d\n", ptr_vef->size, ptr_vef->bits_unused);
 
     if (ptr_vef->size != 2) {
-        FAIL("Error, expected 2 bytes");
+        FAIL("Error, expected bitstring to be 2 bytes");
     }
     uint16_t actual_bitstring = (ptr_vef->buf[0] << 8) | ptr_vef->buf[1];
     std::cout << "bitstring: " << std::bitset<16>(actual_bitstring) << std::endl;
@@ -335,8 +335,8 @@ constexpr uint16_t bitstring_15bits = (0x8000 >> VehicleEventFlags_eventHazardLi
                                       | (0x8000 >> 14);
 constexpr uint8_t uper_15bits[3] = {0b10000111, 0b11000000, 0b00000111 };
 
-TEST_CASE("Encode VehicleEventFlags, from struct to UPER, 13 bits", "[encoding]") {
-    std::cout << "=== Encode VehicleEventFlags, 13 bits ===" << std::endl;
+TEST_CASE("Encode VehicleEventFlags root, from struct to UPER, 13 bits", "[encoding]") {
+    std::cout << "=== Encode VehicleEventFlags root, from struct to UPER, 13 bits ===" << std::endl;
     test_encode_VehicleEventFlags_to_uper(bitstring_root, uper_root, 2);
 }
 
@@ -346,12 +346,12 @@ TEST_CASE("Encode VehicleEventFlags with 2024 extension, from struct to UPER, 14
 }
 
 TEST_CASE("Encode VehicleEventFlags with unknown future extension, from struct to UPER, 15 bits", "[encoding]") {
-    std::cout << "=== Encode VehicleEventFlags with unknown future extension, 15 bits ===" << std::endl;
+    std::cout << "=== Encode VehicleEventFlags with unknown future extension, from struct to UPER, 15 bits ===" << std::endl;
     test_encode_VehicleEventFlags_to_uper(bitstring_15bits, uper_15bits, 3);
 }
 
-TEST_CASE("Decode VehicleEventFlags, from UPER to struct, 13 bits", "[decoding]") {
-    std::cout << "=== Decode VehicleEventFlags, from UPER to struct, 13 bits ===" << std::endl;
+TEST_CASE("Decode VehicleEventFlags root, from UPER to struct, 13 bits", "[decoding]") {
+    std::cout << "=== Decode VehicleEventFlags root, from UPER to struct, 13 bits ===" << std::endl;
     test_decode_VehicleEventFlags_from_uper(uper_root, 2, bitstring_root, 0);
 }
 
