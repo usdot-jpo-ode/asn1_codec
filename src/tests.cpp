@@ -351,14 +351,13 @@ constexpr uint8_t uper_root[2] = { 0b01000000, 0b00000100 };
 
 constexpr uint16_t bitstring_with_ext = (0x8000 >> VehicleEventFlags_eventHazardLights)
                                         | (0x8000 >> VehicleEventFlags_eventAirBagDeployment)
-//                                        | (0x8000 >> VehicleEventFlags_eventJackKnife);
-                                        | (0x8000 >> 13);
+                                        | (0x8000 >> VehicleEventFlags_eventJackKnife);
+
 constexpr uint8_t uper_with_ext[3] = { 0b10000111, 0b01000000, 0b00000110 };
 
 constexpr uint16_t bitstring_15bits = (0x8000 >> VehicleEventFlags_eventHazardLights)
                                       | (0x8000 >> VehicleEventFlags_eventAirBagDeployment)
-//                                        | (0x8000 >> VehicleEventFlags_eventJackKnife);
-                                      | (0x8000 >> 13)
+                                      | (0x8000 >> VehicleEventFlags_eventJackKnife)
                                       | (0x8000 >> 14);
 constexpr uint8_t uper_15bits[3] = {0b10000111, 0b11000000, 0b00000111 };
 
