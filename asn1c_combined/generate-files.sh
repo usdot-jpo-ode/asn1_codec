@@ -36,9 +36,6 @@ if [ "$year" == "2024" ]; then
     patch --binary --backup --forward --reject-file="-" \
         ./j2735-asn-files/2024/J3217-TollUsageMsg-2024-rel-v1.1.asn \
         ./j2735-asn-files/2024/asn-edits/TollUsageMessage.patch
-    patch --binary --backup --forward --reject-file="-" \
-        ./j2735-asn-files/2024/J2735-Common-2024-rel-v1.1.2.asn \
-        ./j2735-asn-files/2024/asn-edits/Common.patch
 
     # Verify that the patches were applied correctly
     if ! grep -q RwmSnapShot ./j2735-asn-files/2024/J2945-3-RoadWeatherMessage-2024-rel-v2.1.asn; then
@@ -56,10 +53,6 @@ if [ "$year" == "2024" ]; then
         exit 1
     fi
 
-    if grep -q " eventJackKnife " ./j2735-asn-files/2024/J2735-Common-2024-rel-v1.1.2.asn; then
-        echo "The patch for the Common ASN file was not applied correctly."
-        exit 1
-    fi
 fi
 
 
