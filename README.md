@@ -144,3 +144,6 @@ Currently, two endpoints are available to convert J2735 messages from UPER to XE
   - Converts one message
 - `POST /batch/j2735/uper/xer`
   - Converts a batch of messages
+
+### Integration Tests
+Integration test for the REST endpoints are available in the [http-test](http-test/README.md) folder
