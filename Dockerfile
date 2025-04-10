@@ -78,7 +78,7 @@ RUN apk add --upgrade --no-cache \
 COPY --from=builder /asn1_codec /asn1_codec
 COPY --from=builder /build /build
 
-# Use jemalloc
+# Use jemalloc for better performance than Alpine's built-in memory allocator, esp. with multithreading
 RUN apk add --upgrade --no-cache jemalloc
 ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
 
