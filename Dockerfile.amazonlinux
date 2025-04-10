@@ -1,0 +1,75 @@
+# === BUILDER IMAGE for ACM ===
+FROM amazonlinux:2023 as builder
+USER root
+WORKDIR /asn1_codec
+## add build dependencies
+RUN yum install -y cmake g++ make bash automake libtool autoconf
+
+# Install librdkafka from Confluent repo
+RUN rpm --import https://packages.confluent.io/rpm/7.6/archive.key
+COPY ./confluent.repo /etc/yum.repos.d
+RUN yum clean all
+RUN yum install -y librdkafka-devel
+
+# Install asio from Fedora repo (build dependency only)
+COPY ./fedora.repo /etc/yum.repos.d
+RUN dnf --enablerepo=fedora install asio-devel -y
+
+# Install pugixml
+ADD ./pugixml /asn1_codec/pugixml
+RUN cd /asn1_codec/pugixml && mkdir -p build && cd build && cmake .. && make && make install
+
+# Don't need to build and install asn1c submodule
+# ADD ./asn1_codec/usdot-asn1c /asn1_codec/asn1c
+# RUN cd asn1c && test -f configure || autoreconf -iv && ./configure && make && make install
+
+# Make generated files available to the build & compile example
+RUN export LD_LIBRARY_PATH=/usr/local/lib
+ADD ./asn1c_combined /asn1_codec/asn1c_combined
+RUN cd /asn1_codec/asn1c_combined && bash doIt.sh
+
+# Remove any lingering .asn files
+RUN rm -rf /asn1c_codec/asn1c_combined/j2735-asn-files
+RUN rm -rf /asn1c_codec/asn1c_combined/semi-asn-files
+
+# Remove duplicate files
+RUN rm -rf /asn1c_codec/asn1c_combined/generated-files
+
+# add the source and build files
+ADD CMakeLists.txt /asn1_codec
+ADD ./config /asn1_codec/config
+ADD ./include /asn1_codec/include
+ADD ./src /asn1_codec/src
+ADD ./kafka-test /asn1_codec/kafka-test
+ADD ./unit-test-data /asn1_codec/unit-test-data
+ADD ./data /asn1_codec/data
+ADD ./run_acm.sh /asn1_codec
+ADD ./data /asn1_codec/data
+
+# Build acm.
+RUN mkdir -p /build && cd /build && cmake /asn1_codec && make
+
+
+
+# === RUNTIME IMAGE ===
+FROM amazonlinux:2023
+USER root
+WORKDIR /asn1_codec
+VOLUME ["/asn1_codec_share"]
+
+# # add runtime dependencies
+RUN yum install -y bash
+
+# Install librdkafka from Confluent repo
+RUN rpm --import https://packages.confluent.io/rpm/7.6/archive.key
+COPY ./confluent.repo /etc/yum.repos.d
+RUN yum clean all
+RUN yum install -y librdkafka-devel
+
+# # copy the built files from the builder
+COPY --from=builder /asn1_codec /asn1_codec
+COPY --from=builder /build /build
+
+# Start server
+RUN chmod 7777 /asn1_codec/run_acm.sh
+CMD ["/asn1_codec/run_acm.sh"]

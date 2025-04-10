@@ -2,7 +2,7 @@ services:
   asn1_codec:
     build:
       context: .
-      dockerfile: Dockerfile.server.amazonlinux
+      dockerfile: Dockerfile.amazonlinux
     ports:
       - "9999:9999"
     environment:
@@ -14,6 +14,7 @@ services:
       ACM_LOG_LEVEL: "${ACM_LOG_LEVEL}"
       ACM_HTTP_SERVER_PORT: ${ACM_HTTP_SERVER_PORT}
       ACM_HTTP_SERVER_CONCURRENCY: ${ACM_HTTP_SERVER_CONCURRENCY}
+      ACM_HTTP_SERVER: true
     restart: on-failure
     deploy:
       resources:
