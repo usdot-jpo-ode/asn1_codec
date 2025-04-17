@@ -161,5 +161,6 @@ The main container image defined by the `Dockerfile` is based on Alpine Linux.  
 |Alpine 3.18| [musl system](https://musl.libc.org/)             |4.8|12.1|
 |Alpine 3.18| [jemalloc](https://jemalloc.net/)                 |3.4|4.5|
 |Alpine 3.18| [mimalloc](https://github.com/microsoft/mimalloc) |3.6|4.5|
+
 *Includes decoding time, not network transfer time.
 
