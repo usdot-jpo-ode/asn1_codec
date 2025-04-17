@@ -126,15 +126,18 @@ There is a provided docker-compose file (docker-compose-confluent-cloud.yml) tha
 This has only been tested with Confluent Cloud but technically all SASL authenticated Kafka brokers can be reached using this method.
 
 ## HTTP Server
-To run the HTTP server, use one of the docker-compose-server-*.yml files to start up:
+
+The application can also be run as an HTTP server.  This mode uses the same Docker image as the Kafka consumer and producer modes.  Set the environment variable `ACM_HTTP_SERVER` to `true` to enable running in this mode.
+
+The docker-compose-server-*.yml files can be used to start up in HTTP server mode, for example:
 ```bash
-docker compose -f docker-compose-server-amazonlinux.yml up --build -d
+docker compose -f docker-compose-server.yml up --build -d
 ```
-If testing on Windows, start up Docker Desktop, then issue the above "docker compose" command
-from Powershell, it may not work from the WSL shell.
+If testing on Windows, start up Docker Desktop, then issue the above "docker compose" command from Powershell It may not work from the WSL shell.
 
 ### Environment Variables
 In HTTP server mode, the following additional environment variables are recognized:
+- `ACM_HTTP_SERVER` Set to true to start up in HTTP server mode, or omit to run in Kafka mode.
 - `ACM_HTTP_SERVER_PORT` The port to listen on. Default 9999.
 - `ACM_HTTP_SERVER_CONCURRENCY` The number of threads for the server to use. Default 4.
 
@@ -146,4 +149,17 @@ Currently, two endpoints are available to convert J2735 messages from UPER to XE
   - Converts a batch of messages
 
 ### Integration Tests
-Integration test for the REST endpoints are available in the [http-test](http-test/README.md) folder
+Integration test for the REST endpoints are available in the [http-test](http-test/README.md) folder.
+
+## Performance note on the Linux images
+The main container image is based on Alpine Linux.  It was noted while developing the HTTP server feature that the performance of the application was significantly slower in the multithreaded context required by the HTTP server than when run on other Linux distributions, such as Amazon Linux (which is similar to CentOS).  In order to mitigate this issue, the Alpine Dockerfile uses the [jemalloc](https://jemalloc.net/) memory allocator instead of the Alpine default.  The main Docker image deployed to Github still is basedd on Alpine (with jemalloc), but an additional Dockerfile, `Dockerfile.amazonlinux` for Amazon Linux is included in this repository for those who might wish to use it as an alternative.  Some benchmark data comparing Alpine Linux with various memory allocators, and Amazon Linux, are shown here below:
+
+### Time for HTTP endpoint to decode large batches of 61735 messages each (seconds per batch)*:
+|OS| Allocator                                         |Single Thread|Multithreaded (4 cores)|
+|--|---------------------------------------------------|-------------|-----------------------|
+|Amazon Linux 2023| [glibc system](https://www.gnu.org/software/libc/manual/html_node/The-GNU-Allocator.html)|2.3|3.3|
+|Alpine 3.18| [musl system](https://musl.libc.org/)             |4.8|12.1|
+|Alpine 3.18| [jemalloc](https://jemalloc.net/)                 |3.4|4.5|
+|Alpine 3.18| [mimalloc](https://github.com/microsoft/mimalloc) |3.6|4.5|
+*Includes decoding time, not network transfer time.
+
