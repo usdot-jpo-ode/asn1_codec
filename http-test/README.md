@@ -16,8 +16,9 @@ be run from a command line.
 These can be run in the VScode or CLion IDE. In VScode, install the
 [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension.
 
-* [batch-json.http](batch-json.http) - Tests the batch endpoint
-* [batch-text-plain.http](batch-text-plain.http) - Tests the endpoint for decoding a single hex message
+* [batch-json.http](batch-json.http) - Tests the endpoint for decoding a batch of JSON messages.
+* [batch-text-plain.http](batch-text-plain.http) - Tests the endpoint for decoding batch of plain text hex messages.
+* [spat-uper-to-xer.http](spat-uper-to-xer.http) - Tests the endpoint for decoding a SPAT UPER hex message to XER.
 
 ## .sh scripts
 
