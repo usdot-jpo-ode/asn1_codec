@@ -25,5 +25,5 @@ These can be run in the VScode or CLion IDE. In VScode, install the
 The scripts require a bash command line with curl, such as Git Bash or WSL on Windows.
 
 * [test-large-batch.sh](test-large-batch.sh) - Test decoding a large batch file consisting of SPAT, MAP, BSM, and SSM messages. Outputs result to batch.log file.
-* [test-thread-safety.sh](test-thread-safety.sh) - Test thread safety by repeatedly sending large batches on several simultaneous connections.
+* [test-thread-safety.sh](test-thread-safety.sh) - Test thread safety by repeatedly sending large batches of SPAT/MAP/BSM/SSM messages on four simultaneous connections. Outputs results to batch{#}.log file.
 
