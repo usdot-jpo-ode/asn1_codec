@@ -1,0 +1,2 @@
+# Don't persist batch test output files
+*.log

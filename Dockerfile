@@ -11,7 +11,8 @@ RUN apk add --upgrade --no-cache --virtual .build-deps \
     make \
     bash \
     librdkafka \
-    librdkafka-dev 
+    librdkafka-dev \
+    asio-dev
 
 # Dependencies that are not needed if asn1c is not installed in the build container:
 # libtool
@@ -76,6 +77,10 @@ RUN apk add --upgrade --no-cache \
 # copy the built files from the builder
 COPY --from=builder /asn1_codec /asn1_codec
 COPY --from=builder /build /build
+
+# Use jemalloc for better performance than Alpine's built-in memory allocator, esp. with multithreading
+RUN apk add --upgrade --no-cache jemalloc
+ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
 
 # run ACM
 RUN chmod 7777 /asn1_codec/run_acm.sh

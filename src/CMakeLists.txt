@@ -3,6 +3,7 @@
 # The sources in this directory that are needed for compilation.
 target_sources(acm PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}/acm.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/http_server.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/tool.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/utilities.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/acmLogger.cpp"
@@ -27,6 +28,7 @@ target_sources(acm_tests PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}/tool.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/utilities.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/acmLogger.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/http_server.cpp"
     )
 
 target_include_directories(acm_tests PUBLIC
@@ -39,6 +41,7 @@ target_include_directories(acm_tests PUBLIC
     "/usr/local/include"
     "/usr/local/include/librdkafka"
     )
+
 
 # # The sources in this directory that are needed for compilation.
 # target_sources(acm-blob-producer PUBLIC
