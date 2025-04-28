@@ -9,6 +9,7 @@ This release introduces an HTTP server to the asn1_codec module, enabling decodi
 Enhancements in this release:
 - [CDOT PR 41](https://github.com/CDOT-CV/asn1_codec/pull/41): Http server
 - [CDOT PR 42](https://github.com/CDOT-CV/asn1_codec/pull/42): Fix VehicleEventFlags Jackknife Event Extension
+- [CDOT PR 43](https://github.com/CDOT-CV/asn1_codec/pull/43): Set up CI with Azure Pipelines
 
 
 Version 3.0.0, released January 2025
