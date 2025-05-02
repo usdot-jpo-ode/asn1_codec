@@ -1,7 +1,7 @@
 asn1_codec Release Notes
 ----------------------------
 
-Version 3.1.0, released June 2025
+Version 3.1.0, released May 2025
 ----------------------------------------
 ### **Summary**
 This release introduces an HTTP server to the asn1_codec module, enabling decoding of J2735 ASN.1 messages via a request-response interface. This enhancement adds batch decoding support for the Conflict Visualizer GUI (CVManager Intersection API), allowing it to process and display PCAP files without relying on embedded Kafka infrastructure. Additionally, it fixes the encoding for the eventJackKnife extension in the VehicleEventFlags BIT STRING, per the 2024 J2735 update. Instead of removing the extension as previously done, the generated C code was corrected to properly handle UPER encoding, with compatibility verified against multiple ASN.1 compilers.
