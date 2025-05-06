@@ -311,8 +311,6 @@ class ASN1_Codec : public tool::Tool {
         bool bytes_to_hex_(buffer_structure_t* buf_struct, std::string& payload_hex );
 
         // ASN.1 Compiler
-        //char errbuf[max_errbuf_size];
-
 		// TODO: A byte flag word is needed here since we will set multiple decode / encoders.
 		uint32_t opsflag;
         bool decode_1609dot2;
