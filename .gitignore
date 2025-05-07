@@ -14,3 +14,7 @@ asn1c_combined/compile.out
 asn1c_combined/converter-example
 asn1c_combined/converter-example.mk
 asn1c_combined/libasncodec.a
+
+# Ignore files added by CLion
+.idea/
+cmake-build-*/

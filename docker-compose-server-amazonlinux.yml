@@ -1,0 +1,24 @@
+services:
+  asn1_codec:
+    build:
+      context: .
+      dockerfile: Dockerfile.amazonlinux
+    ports:
+      - "9999:9999"
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
+      KAFKA_TYPE: "ON-PREM"
+      ACM_CONFIG_FILE: adm.properties
+      ACM_LOG_TO_CONSOLE: "${ACM_LOG_TO_CONSOLE}"
+      ACM_LOG_TO_FILE: "${ACM_LOG_TO_FILE}"
+      ACM_LOG_LEVEL: "${ACM_LOG_LEVEL}"
+      ACM_HTTP_SERVER_PORT: ${ACM_HTTP_SERVER_PORT}
+      ACM_HTTP_SERVER_CONCURRENCY: ${ACM_HTTP_SERVER_CONCURRENCY}
+      ACM_HTTP_SERVER: true
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 2G
+

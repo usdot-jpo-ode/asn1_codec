@@ -1,0 +1,13 @@
+[fedora]
+# Ref: https://repost.aws/questions/QUjUfu4DY4SjSRPeXLG_rQxg/how-to-install-asio-devel-glpk-devel-packages-on-amazon-linux-2023
+name=Fedora 42 - x86_64
+#metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-42&arch=x86_64
+baseurl=https://dl.fedoraproject.org/pub/fedora/linux/development/42/Everything/x86_64/os/
+enabled=0
+countme=1
+metadata_expire=7d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=https://getfedora.org/static/fedora.gpg
+skip_if_unavailable=False

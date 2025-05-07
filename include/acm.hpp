@@ -1,3 +1,8 @@
+#ifndef ACM_HPP
+#define ACM_HPP
+
+
+
 /** 
  * @file 
  * @author   Jason M. Carter (carterjm@ornl.gov)
@@ -69,6 +74,7 @@
 #include <utility>
 #include <tuple>
 #include <sstream>
+#include <vector>
 
 typedef struct buffer_structure {
     char *buffer;
@@ -238,6 +244,10 @@ class ASN1_Codec : public tool::Tool {
          */
         bool setup_logger_for_testing();
 
+        bool decode_messageframe_data(std::string& data_as_hex, buffer_structure_t* xml_buffer);
+
+        bool hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer);
+
     private:
 
         static bool bootstrap;                                          ///> flag indicating we need to bootstrap the consumer and producer
@@ -296,19 +306,11 @@ class ASN1_Codec : public tool::Tool {
         pugi::xpath_query ode_payload_query;
         pugi::xpath_query ode_encodings_query;
 
-        std::ostringstream erroross;
 		bool add_error_xml( pugi::xml_document& doc, Asn1DataType dt, Asn1ErrorType et, std::string message, bool update_time = false );
 
-        std::vector<char> byte_buffer;                                 ///> storage for hex to byte and byte to hex encoder/decoder.
-
-
-        bool hex_to_bytes_(const std::string& payload_hex, std::vector<char>& byte_buffer);
         bool bytes_to_hex_(buffer_structure_t* buf_struct, std::string& payload_hex );
 
         // ASN.1 Compiler
-        std::size_t errlen;
-        char errbuf[max_errbuf_size];
-
 		// TODO: A byte flag word is needed here since we will set multiple decode / encoders.
 		uint32_t opsflag;
         bool decode_1609dot2;
@@ -335,7 +337,7 @@ class ASN1_Codec : public tool::Tool {
         bool decode_message( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool decode_message_legacy( pugi::xml_node& payload_node, std::stringstream& output_message_stream );
         bool decode_1609dot2_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
-        bool decode_messageframe_data( std::string& data_as_hex, buffer_structure_t* xml_buffer );
+        
 
         bool encode_message( std::stringstream& output_message_stream );
         void encode_frame_data(const std::string& data_as_xml, std::string& hex_string);
@@ -344,5 +346,7 @@ class ASN1_Codec : public tool::Tool {
         void encode_for_protocol();
 
         std::string get_current_time() const;
+
 };
 
+#endif
