@@ -34,8 +34,8 @@ consumers and producers do not run in this mode.
 **Other Documents**
 1. [Installation](docs/installation.md)
 2. [Configuration and Operation](docs/configuration.md)
-2. [Interface](docs/interface.md)
-3. [Testing](docs/testing.md)
+3. [Interface](docs/interface.md)
+4. [Testing](docs/testing.md)
 
 ## Release Notes
 The current version and release history of the asn1_codec: [asn1_codec Release Notes](<docs/Release_notes.md>)
