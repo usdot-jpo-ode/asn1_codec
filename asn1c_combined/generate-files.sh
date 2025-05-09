@@ -56,7 +56,7 @@ if [ "$year" == "2024" ]; then
 fi
 
 
-asn1c -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
+asn1c -fno-include-deps -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER -pdu=all \
     ./scms-asn-files/*.asn \
     ./j2735-asn-files/$year/*.asn \
     ./semi-asn-files/$year/SEMI*.asn \

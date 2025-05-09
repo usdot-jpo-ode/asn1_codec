@@ -20,7 +20,7 @@ cp ./generated-files/$year/* .
 
 # Compile example
 echo "Compiling example"
-sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' ./converter-example.mk
+#sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' ./converter-example.mk
 make -f ./converter-example.mk
 
 # Clean up
