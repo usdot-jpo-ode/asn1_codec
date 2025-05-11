@@ -20,8 +20,12 @@ cp ./generated-files/$year/* .
 
 # Compile example
 echo "Compiling example"
-#sed -i 's/\(-DASN_PDU_COLLECTION\)/-DPDU=MessageFrame \1/' ./converter-example.mk
-make -f ./converter-example.mk
+# The HAVE_TM_GMTOFF flag needs to be set to compile GeneralizedTime.c on platforms including Alpine.
+# Add it to ASN_MODULE_CFLAGS which gets added to CFLAGS in converter-example.mk
+make ASN_MODULE_CFLAGS="-DHAVE_TM_GMTOFF" -f ./converter-example.mk
+# Verify that the converter example executable compiled and can run
+./converter-example -p list
+
 
 # Clean up
 echo "Cleaning up"

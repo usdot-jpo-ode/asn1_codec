@@ -66,11 +66,11 @@ asn1c -fno-include-deps -fcompound-names -gen-OER -fincludes-quoted -no-gen-JER 
    
 
 # if 2020 or 2024, copy overrides
-if [ "$year" == "2020" ] || [ "$year" = "2024" ]; then
-    echo "Copying overrides for $year"
-    cp ./j2735-asn-files/$year/overrides/*.h ./generated-files/$year
-    cp ./j2735-asn-files/$year/overrides/*.c ./generated-files/$year
-fi
+#if [ "$year" == "2020" ] || [ "$year" = "2024" ]; then
+#    echo "Copying overrides for $year"
+#    cp ./j2735-asn-files/$year/overrides/*.h ./generated-files/$year
+#    cp ./j2735-asn-files/$year/overrides/*.c ./generated-files/$year
+#fi
 
 
 # tar generated files and delete originals
