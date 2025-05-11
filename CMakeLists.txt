@@ -44,7 +44,7 @@ link_directories("/usr/local/lib")
 
 # CPP Preprocessor variable PDU is used in the asn1-j2735-lib.h file to build a variable to a ASN.1 parsing structure.
 # This variable may need changing if we are parsing some other type of ASN.1 schema.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPDU=MessageFrame")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_TM_GMTOFF -DASN_PDU_COLLECTION")
 
 # Currently using boost/asio, not standalone asio.
 # If it were desired to use standalone asio, uncomment the following:
