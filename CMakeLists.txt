@@ -1,10 +1,10 @@
 # cmake_minimum_required(VERSION 2.6)
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 
 project(ACM)
 
 # need to set these prior to setting any targets.
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -27,6 +27,13 @@ if (${APPLE})
     link_directories("${MACPORTS_DIR}/local/lib" "/usr/lib" "/usr/local/lib")
 endif ()
 
+# Make headers available to IDE
+include_directories("${CMAKE_SOURCE_DIR}/pugixml/src")
+include_directories("${CMAKE_SOURCE_DIR}/generated-files/2024")
+
+# To be able to use Boost/asio headers:
+include_directories("/usr/include")
+
 #### BUILD TARGET FOR THE ASN1_Codec ####
 
 # before the add_executable
@@ -38,6 +45,10 @@ link_directories("/usr/local/lib")
 # CPP Preprocessor variable PDU is used in the asn1-j2735-lib.h file to build a variable to a ASN.1 parsing structure.
 # This variable may need changing if we are parsing some other type of ASN.1 schema.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPDU=MessageFrame")
+
+# Currently using boost/asio, not standalone asio.
+# If it were desired to use standalone asio, uncomment the following:
+#add_definitions(-DASIO_STANDALONE)
 
 # Use the include + target_sources pattern; this just sets up the container for the list of source files.
 add_executable(acm "")
@@ -53,6 +64,7 @@ include( "src/CMakeLists.txt" )
 target_link_libraries(acm pthread rdkafka++ asncodec pugixml)
 
 target_link_libraries(acm_tests pthread rdkafka++ asncodec pugixml Catch)
+
 target_compile_definitions(acm_tests PRIVATE _ASN1_CODEC_TESTS) 
 
 add_subdirectory(kafka-test)

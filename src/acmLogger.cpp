@@ -7,12 +7,16 @@ AcmLogger::AcmLogger(std::string logname) {
     // setup spdlogger logger.
     std::vector<spdlog::sink_ptr> sinks;
     if (logToFileFlag) {
+        std::cout << "Log to file flag set" << std::endl;
         sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(logname, LOG_SIZE, LOG_NUM));
     }
     if (logToConsoleFlag) {
+        std::cout << "Log to console flag set" << std::endl;
         sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
     }
     setLogger(std::make_shared<spdlog::logger>("log", begin(sinks), end(sinks)));
+
+    std::cout << "log level: " << loglevel << std::endl;
     set_level(loglevel);
     set_pattern("[%C%m%d %H:%M:%S.%f] [%l] %v");
 }
@@ -61,6 +65,25 @@ void AcmLogger::initializeFlagValuesFromEnvironment() {
 
     if (!logToFileFlag && !logToConsoleFlag) {
         std::cout << "WARNING: The ACM_LOG_TO_FILE and ACM_LOG_TO_CONSOLE environment variables are both set to false. No logging will occur." << std::endl;
+    }
+
+    std::string logLevelString = getEnvironmentVariable("ACM_LOG_LEVEL");
+    if ("TRACE" == logLevelString) {
+        loglevel = spdlog::level::trace;
+    } else if ("DEBUG" == logLevelString) {
+        loglevel = spdlog::level::debug;
+    } else if ("INFO" == logLevelString) {
+        loglevel = spdlog::level::info;
+    } else if ("WARNING" == logLevelString) {
+        loglevel = spdlog::level::warn;
+    } else if ("ERROR" == logLevelString) {
+        loglevel = spdlog::level::err;
+    } else if ("CRITICAL" == logLevelString) {
+        loglevel = spdlog::level::critical;
+    } else if ("OFF" == logLevelString) {
+        loglevel = spdlog::level::off;
+    } else {
+        std::cout << "WARNING: information logger level was configured but unreadable; using default." << std::endl;
     }
 }
 
