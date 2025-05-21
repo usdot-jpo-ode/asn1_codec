@@ -1,9 +1,0 @@
---- J3217-R-RoadUserChargingReportMsg-2024-rel-v1.1.asn	2024-02-22 14:49:42.000000000 -0700
-+++ J3217-R-RoadUserChargingReportMsg-2024-rel-v1.1.asn.EDITED	2024-11-17 00:19:57.157916800 -0700
-@@ -98 +98,2 @@
--    VehicleId 
-+    -- EDITED
-+    TumVehicleId 
-@@ -144 +145 @@
--    vehicleID               VehicleId,         -- From J3217 TUM
-+    vehicleID               TumVehicleId,         -- From J3217 TUM, EDITED
