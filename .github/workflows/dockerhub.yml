@@ -10,7 +10,7 @@ jobs:
   publish:
     uses: usdot-jpo-ode/actions/.github/workflows/dockerhub.yml@main
     with:
-      image: usdotjpoode/asn1-codec
+      image: usdotjpoode/asn1_codec
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN:   ${{ secrets.DOCKERHUB_TOKEN }}
