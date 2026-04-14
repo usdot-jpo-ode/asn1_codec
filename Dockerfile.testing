@@ -9,7 +9,8 @@ RUN apk add --upgrade --no-cache \
     bash \
     python3 \
     librdkafka \
-    librdkafka-dev
+    librdkafka-dev \
+    supervisor
 
 
 # === BUILDER IMAGE ===
@@ -75,6 +76,7 @@ ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
 # copy the built files from the builder
 COPY --from=builder /asn1_codec /asn1_codec
 COPY --from=builder /build /build
+COPY ./supervisord.conf /etc/
 
 # run ACM
 RUN chmod 7777 /asn1_codec/run_acm.sh
