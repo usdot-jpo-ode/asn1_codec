@@ -1,30 +1,9 @@
 version: '2'
 services:
-  zookeeper:
-    image: wurstmeister/zookeeper
-    ports:
-      - "2181:2181"
-  kafka:
-    image: wurstmeister/kafka
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_ADVERTISED_HOST_NAME: ${DOCKER_HOST_IP}
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "j2735asn1xer:1:1,j2735asn1per:1:1,topic.Asn1DecoderInput:1:1,topic.Asn1DecoderOutput:1:1,topic.Asn1EncoderInput:1:1,topic.Asn1EncoderOutput:1:1"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
   asn1_codec:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-      - "9090:9090"
-    depends_on:
-      - kafka
-    links:
-      - kafka
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_TYPE: "ON-PREM"
@@ -32,4 +11,5 @@ services:
       ACM_LOG_TO_CONSOLE: "${ACM_LOG_TO_CONSOLE}"
       ACM_LOG_TO_FILE: "${ACM_LOG_TO_FILE}"
       ACM_LOG_LEVEL: "${ACM_LOG_LEVEL}"
+      ACM_NUMBER_OF_PROCESSES: ${ACM_NUMBER_OF_PROCESSES:-1}
     restart: on-failure

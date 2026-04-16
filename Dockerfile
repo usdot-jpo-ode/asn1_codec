@@ -8,7 +8,8 @@ VOLUME ["/asn1_codec_share"]
 RUN apk add --upgrade --no-cache \
     bash \
     librdkafka \
-    librdkafka-dev
+    librdkafka-dev \
+    supervisor
 
 
 # === BUILDER IMAGE ===
@@ -70,6 +71,7 @@ VOLUME ["/asn1_codec_share"]
 # copy the built files from the builder
 COPY --from=builder /asn1_codec /asn1_codec
 COPY --from=builder /build /build
+COPY ./supervisord.conf /etc/
 
 # Use jemalloc for better performance than Alpine's built-in memory allocator, esp. with multithreading
 RUN apk add --upgrade --no-cache jemalloc
