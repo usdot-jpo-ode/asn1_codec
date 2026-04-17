@@ -77,6 +77,9 @@ jobs:
 
       - name: Build and Generate test coverage
         run: |
+          sudo su - root
+          sudo chmod o+w /root
+          sudo chmod 755 -R /__w/asn1_codec/asn1_codec/
           ./build.sh
           mkdir -p coverage
           gcovr \
