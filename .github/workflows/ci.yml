@@ -83,7 +83,7 @@ jobs:
           gcovr \
             --root $GITHUB_WORKSPACE \
             --object-directory $GITHUB_WORKSPACE/build \
-            --xml coverage/coverage.xml \
+            --sonarqube coverage/coverage.xml \
             --exclude '.*pugixml.*' \
             --exclude '.*librdkafka.*'
         working-directory: ${{ env.working-directory }}
