@@ -22,7 +22,7 @@ ls -la && pwd
 # build asn1_codec
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 cmake --build .
 make
 ctest --output-on-failure
