@@ -13,7 +13,7 @@ jobs:
       options: "--user root"
     steps:
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         # Checkout the code from the repository
 
       - name: Install necessary dependencies
@@ -89,15 +89,15 @@ jobs:
             --exclude '.*pugixml.*' \
             --exclude '.*librdkafka.*'
         working-directory: ${{ env.working-directory }}
-      
+
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: asn1-codec
           path: /__w/asn1-codec/asn1-codec/coverage/
         # Archive code coverage results for later reference
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
