@@ -80,63 +80,6 @@ const char* BATCH_JSON = R"({ "type": "SPAT", "timestamp": 1735713156407, "hex":
 { "type": "SDSM", "timestamp": 1735713156418, "hex": "00293fee4f4354451fe189d73d8db3487a47e59668527c20a5ee4b3eb1ad79e017f38b87cebd5ff6885eb08ddfc05a5bd727e18c7bccc1edac3cf96d7e7d0afc9e48" }
 { "type": "RSM", "timestamp": 1735713156419, "hex": "002182B72F00878190A929E86A88B1BFD51931DD5E3826BFFB8B343AFB6741300FE5C32BA3BBDE67193178F6B7A4C55D7F92AC0F0491F9F41C7FF5C0EAAC660564EC7395A3852EF80497084BD802D70CEE59F40525C774EA036AC088DCD87C1F53E812C941115332BD8AD799163C0A9C81C982D69E83F981552BFD669E5A5F2D16C74FA63E918F8F0F604A90F3A1C12E23BBAD93CB049305AD3E920B77A512C50E4CA153321E342E7B46E1E301A8A4E59014982D4A049305AD3E880A4C16A881C14BB827A1AA228030783694F4354452130736F1056E8D0514C69E86A88BA29495BE95B96477A30E24A8B850AE4165F37B57429305AA82946C0941100F20C350AD1F10EFBC12F596922EAF9F5EE842DA5CB6A3207E642A0903C5B0D861EC9F40E00D471F4F4B0459E06117072B5EC72EDD6E8A402049001556AA6ADA64EBB41999C5CFA6548032950FA47C8D7026AC31E9E66DAADAA6D910CD5064C14484DC189C9FC95A23DF37185E92AD35592B8E0E5EFD26B49962279A2B778687051070CE2BA22974CB3B0110112EADFF2FCBC29B8D28C75BF56B3AB2B823CFE3F939D142D716370A601AC78E4A5FBCF10807A140AB40F08C4344158FB9404A4FC4F5DF57B57F128327A46AD6AD1BBBBF0FF8413612022A903960AA847A131787C4361D860C2B5BD507FAF45ECD0BAF9DC89D2817EC92DDCFDD89C28532C350AD3DEA25C2100228D4347F980931D2B8DFE2BADCA94D615CA0CBEBB2A091E58BE2B51215BE98AE235E1515E348C6CA2AF567FF1CB6449305AD3E988951821392E876D923D4C0E367116255FE6BBB512CBBCD0D5A0FEA65F650A52B5E633EA40E8458E51282F562201A529BB46DA51247A862897C9696F1FB10774216AB8E3CF15D715DB2E514268A9DA38D309EF0FA0C539C893308E63BD5AFBA44436666541EA275627FC4448A5CC2AFBCB2A88869C4D09800949BB79F0573CD5AA7DE4F46A0" })";
 
-/**
- * This unit test is currently failing with the fork of asn1c that we're using (currently `usdot-fhwa-stol/usdot-asn1c`).
- * Since encoding BSMs is not a desired feature of the ACM, this test case has been commented out.
- */
-// TEST_CASE("Encode BSM", "[encoding]" ) { // TODO: fix test case failing
-//     // prepare
-//     asn1_codec.setup_logger_for_testing();
-
-//     std::stringstream out1;
-//     CHECK(asn1_codec.file_test("unit-test-data/BSM.xml", out1) == EXIT_SUCCESS);
-//     parse_result = output_doc.load(out1, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
-//     CHECK(parse_result);
-//     payload_node = ode_payload_query.evaluate_node(output_doc).node();
-//     CHECK(payload_node);
-//     byte_node = payload_node.child("MessageFrame").child("bytes");
-//     CHECK(byte_node);
-//     CHECK(std::strcmp(byte_node.text().get(), BSM_HEX) == 0);
-// }
-
-TEST_CASE("Encode ASD", "[encoding]" ) {
-    std::cout << "=== Encode ASD ===" << std::endl;
-
-    // prepare
-    asn1_codec.setup_logger_for_testing();
-
-    std::stringstream out2;
-    CHECK(asn1_codec.file_test("unit-test-data/ASD.xml", out2) == EXIT_SUCCESS);
-    parse_result = output_doc.load(out2, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
-    CHECK(parse_result);
-    payload_node = ode_payload_query.evaluate_node(output_doc).node();
-    CHECK(payload_node);
-    byte_node = payload_node.child("AdvisorySituationData").child("bytes");
-    CHECK(byte_node);
-    CHECK(std::strcmp(byte_node.text().get(), ASD_BSM_HEX) == 0);
-}
-
-/**
- * This unit test is currently failing with the fork of asn1c that we're using (currently `usdot-fhwa-stol/usdot-asn1c`).
- * Since encoding BSMs is not a desired feature of the ACM, this test case has been commented out.
- */
-// TEST_CASE("Encode ASD_BSM", "[encoding]" ) { // TODO: fix test case failing
-//     // prepare
-//     asn1_codec.setup_logger_for_testing();
-//     std::stringstream out3;
-//     CHECK(asn1_codec.file_test("unit-test-data/ASD_BSM.xml", out3) == EXIT_SUCCESS);
-//     parse_result = output_doc.load(out3, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
-//     CHECK(parse_result);
-//     payload_node = ode_payload_query.evaluate_node(output_doc).node();
-//     CHECK(payload_node);
-//     byte_node = payload_node.child("AdvisorySituationData").child("bytes");
-//     CHECK(byte_node);
-//     CHECK(std::strcmp(byte_node.text().get(), ASD_BSM_HEX) == 0);
-//     byte_node = payload_node.child("MessageFrame").child("bytes");
-//     CHECK(byte_node);
-//     CHECK(std::strcmp(byte_node.text().get(), BSM_HEX) == 0);
-// }
-
 TEST_CASE("Encode 1609", "[encoding]" ) {
     std::cout << "=== Encode 1609 ===" << std::endl;
     
@@ -153,73 +96,6 @@ TEST_CASE("Encode 1609", "[encoding]" ) {
     CHECK(byte_node);
     CHECK(std::strcmp(byte_node.text().get(), ONE609_BSM_HEX) == 0);
 }
-
-TEST_CASE("Encode ASD_1609", "[encoding]" ) {
-    std::cout << "=== Encode ASD_1609 ===" << std::endl;
-
-    // prepare
-    asn1_codec.setup_logger_for_testing();
-
-    std::stringstream out5;
-    CHECK(asn1_codec.file_test("unit-test-data/ASD_1609.xml", out5) == EXIT_SUCCESS);
-    parse_result = output_doc.load(out5, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
-    CHECK(parse_result);
-    payload_node = ode_payload_query.evaluate_node(output_doc).node();
-    CHECK(payload_node);
-    byte_node = payload_node.child("Ieee1609Dot2Data").child("bytes");
-    CHECK(byte_node);
-    CHECK(std::strcmp(byte_node.text().get(), ONE609_BSM_HEX) == 0);
-    byte_node = payload_node.child("AdvisorySituationData").child("bytes");
-    CHECK(byte_node);
-    CHECK(std::strcmp(byte_node.text().get(), ASD_ONE609_HEX) == 0);
-}
-
-/**
- * This unit test is currently failing with the fork of asn1c that we're using (currently `usdot-fhwa-stol/usdot-asn1c`).
- * Since encoding BSMs is not a desired feature of the ACM, this test case has been commented out.
- */
-// TEST_CASE("Encode 1609_BSM", "[encoding]") { // TODO: fix test case failing
-//     // prepare
-//     asn1_codec.setup_logger_for_testing();
-
-//     std::stringstream out6;
-//     CHECK(asn1_codec.file_test("unit-test-data/1609_BSM.xml", out6) == EXIT_SUCCESS);
-//     parse_result = output_doc.load(out6, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
-//     CHECK(parse_result);
-//     payload_node = ode_payload_query.evaluate_node(output_doc).node();
-//     CHECK(payload_node);
-//     byte_node = payload_node.child("Ieee1609Dot2Data").child("bytes");
-//     CHECK(byte_node);
-//     CHECK(std::strcmp(byte_node.text().get(), ONE609_BSM_HEX) == 0);
-//     byte_node = payload_node.child("MessageFrame").child("bytes");
-//     CHECK(byte_node);
-//     CHECK(std::strcmp(byte_node.text().get(), BSM_HEX) == 0);
-// }
-
-/**
- * This unit test is currently failing with the fork of asn1c that we're using (currently `usdot-fhwa-stol/usdot-asn1c`).
- * Since encoding BSMs is not a desired feature of the ACM, this test case has been commented out.
- */
-// TEST_CASE("Encode ASD_1609_BSM", "[encoding]") { // TODO: fix test case failing
-//     // prepare
-//     asn1_codec.setup_logger_for_testing();
-    
-//     std::stringstream out7;
-//     CHECK(asn1_codec.file_test("unit-test-data/ASD_1609_BSM.xml", out7) == EXIT_SUCCESS);
-//     parse_result = output_doc.load(out7, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
-//     CHECK(parse_result);
-//     payload_node = ode_payload_query.evaluate_node(output_doc).node();
-//     CHECK(payload_node);
-//     byte_node = payload_node.child("Ieee1609Dot2Data").child("bytes");
-//     CHECK(byte_node);
-//     CHECK(std::strcmp(byte_node.text().get(), ONE609_BSM_HEX) == 0);
-//     byte_node = payload_node.child("MessageFrame").child("bytes");
-//     CHECK(byte_node);
-//     CHECK(std::strcmp(byte_node.text().get(), BSM_HEX) == 0);
-//     byte_node = payload_node.child("AdvisorySituationData").child("bytes");
-//     CHECK(byte_node);
-//     CHECK(std::strcmp(byte_node.text().get(), ASD_ONE609_HEX) == 0);
-// }
 
 TEST_CASE("Encode TIM with payload type 'OdeTimPayload'", "[encoding][odetimpayload]") {
     std::cout << "=== Encode TIM with payload type 'OdeTimPayload' ===" << std::endl;
@@ -553,4 +429,55 @@ TEST_CASE("Http_Server::post_batch (application/x-ndjson)", "[decoding][http_ser
     CHECK(response.body.find("<RTCMcorrections>") != std::string::npos);
     CHECK(response.body.find("<SensorDataSharingMessage>") != std::string::npos);
     CHECK(response.body.find("<RoadSafetyMessage>") != std::string::npos);
+}
+
+/**
+ * A DataFrame can have 1 to 16 regions. 7 regions is a valid case.
+ */
+TEST_CASE("Encode ASD TIM with 7 regions should succeed", "[encoding][asd]") {
+    std::cout << "=== Encode ASD TIM with 7 regions should succeed ===" << std::endl;
+
+    // prepare
+    asn1_codec.setup_logger_for_testing();
+
+    std::stringstream out10;
+    CHECK(asn1_codec.file_test("data/InputData.encoding.asd.tim.7regions.441nodes.xml", out10) == EXIT_SUCCESS);
+    parse_result = output_doc.load(out10, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+}
+
+/**
+* 16 regions is the maximum number of regions allowed in a DataFrame.
+*/
+TEST_CASE("Encode ASD TIM with 16 regions should succeed", "[encoding][asd]") {
+    std::cout << "=== Encode ASD TIM with 16 regions should succeed ===" << std::endl;
+
+    // prepare
+    asn1_codec.setup_logger_for_testing();
+
+    std::stringstream out10;
+    CHECK(asn1_codec.file_test("data/InputData.encoding.asd.tim.16regions.1008nodes.xml", out10) == EXIT_SUCCESS);
+    parse_result = output_doc.load(out10, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+}
+
+/**
+* 17 regions is not allowed in a DataFrame.
+*/
+TEST_CASE("Encode ASD TIM with 17 regions should fail", "[encoding][asd]") {
+    std::cout << "=== Encode ASD TIM with 17 regions should fail ===" << std::endl;
+
+    // prepare
+    asn1_codec.setup_logger_for_testing();
+
+    std::stringstream out10;
+    CHECK(asn1_codec.file_test("data/InputData.encoding.asd.tim.17regions.1071nodes.invalid.xml", out10) == EXIT_FAILURE);
+    parse_result = output_doc.load(out10, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
 }
