@@ -9,6 +9,8 @@ of resources within containers.
 
 Enhancements in this release:
 - [Support multiple processes/consumers](https://github.com/neaeraconsulting/asn1_codec/pull/1)
+- [Increase advisoryMessage Byte Limit to Support Full TIM Region Capacity](https://github.com/usdot-jpo-ode/asn1_codec/pull/77)
+- [Update SonarCloud C/C++ Analysis Using compile_commands.json](https://github.com/usdot-jpo-ode/asn1_codec/pull/80)
 
 Version 3.2.0, released October 2025
 ----------------------------------------
